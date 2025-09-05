@@ -34,16 +34,4 @@ export class UserService {
 
         return { message: "Getting user successfully", data: existingUser }
     }
-
-    async createUser(dto: CreateUserDto): Promise<{ message: string, data: User }> {
-        const existingUser = await this.userRepository.findByUsername({ userName: dto.userName })
-
-        if (existingUser) {
-            throw new HttpException("this username is already in use", HttpStatus.CONFLICT)
-        }
-
-        const createdUser = await this.userRepository.createUser(dto)
-
-        return { message: "User created successfully", data: createdUser }
-    }
 }
