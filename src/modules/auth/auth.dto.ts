@@ -1,5 +1,11 @@
 import { IsNotEmpty, IsString, MinLength } from "class-validator";
 
+export class GetSessionDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
 export class RegisterDto {
     @IsString()
     @IsNotEmpty()
