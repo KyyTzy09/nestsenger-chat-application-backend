@@ -16,17 +16,18 @@ export class UserRepository {
             }
         })
     }
-    async findByUsername(data: { userName: string }): Promise<User | null> {
+    async findByEmail(data: { email: string }): Promise<User | null> {
         return await this.prisma.user.findUnique({
             where: {
-                userName: data.userName
+                email: data.email
             }
         })
     }
 
-    async createUser(data: { userName: string, password: string }): Promise<User> {
+    async createUser(data: { email: string, userName: string, password: string }): Promise<User> {
         return await this.prisma.user.create({
             data: {
+                email: data.email,
                 userName: data.userName,
                 password: data.password
             }

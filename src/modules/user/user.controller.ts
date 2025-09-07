@@ -10,8 +10,8 @@ export class UserController {
     }
 
     @Get(":userName/get")
-    getUserByUsername(@Param("userName") userName: string) {
-        return this.userService.findByUsername({ userName })
+    getUserByUsername(@Param("userName") email: string) {
+        return this.userService.findByEmail({ email })
     }
 
     @Get(":userId/get-id")

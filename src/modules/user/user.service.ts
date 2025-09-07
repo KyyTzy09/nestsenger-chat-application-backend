@@ -11,27 +11,27 @@ export class UserService {
         const existingUsers = await this.userRepository.findAll()
 
         if (existingUsers.length === 0) {
-            throw new HttpException("User not found", HttpStatus.NOT_FOUND)
+            throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Getting users successfully", data: existingUsers }
+        return { message: "Users retrieved successfully", data: existingUsers }
     }
 
     async findUserId(dto: GetUserByUserIdDto): Promise<{ message: string, data: User }> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
-            throw new HttpException("User not found", HttpStatus.NOT_FOUND)
+            throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
         return { message: "Getting user successfully", data: existingUser }
     }
 
-    async findByUsername(dto: GetUserByUsernameDto): Promise<{ message: string, data: User }> {
-        const existingUser = await this.userRepository.findByUsername({ userName: dto.userName })
+    async findByEmail(dto: GetUserByUsernameDto): Promise<{ message: string, data: User }> {
+        const existingUser = await this.userRepository.findByEmail({ email: dto.email })
         if (!existingUser) {
-            throw new HttpException("User not found", HttpStatus.NOT_FOUND)
+            throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Getting user successfully", data: existingUser }
+        return { message: "User retrieved successfully", data: existingUser }
     }
 }
