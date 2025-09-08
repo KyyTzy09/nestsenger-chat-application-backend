@@ -29,8 +29,7 @@ export class AuthService {
         const createdUser = await this.userRepository.createUser({ email: dto.email, userName: dto.userName, password: hashedPassword })
         return { message: "Register successfully", data: createdUser }
     }
-
-    async Login(dto: LoginDto): Promise<{ message: string, token: string }> {
+    async Login(dto: LoginDto): Promise<{ token: string }> {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
 
         if (!existingUser) {
@@ -43,7 +42,7 @@ export class AuthService {
         }
 
         const payload = { userId: existingUser.userId }
-        return { message: "Login successfully", token: await this.jwtService.signAsync(payload) }
+        return { token: await this.jwtService.signAsync(payload) }
     }
 
 }
