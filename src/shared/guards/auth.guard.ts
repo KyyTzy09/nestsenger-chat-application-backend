@@ -9,7 +9,7 @@ import { jwtSecret } from "../constants/jwt.secret";
 export class AuthGuard implements CanActivate {
     constructor(private readonly userRepository: UserRepository, private readonly jwtService: JwtService) { }
     private extractTokenFromHeader(req: Request): string | undefined {
-        const token = req.headers.authorization?.split("Bearer ")[1]
+        const token = req.cookies["access-token"]
         return token || undefined
     }
 
