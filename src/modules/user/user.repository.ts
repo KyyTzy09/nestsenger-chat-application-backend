@@ -9,6 +9,7 @@ export class UserRepository {
     async findAll(): Promise<User[]> {
         return await this.prisma.user.findMany()
     }
+    
     async findById(data: { userId: string }): Promise<User | null> {
         return await this.prisma.user.findUnique({
             where: {
@@ -16,6 +17,7 @@ export class UserRepository {
             }
         })
     }
+
     async findByEmail(data: { email: string }): Promise<User | null> {
         return await this.prisma.user.findUnique({
             where: {
@@ -28,8 +30,13 @@ export class UserRepository {
         return await this.prisma.user.create({
             data: {
                 email: data.email,
-                userName: data.userName,
-                password: data.password
+                password: data.password,
+                Profile: {
+                    create: {
+                        userName: data.userName,
+                        bio: "Pengguna belum menambahkan bio apapun"
+                    }
+                }
             }
         })
     }

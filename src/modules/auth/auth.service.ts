@@ -22,13 +22,14 @@ export class AuthService {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
 
         if (existingUser) {
-            throw new HttpException("this username is already in use", HttpStatus.CONFLICT)
+            throw new HttpException("this email is already in use", HttpStatus.CONFLICT)
         }
 
         const hashedPassword = await bcrypt.hash(dto.password, 10)
         const createdUser = await this.userRepository.createUser({ email: dto.email, userName: dto.userName, password: hashedPassword })
         return { message: "Register successfully", data: createdUser }
     }
+
     async Login(dto: LoginDto): Promise<{ token: string }> {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
 

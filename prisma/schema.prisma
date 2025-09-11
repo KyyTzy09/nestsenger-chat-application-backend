@@ -14,11 +14,20 @@ datasource db {
 }
 
 model User {
-  userId   String @id @default(uuid())
+  userId   String @id @default(ulid())
   email    String @unique
-  userName String
   password String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Profile   Profile[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Profile {
+  userId   String  @id
+  avatar   String?
+  userName String
+  bio      String?
+
+  User User @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
 }
