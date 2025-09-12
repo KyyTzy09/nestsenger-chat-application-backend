@@ -5,7 +5,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { AVATAR_FIELD_NAME, AVATAR_UPLOAD_PATH } from 'src/shared/constants/upload';
-import { UpdateProfileDto } from './profile.dto';
+import { UpdateBioDto, UpdateUsernameDto } from './profile.dto';
 
 @Controller('profile')
 export class ProfileController {
@@ -17,10 +17,16 @@ export class ProfileController {
         return this.profileService.getUserProfile({ userId: req.user.userId })
     }
 
-    @Patch("info/patch")
+    @Patch("name/patch")
     @UseGuards(AuthGuard)
-    updateProfile(@Req() req, @Body() dto: UpdateProfileDto) {
-        return this.profileService.updateProfile({ userId: req.user.userId, userName: dto.userName, bio: dto.bio })
+    updateProfile(@Req() req, @Body() dto: UpdateUsernameDto) {
+        return this.profileService.updateUsername({ userId: req.user.userId, userName: dto.userName })
+    }
+
+    @Patch("bio/patch")
+    @UseGuards(AuthGuard)
+    updateBio(@Req() req, @Body() dto: UpdateBioDto) {
+        return this.profileService.updateBio({ userId: req.user.userId, bio: dto.bio })
     }
 
     @Patch("avatar/patch")

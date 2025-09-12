@@ -6,7 +6,7 @@ export class getProfileDto {
     userId: string
 }
 
-export class UpdateProfileDto {
+export class UpdateUsernameDto {
     @IsString()
     @IsOptional()
     userId: string
@@ -15,6 +15,12 @@ export class UpdateProfileDto {
     @IsNotEmpty()
     @MinLength(3)
     userName: string
+}
+
+export class UpdateBioDto {
+    @IsString()
+    @IsOptional()
+    userId: string
 
     @IsString()
     @IsNotEmpty()

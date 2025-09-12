@@ -15,12 +15,28 @@ export class ProfileRepository {
         })
     }
 
-    async updateProfile(data: { userId: string, userName: string, bio: string }): Promise<Profile> {
+    async updateUserName(data: { userId: string, userName: string }): Promise<Partial<Profile>> {
         return await this.prisma.profile.update({
             where: { userId: data.userId },
             data: {
-                userName: data.userName,
-                bio: data.bio
+                userName: data.userName
+            },
+            omit: {
+                avatar: true,
+                bio: true
+            }
+        })
+    }
+
+    async updateBio(data: { userId: string, bio: string }): Promise<Partial<Profile>> {
+        return await this.prisma.profile.update({
+            where: { userId: data.userId },
+            data: {
+                userName: data.bio
+            },
+            omit: {
+                avatar: true,
+                userName: true
             }
         })
     }
