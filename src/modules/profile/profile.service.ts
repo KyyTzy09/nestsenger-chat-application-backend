@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ProfileRepository } from './profile.repository';
-import { getProfileDto, UpdateAvatarDto } from './profile.dto';
+import { getProfileDto, UpdateAvatarDto, UpdateProfileDto } from './profile.dto';
 
 @Injectable()
 export class ProfileService {
@@ -14,6 +14,16 @@ export class ProfileService {
         }
 
         return { message: "User retrieved successfull", data: existingProfile }
+    }
+
+    async updateProfile(dto: UpdateProfileDto) {
+        const existingProfile = await this.profileRepository.getUserProfile(dto)
+        if (!existingProfile) {
+            throw new HttpException("User is not registered", HttpStatus.NOT_FOUND)
+        }
+
+        const updatedProfile = await this.profileRepository.updateProfile(dto)
+        return { message: "Profile updated successfully", data: updatedProfile }
     }
 
     async updateAvatar(dto: UpdateAvatarDto) {

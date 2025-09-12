@@ -5,13 +5,22 @@ import { Profile, User } from "@prisma/client";
 @Injectable()
 export class ProfileRepository {
     constructor(private readonly prisma: PrismaService) { }
-
     async getUserProfile(data: { userId: string }): Promise<User | null> {
-        return this.prisma.user.findUnique({
+        return await this.prisma.user.findUnique({
             where: {
                 userId: data.userId
             }, include: {
                 Profile: true
+            }
+        })
+    }
+
+    async updateProfile(data: { userId: string, userName: string, bio: string }): Promise<Profile> {
+        return await this.prisma.profile.update({
+            where: { userId: data.userId },
+            data: {
+                userName: data.userName,
+                bio: data.bio
             }
         })
     }
