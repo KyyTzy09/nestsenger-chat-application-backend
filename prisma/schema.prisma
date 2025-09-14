@@ -18,9 +18,9 @@ model User {
   email    String @unique
   password String
 
-  Profile   Profile[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  Profile   Profile? @relation("User to Profile")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Profile {
@@ -29,5 +29,5 @@ model Profile {
   userName String
   bio      String?
 
-  User User @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  User User @relation("User to Profile", references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
 }
