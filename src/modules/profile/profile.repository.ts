@@ -32,7 +32,7 @@ export class ProfileRepository {
         return await this.prisma.profile.update({
             where: { userId: data.userId },
             data: {
-                userName: data.bio
+                bio: data.bio
             },
             omit: {
                 avatar: true,
