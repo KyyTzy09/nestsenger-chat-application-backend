@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Req, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Req, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -45,5 +45,11 @@ export class ProfileController {
         const fileUrl = `${baseUrl}/uploads/avatars/${file.filename}`
 
         return this.profileService.updateAvatar({ userId: req.user.userId, avatar: fileUrl })
+    }
+
+    @Delete("avatar/delete")
+    @UseGuards(AuthGuard)
+    deleteAvatar(@Req() req) {
+        return this.profileService.deleteAvatar({ userId: req.user.userId })
     }
 }

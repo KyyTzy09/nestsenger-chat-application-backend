@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ProfileRepository } from './profile.repository';
-import { getProfileDto, UpdateAvatarDto, UpdateBioDto, UpdateUsernameDto } from './profile.dto';
+import { DeleteAvatarDto, getProfileDto, UpdateAvatarDto, UpdateBioDto, UpdateUsernameDto } from './profile.dto';
+import { defaultImage } from 'src/shared/constants/image';
 
 @Injectable()
 export class ProfileService {
@@ -45,5 +46,15 @@ export class ProfileService {
 
         const updatedAvatar = await this.profileRepository.updateUserAvatar(dto)
         return { message: "Avatar updated successfully", data: updatedAvatar }
+    }
+
+    async deleteAvatar(dto: DeleteAvatarDto) {
+        const existingProfile = await this.profileRepository.getUserProfile({ userId: dto.userId })
+        if (!existingProfile) {
+            throw new HttpException("User is not registered", HttpStatus.NOT_FOUND)
+        }
+
+        const updatedAvatar = await this.profileRepository.deleteAvatar({ userId: dto.userId, avatar: defaultImage })
+        return { message: "Avatar deleted successfully", data: updatedAvatar }
     }
 }

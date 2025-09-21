@@ -50,4 +50,15 @@ export class ProfileRepository {
             }
         })
     }
+
+    async deleteAvatar(data: { userId: string, avatar: string }) {
+        return await this.prisma.profile.update({
+            where: {
+                userId: data.userId
+            },
+            data: {
+                avatar: data.avatar
+            }
+        })
+    }
 }

@@ -1,0 +1,1 @@
+export const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/047/733/682/small_2x/grey-avatar-icon-user-avatar-photo-icon-social-media-user-icon-vector.jpg"

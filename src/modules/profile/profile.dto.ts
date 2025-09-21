@@ -37,3 +37,9 @@ export class UpdateAvatarDto {
     @IsNotEmpty()
     avatar: string
 }
+
+export class DeleteAvatarDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
