@@ -18,9 +18,10 @@ model User {
   email    String @unique
   password String
 
-  Profile   Profile? @relation("User to Profile")
+  Profile   Profile?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Friend    Friend[]
 }
 
 model Profile {
@@ -29,5 +30,20 @@ model Profile {
   userName String
   bio      String?
 
-  User User @relation("User to Profile", references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  User   User     @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  Friend Friend[] @relation("Friends Of")
+}
+
+model Friend {
+  id        String   @id @default(ulid())
+  alias     String
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User   User?    @relation(fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  Friend Profile? @relation("Friends Of", fields: [friendId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([userId, friendId])
 }

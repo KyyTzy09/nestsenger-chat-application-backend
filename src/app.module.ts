@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { FriendModule } from './modules/friend/friend.module';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { join } from 'path';
       rootPath: join(process.cwd(), "uploads"),
       serveRoot : "/uploads"
     }),
-    UserModule, AuthModule, ProfileModule],
+    UserModule, AuthModule, ProfileModule, FriendModule],
   controllers: [AppController],
   providers: [AppService],
 })
