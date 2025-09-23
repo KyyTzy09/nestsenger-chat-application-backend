@@ -34,7 +34,7 @@ export class UserRepository {
                 Profile: {
                     create: {
                         userName: data.userName,
-                        bio: "Pengguna belum menambahkan bio apapun"
+                        bio: "Pengguna belum menambahkan info apapun"
                     }
                 }
             }

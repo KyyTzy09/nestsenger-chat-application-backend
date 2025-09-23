@@ -21,6 +21,7 @@ export class FriendService {
 
         return { message: "user retrieved successfully", statusCode: HttpStatus.OK, data: existingFriend }
     }
+    
     async addFriend(dto: AddFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
         if (!existingUser) {

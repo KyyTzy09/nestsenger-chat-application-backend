@@ -26,12 +26,12 @@ model User {
 
 model Profile {
   userId   String  @id
-  avatar   String?
+  avatar   String? @default("https://static.vecteezy.com/system/resources/thumbnails/047/733/682/small_2x/grey-avatar-icon-user-avatar-photo-icon-social-media-user-icon-vector.jpg")
   userName String
-  bio      String?
+  bio      String? @default("Pengguna belum menambahkan info apapun")
 
   User   User     @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
-  Friend Friend[] @relation("Friends Of")
+  FriendOf Friend[] @relation("Friends Of")
 }
 
 model Friend {
