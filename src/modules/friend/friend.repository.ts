@@ -37,4 +37,15 @@ export class FriendRepository {
             }
         })
     }
+
+    async deleteFriend(data: { userId: string, friendId: string }): Promise<Friend> {
+        return await this.prisma.friend.delete({
+            where: {
+                userId_friendId: {
+                    userId: data.userId,
+                    friendId: data.friendId
+                }
+            }
+        })
+    }
 }

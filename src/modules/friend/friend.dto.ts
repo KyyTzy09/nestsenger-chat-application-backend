@@ -20,3 +20,13 @@ export class AddFriendDto {
     @IsEmail()
     email: string
 }
+
+export class DeleteFriendDto {
+    @IsString()
+    @IsOptional()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    friendId: string
+}
