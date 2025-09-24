@@ -31,7 +31,7 @@ export class UserRepository {
             data: {
                 email: data.email,
                 password: data.password,
-                Profile: {
+                profile: {
                     create: {
                         userName: data.userName,
                         bio: "Pengguna belum menambahkan info apapun"

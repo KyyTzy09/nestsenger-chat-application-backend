@@ -12,7 +12,7 @@ export class FriendRepository {
                 userId: data.userId
             },
             include: {
-                Friend: true
+                friend: true
             }
         })
     }

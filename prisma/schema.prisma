@@ -18,10 +18,11 @@ model User {
   email    String @unique
   password String
 
-  Profile   Profile?
+  profile   Profile?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Friend    Friend[]
+  friend    Friend[]
+  room      Member[]
 }
 
 model Profile {
@@ -30,8 +31,8 @@ model Profile {
   userName String
   bio      String? @default("Pengguna belum menambahkan info apapun")
 
-  User   User     @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
-  FriendOf Friend[] @relation("Friends Of")
+  user     User     @relation(references: [userId], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  friendOf Friend[] @relation("Friends Of")
 }
 
 model Friend {
@@ -42,8 +43,38 @@ model Friend {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User   User?    @relation(fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
-  Friend Profile? @relation("Friends Of", fields: [friendId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  user   User?    @relation(fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  friend Profile? @relation("Friends Of", fields: [friendId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([userId, friendId])
+}
+
+model Room {
+  roomId   String   @id @default(ulid())
+  roomName String?
+  type     RoomType @default(PRIVATE)
+  member   Member[]
+  roomKey  String   @unique @db.VarChar(64)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  userId String
+  alias  String?
+  roomId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, roomId])
+}
+
+enum RoomType {
+  PRIVATE
+  GROUP
 }

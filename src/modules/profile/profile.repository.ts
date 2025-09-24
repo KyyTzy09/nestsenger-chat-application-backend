@@ -10,7 +10,7 @@ export class ProfileRepository {
             where: {
                 userId: data.userId
             }, include: {
-                Profile: true
+               profile: true
             }
         })
     }
