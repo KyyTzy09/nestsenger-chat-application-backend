@@ -9,16 +9,16 @@ import * as bcrypt from "bcrypt"
 export class AuthService {
     constructor(private readonly userRepository: UserRepository, private readonly jwtService: JwtService) { }
 
-    async getSession(dto: GetSessionDto): Promise<{ message: string, data: User }> {
+    async getSession(dto: GetSessionDto): Promise<{ message: string, statusCode: number, data: User }> {
         const existingUser = await this.userRepository.findById(dto)
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Getting user session successfully", data: existingUser }
+        return { message: "Getting user session successfully", statusCode: HttpStatus.OK, data: existingUser }
     }
 
-    async Register(dto: RegisterDto): Promise<{ message: string, data: User }> {
+    async Register(dto: RegisterDto): Promise<{ message: string, statusCode: number, data: User }> {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
 
         if (existingUser) {
@@ -27,7 +27,7 @@ export class AuthService {
 
         const hashedPassword = await bcrypt.hash(dto.password, 10)
         const createdUser = await this.userRepository.createUser({ email: dto.email, userName: dto.userName, password: hashedPassword })
-        return { message: "Register successfully", data: createdUser }
+        return { message: "Register successfully", statusCode: HttpStatus.CREATED, data: createdUser }
     }
 
     async Login(dto: LoginDto): Promise<{ token: string }> {

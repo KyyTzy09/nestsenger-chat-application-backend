@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LoginDto, RegisterDto } from "./auth.dto";
 import { AuthGuard } from "src/shared/guards/auth.guard";
@@ -29,11 +29,12 @@ export class AuthController {
             maxAge: 24 * 60 * 60 * 1000
         })
 
-        return { message: "Login successfull" }
+        return { message: "Login successfull", statusCode: HttpStatus.OK }
     }
 
     @Post("logout")
     Logout(@Res({ passthrough: true }) res: Response) {
         res.clearCookie("access-token")
+        return { message: "Logout Successfully", statusode: HttpStatus.OK }
     }
 }
