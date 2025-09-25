@@ -50,11 +50,10 @@ model Friend {
 }
 
 model Room {
-  roomId   String   @id @default(ulid())
+  roomId   String   @id
   roomName String?
   type     RoomType @default(PRIVATE)
   member   Member[]
-  roomKey  String   @unique @db.VarChar(64)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,10 +1,50 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { createPrivateRoomDto, getChatRoom } from "./room.dto";
+import { RoomRepository } from "./room.repository";
+import { MemberRepository } from "../member/member.repository";
+import { UserRepository } from "../user/user.repository";
+import { GeneratePrivateRoomId } from "src/shared/helpers/generate.room-key";
+import { Friend, Room, User } from "@prisma/client";
+import { FriendRepository } from "../friend/friend.repository";
 
 @Injectable()
 export class RoomService {
-    constructor(private readonly roomRepository) { }
+    constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    addPrivateRoom(dto) {
-        
+    async getRoomById(dto: getChatRoom): Promise<{ message: string, statusCode: number, data: { room: Room, alias?: Friend | Partial<User> | null } }> {
+        let existingFriend: Friend | Partial<User> | null = null
+        const existingRoom = await this.roomRepository.findChatRoom({ roomId: dto.roomId, userId: dto.userId })
+        if (!existingRoom) {
+            throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
+        }
+
+        if (existingRoom.member.length === 1) {
+            existingFriend = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingRoom.member[0].userId })
+            if (!existingFriend) {
+                existingFriend = await this.userRepository.findUserInfo({ userId: existingRoom.member[0].userId })
+            }
+        }
+
+        return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: existingRoom, alias: existingFriend } }
+    }
+
+    async createPrivateRoom(dto: createPrivateRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: any } }> {
+        const userId = [dto.userIdA, dto.userIdB]
+        const roomId = GeneratePrivateRoomId(dto)
+
+        const existingUser = await this.userRepository.findManyById({ userId })
+        if (existingUser.length < 2) {
+            throw new HttpException("User not found", HttpStatus.NOT_FOUND)
+        }
+
+        const existingRoom = await this.roomRepository.findRoomById({ roomId })
+        if (existingRoom) {
+            throw new HttpException("Room Already Exist", HttpStatus.CONFLICT)
+        }
+
+        const createdRoom = await this.roomRepository.createPrivateRoom({ roomId })
+        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
+
+        return { message: "Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
 }

@@ -6,14 +6,38 @@ import { User } from "@prisma/client";
 export class UserRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    async findManyById(dto: { userId: string[] }): Promise<User[]> {
+        return await this.prisma.user.findMany({
+            where: {
+                userId: {
+                    in: dto.userId
+                }
+            }
+        })
+    }
+
     async findAll(): Promise<User[]> {
         return await this.prisma.user.findMany()
     }
-    
+
     async findById(data: { userId: string }): Promise<User | null> {
         return await this.prisma.user.findUnique({
             where: {
                 userId: data.userId
+            }
+        })
+    }
+
+    async findUserInfo(data: { userId: string }): Promise<Partial<User | null>> {
+        return await this.prisma.user.findUnique({
+            where: {
+                userId: data.userId
+            },
+            include: {
+                profile: true
+            },
+            omit: {
+                password: true
             }
         })
     }

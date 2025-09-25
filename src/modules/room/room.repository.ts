@@ -1,27 +1,45 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { User } from "@prisma/client";
+import { Room, User } from "@prisma/client";
 
 @Injectable()
 export class RoomRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async findPrivateRoomByMember(){
-        return await this.prisma.room.findFirst({
-            where : {
-                type : "PRIVATE",
-                
+    async findRoomById(data: { roomId: string }): Promise<Room | null> {
+        return await this.prisma.room.findUnique({
+            where: {
+                roomId: data.roomId,
             }
         })
     }
 
-    async createPrivateRoom() {
-        return await this.prisma.$transaction([
-            this.prisma.room.create({
-                data: {
-                    type: "PRIVATE"
+    async findChatRoom(data: { roomId: string, userId: string }) {
+        return await this.prisma.room.findUnique({
+            where: {
+                roomId: data.roomId
+            },
+            include: {
+                member: {
+                    where: {
+                        NOT: {
+                            userId: data.userId
+                        }
+                    },
+                    select: {
+                        userId: true
+                    }
                 }
-            })
-        ])
+            }
+        })
+    }
+
+    async createPrivateRoom(data: { roomId: string }): Promise<Room> {
+        return await this.prisma.room.create({
+            data: {
+                roomId: data.roomId,
+                type: "PRIVATE"
+            }
+        })
     }
 }

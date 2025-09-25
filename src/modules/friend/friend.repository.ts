@@ -24,6 +24,9 @@ export class FriendRepository {
                     userId: data.userId,
                     friendId: data.friendId
                 }
+            },
+            include: {
+                friend: true
             }
         })
     }
