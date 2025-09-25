@@ -42,4 +42,14 @@ export class RoomRepository {
             }
         })
     }
+
+    async createGroupRoom(data: { roomId: string, roomName: string }) {
+        return await this.prisma.room.create({
+            data: {
+                roomId: data.roomId,
+                roomName: data.roomName,
+                type: "GROUP"
+            }
+        })
+    }
 }

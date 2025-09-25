@@ -13,7 +13,8 @@ export class MemberRepository {
                     userId: userId,
                     roomId: data.roomId
                 })
-            })
+            }),
+            skipDuplicates: true
         })
     }
 }

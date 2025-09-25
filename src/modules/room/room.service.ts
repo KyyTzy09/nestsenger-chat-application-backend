@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { createPrivateRoomDto, getChatRoom } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoom } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
-import { GeneratePrivateRoomId } from "src/shared/helpers/generate.room-key";
-import { Friend, Room, User } from "@prisma/client";
+import { generateGroupRoomId, generatePrivateRoomId } from "src/shared/helpers/generate.room-key";
+import { Friend, Member, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
+import { GetBatchResult } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class RoomService {
@@ -28,9 +29,9 @@ export class RoomService {
         return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: existingRoom, alias: existingFriend } }
     }
 
-    async createPrivateRoom(dto: createPrivateRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: any } }> {
+    async createPrivateRoom(dto: createPrivateRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: GetBatchResult } }> {
         const userId = [dto.userIdA, dto.userIdB]
-        const roomId = GeneratePrivateRoomId(dto)
+        const roomId = generatePrivateRoomId(dto)
 
         const existingUser = await this.userRepository.findManyById({ userId })
         if (existingUser.length < 2) {
@@ -45,6 +46,20 @@ export class RoomService {
         const createdRoom = await this.roomRepository.createPrivateRoom({ roomId })
         const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
-        return { message: "Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
+        return { message: "Private Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
+    }
+
+    async createGroupRoom(dto: createGroupRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: GetBatchResult } }> {
+        const roomId = generateGroupRoomId()
+        dto.memberId.push(dto.userId)
+        const existingUser = await this.userRepository.findManyById({ userId: dto.memberId })
+        if (existingUser.length !== dto.memberId.length) {
+            throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
+        }
+
+        const createdRoom = await this.roomRepository.createGroupRoom({ roomId, roomName: dto.roomName })
+        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
+
+        return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class getChatRoom {
     @IsString()
@@ -18,4 +18,19 @@ export class createPrivateRoomDto {
     @IsString()
     @IsNotEmpty()
     userIdB: string
+}
+
+export class createGroupRoomDto {
+    @IsArray()
+    @ArrayMinSize(2)
+    @IsString({ each: true })
+    memberId: string[]
+
+    @IsNotEmpty()
+    @IsString()
+    roomName: string
+
+    @IsOptional()
+    @IsString()
+    userId: string
 }
