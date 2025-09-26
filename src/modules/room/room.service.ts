@@ -12,7 +12,7 @@ import { GetBatchResult } from "@prisma/client/runtime/library";
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getUserRoom(dto: getUserRoomDto): Promise<{ message: string, statusCode: number, data: Room[] }> {
+    async getUserRoom(dto: getUserRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias: Friend | User | null }[] | {}[] }> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
             throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
@@ -23,7 +23,22 @@ export class RoomService {
             throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "User Room Retrieved Successfully", statusCode: HttpStatus.OK, data: existingRoom }
+        const result = await Promise.all(
+            existingRoom.map(async (room) => {
+                let roomAlias
+                const fullRoom = await this.roomRepository.findChatRoom({ roomId: room.roomId, userId: dto.userId })
+                if (fullRoom?.type === 'PRIVATE' && fullRoom?.member.length === 1) {
+                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: fullRoom.member[0].userId })
+                    if (!roomAlias) {
+                        roomAlias = await this.userRepository.findUserInfo({ userId: fullRoom.member[0].userId })
+                    }
+                }
+
+                return { room: fullRoom, alias: roomAlias || null }
+            })
+        )
+
+        return { message: "User Room Retrieved Successfully", statusCode: HttpStatus.OK, data: result }
     }
 
     async getRoomById(dto: getChatRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias?: Friend | Partial<User> | null } }> {

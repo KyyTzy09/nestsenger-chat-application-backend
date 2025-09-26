@@ -44,7 +44,7 @@ export class RoomRepository {
                 },
             },
             orderBy: {
-                updatedAt: "asc"
+                updatedAt: "desc"
             }
         })
     }

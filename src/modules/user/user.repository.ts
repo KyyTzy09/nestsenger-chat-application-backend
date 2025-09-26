@@ -34,10 +34,16 @@ export class UserRepository {
                 userId: data.userId
             },
             include: {
-                profile: true
+                profile: {
+                    select: {
+                        avatar: true
+                    }
+                }
             },
             omit: {
-                password: true
+                password: true,
+                createdAt: true,
+                updatedAt: true
             }
         })
     }

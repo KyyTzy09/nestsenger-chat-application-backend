@@ -13,6 +13,7 @@ export class RoomController {
         return this.roomService.getUserRoom({ userId: req.user.userId })
     }
 
+    @Get(":roomId/get")
     @UseGuards(AuthGuard)
     getChatRoom(@Req() req, @Param('roomId') roomId: string) {
         return this.roomService.getRoomById({ roomId, userId: req.user.userId })
