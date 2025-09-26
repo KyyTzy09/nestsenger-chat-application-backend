@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoom } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getUserRoomDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -12,7 +12,21 @@ import { GetBatchResult } from "@prisma/client/runtime/library";
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getRoomById(dto: getChatRoom): Promise<{ message: string, statusCode: number, data: { room: Room, alias?: Friend | Partial<User> | null } }> {
+    async getUserRoom(dto: getUserRoomDto): Promise<{ message: string, statusCode: number, data: Room[] }> {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) {
+            throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
+        }
+
+        const existingRoom = await this.roomRepository.findUserRoom({ userId: dto.userId })
+        if (existingRoom.length === 0) {
+            throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
+        }
+
+        return { message: "User Room Retrieved Successfully", statusCode: HttpStatus.OK, data: existingRoom }
+    }
+
+    async getRoomById(dto: getChatRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias?: Friend | Partial<User> | null } }> {
         let existingFriend: Friend | Partial<User> | null = null
         const existingRoom = await this.roomRepository.findChatRoom({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {

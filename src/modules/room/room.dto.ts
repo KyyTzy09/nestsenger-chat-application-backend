@@ -1,6 +1,12 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
-export class getChatRoom {
+export class getUserRoomDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
+export class getChatRoomDto {
     @IsString()
     @IsNotEmpty()
     roomId: string

@@ -7,7 +7,12 @@ import { createGroupRoomDto, createPrivateRoomDto } from "./room.dto";
 export class RoomController {
     constructor(private readonly roomService: RoomService) { }
 
-    @Get(":roomId/get")
+    @Get("user/get")
+    @UseGuards(AuthGuard)
+    getUserRoom(@Req() req) {
+        return this.roomService.getUserRoom({ userId: req.user.userId })
+    }
+
     @UseGuards(AuthGuard)
     getChatRoom(@Req() req, @Param('roomId') roomId: string) {
         return this.roomService.getRoomById({ roomId, userId: req.user.userId })

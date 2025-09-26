@@ -34,6 +34,21 @@ export class RoomRepository {
         })
     }
 
+    async findUserRoom(data: { userId: string }): Promise<Room[]> {
+        return await this.prisma.room.findMany({
+            where: {
+                member: {
+                    some: {
+                        userId: data.userId
+                    }
+                },
+            },
+            orderBy: {
+                updatedAt: "asc"
+            }
+        })
+    }
+
     async createPrivateRoom(data: { roomId: string }): Promise<Room> {
         return await this.prisma.room.create({
             data: {
