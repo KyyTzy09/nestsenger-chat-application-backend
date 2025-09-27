@@ -23,7 +23,7 @@ export class FriendService {
     }
 
     async addFriend(dto: AddFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
-        const existingUser = await this.userRepository.findByEmail({ email: dto.email })
+        const existingUser = await this.userRepository.findById({ userId: dto.friendId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }

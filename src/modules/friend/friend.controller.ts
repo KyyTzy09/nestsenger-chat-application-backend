@@ -18,7 +18,7 @@ export class FriendController {
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.CREATED)
     addFriend(@Req() req, @Body() dto: AddFriendDto) {
-        return this.friendService.addFriend({ userId: req.user.userId, alias: dto.alias, email: dto.email })
+        return this.friendService.addFriend({ userId: req.user.userId, alias: dto.alias, friendId: dto.friendId })
     }
 
     @Delete("delete-friend/:friendId/delete")

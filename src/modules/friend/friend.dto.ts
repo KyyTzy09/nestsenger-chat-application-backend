@@ -17,8 +17,7 @@ export class AddFriendDto {
 
     @IsNotEmpty()
     @IsString()
-    @IsEmail()
-    email: string
+    friendId: string
 }
 
 export class DeleteFriendDto {
