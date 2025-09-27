@@ -16,8 +16,13 @@ export class UserRepository {
         })
     }
 
-    async findAll(): Promise<Partial<User>[]> {
+    async findAll(data: { userId: string }): Promise<Partial<User>[]> {
         return await this.prisma.user.findMany({
+            where: {
+                userId: {
+                    not: data.userId
+                }
+            },
             include: {
                 profile: {
                     select: {
@@ -30,7 +35,9 @@ export class UserRepository {
                 password: true
             },
             orderBy: {
-                email: "asc"
+                profile: {
+                    userName: "asc"
+                }
             }
         })
     }

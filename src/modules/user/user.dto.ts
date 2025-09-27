@@ -1,5 +1,11 @@
 import { IsNotEmpty, IsString, Min, MinLength } from "class-validator";
 
+export class GetAllUserDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
 export class GetUserByUsernameDto {
     @IsString()
     @IsNotEmpty()

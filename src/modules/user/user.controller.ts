@@ -1,16 +1,18 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
     @Get("get")
-    getAllUsers() {
-        return this.userService.findAllUser()
+    @UseGuards(AuthGuard)
+    getAllUsers(@Req() req) {
+        return this.userService.findAllUser({ userId: req.user.userId })
     }
 
-    @Get(":userName/get")
-    getUserByUsername(@Param("userName") email: string) {
+    @Get(":email/get")
+    getUserByUsername(@Param("email") email: string) {
         return this.userService.findByEmail({ email })
     }
 

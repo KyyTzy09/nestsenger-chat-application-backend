@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto, GetUserByUserIdDto, GetUserByUsernameDto } from './user.dto';
+import { CreateUserDto, GetAllUserDto, GetUserByUserIdDto, GetUserByUsernameDto } from './user.dto';
 import { UserRepository } from './user.repository';
 import { User } from '@prisma/client';
 
@@ -7,8 +7,8 @@ import { User } from '@prisma/client';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
 
-    async findAllUser(): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
-        const existingUsers = await this.userRepository.findAll()
+    async findAllUser(dto: GetAllUserDto): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
+        const existingUsers = await this.userRepository.findAll(dto)
 
         if (existingUsers.length === 0) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
