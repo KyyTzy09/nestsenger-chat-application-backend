@@ -7,7 +7,7 @@ import { User } from '@prisma/client';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
 
-    async findAllUser(): Promise<{ message: string, statusCode: number, data: User[] }> {
+    async findAllUser(): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
         const existingUsers = await this.userRepository.findAll()
 
         if (existingUsers.length === 0) {

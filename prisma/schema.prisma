@@ -61,7 +61,6 @@ model Room {
 
 model Member {
   userId String
-  alias  String?
   roomId String
 
   createdAt DateTime @default(now())
