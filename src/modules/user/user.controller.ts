@@ -5,10 +5,10 @@ import { AuthGuard } from 'src/shared/guards/auth.guard';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
+    
     @Get("get")
-    @UseGuards(AuthGuard)
-    getAllUsers(@Req() req) {
-        return this.userService.findAllUser({ userId: req.user.userId })
+    getAllUsers() {
+        return this.userService.findAllUser()
     }
 
     @Get(":email/get")

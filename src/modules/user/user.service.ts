@@ -7,8 +7,8 @@ import { User } from '@prisma/client';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
 
-    async findAllUser(dto: GetAllUserDto): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
-        const existingUsers = await this.userRepository.findAll(dto)
+    async findAllUser(): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
+        const existingUsers = await this.userRepository.findAll()
 
         if (existingUsers.length === 0) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
