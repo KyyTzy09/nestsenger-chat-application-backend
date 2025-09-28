@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getUserRoomDto } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getUserRoomDto, OutFromGroupDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -90,5 +90,20 @@ export class RoomService {
         const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
         return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
+    }
+
+    async outFromGroup(dto: OutFromGroupDto): Promise<{ message: string, statusCode: number, data: Member }> {
+        const existingGroup = await this.roomRepository.findByGroupId({ groupId: dto.groupId })
+        if (!existingGroup || existingGroup.type === "PRIVATE") {
+            throw new HttpException("Group Not Found", HttpStatus.NOT_FOUND)
+        }
+
+        const existingMember = await this.memberRepository.findByUnique({ roomId: dto.groupId, userId: dto.userId })
+        if (!existingMember) {
+            throw new HttpException("This Member Is Not In This Room yet", HttpStatus.NOT_FOUND)
+        }
+
+        const deletedMember = await this.memberRepository.deleteByUnique({ roomId: dto.groupId, userId: dto.userId })
+        return { message: "Member Deleted Successfull", statusCode: HttpStatus.OK, data: deletedMember }
     }
 }

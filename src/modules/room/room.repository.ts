@@ -14,6 +14,15 @@ export class RoomRepository {
         })
     }
 
+    async findByGroupId(data: { groupId: string }): Promise<Room | null> {
+        return await this.prisma.room.findUnique({
+            where: {
+                roomId: data.groupId,
+                type: "GROUP"
+            }
+        })
+    }
+
     async findChatRoom(data: { roomId: string, userId: string }) {
         return await this.prisma.room.findUnique({
             where: {

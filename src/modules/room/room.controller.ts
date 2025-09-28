@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createGroupRoomDto, createPrivateRoomDto } from "./room.dto";
@@ -31,5 +31,11 @@ export class RoomController {
     @UseGuards(AuthGuard)
     createGroupRoom(@Req() req, @Body() dto: createGroupRoomDto) {
         return this.roomService.createGroupRoom({ userId: req.user.userId, roomName: dto.roomName, memberId: dto.memberId })
+    }
+
+    @Delete(":groupId/out-group/delete")
+    @UseGuards(AuthGuard)
+    outGroup(@Req() req, @Param('groupId') groupId: string) {
+        return this.roomService.outFromGroup({ userId: req.user.userId, groupId: groupId })
     }
 }

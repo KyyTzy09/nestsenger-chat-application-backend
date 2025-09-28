@@ -49,6 +49,17 @@ export class MemberRepository {
         })
     }
 
+    async findByUnique(data: { roomId: string, userId: string }): Promise<Member | null> {
+        return await this.prisma.member.findUnique({
+            where: {
+                userId_roomId: {
+                    roomId: data.roomId,
+                    userId: data.userId
+                }
+            }
+        })
+    }
+
     async createMembers(data: { user: User[], roomId: string }) {
         return await this.prisma.member.createMany({
             data: data.user.map(({ userId }) => {
@@ -58,6 +69,17 @@ export class MemberRepository {
                 })
             }),
             skipDuplicates: true
+        })
+    }
+
+    async deleteByUnique(data: { userId: string, roomId: string }): Promise<Member> {
+        return await this.prisma.member.delete({
+            where: {
+                userId_roomId: {
+                    roomId: data.roomId,
+                    userId: data.userId
+                }
+            }
         })
     }
 }

@@ -40,3 +40,13 @@ export class createGroupRoomDto {
     @IsString()
     userId: string
 }
+
+export class OutFromGroupDto {
+    @IsString()
+    @IsNotEmpty()
+    groupId: string
+
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
