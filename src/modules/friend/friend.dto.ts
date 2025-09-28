@@ -1,11 +1,17 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
-export class GetUserFriendDto {
+export class getNonFriendUsersDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
+export class getUserFriendDto {
     @IsString()
     userId: string
 }
 
-export class AddFriendDto {
+export class addFriendDto {
     @IsString()
     @IsOptional()
     userId: string
@@ -20,7 +26,7 @@ export class AddFriendDto {
     friendId: string
 }
 
-export class DeleteFriendDto {
+export class deleteFriendDto {
     @IsString()
     @IsOptional()
     userId: string

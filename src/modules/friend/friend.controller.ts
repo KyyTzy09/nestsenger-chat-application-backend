@@ -1,12 +1,18 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { FriendService } from "./friend.service";
-import { AddFriendDto } from "./friend.dto";
+import { addFriendDto } from "./friend.dto";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 
 
 @Controller('friend')
 export class FriendController {
     constructor(private readonly friendService: FriendService) { }
+
+    @Get("non-friends/get")
+    @UseGuards(AuthGuard)
+    getNonFriendUsers(@Req() req) {
+        return this.friendService.getNonFriendUsers({ userId: req.user.userId })
+    }
 
     @Get("user/get")
     @UseGuards(AuthGuard)
@@ -17,7 +23,7 @@ export class FriendController {
     @Post("add-friend/post")
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.CREATED)
-    addFriend(@Req() req, @Body() dto: AddFriendDto) {
+    addFriend(@Req() req, @Body() dto: addFriendDto) {
         return this.friendService.addFriend({ userId: req.user.userId, alias: dto.alias, friendId: dto.friendId })
     }
 

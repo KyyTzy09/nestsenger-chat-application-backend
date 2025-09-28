@@ -1,14 +1,33 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "./friend.repository";
-import { AddFriendDto, DeleteFriendDto, GetUserFriendDto } from "./friend.dto";
-import { Friend } from "@prisma/client";
+import { addFriendDto, deleteFriendDto, getNonFriendUsersDto, getUserFriendDto } from "./friend.dto";
+import { Friend, User } from "@prisma/client";
 
 @Injectable()
 export class FriendService {
     constructor(private readonly friendRepository: FriendRepository, private readonly userRepository: UserRepository) { }
 
-    async getUserFriends(dto: GetUserFriendDto): Promise<{ message: string, statusCode: number, data: Friend[] }> {
+    // Dapatkan semua data user yang bukan teman
+    async getNonFriendUsers(dto: getNonFriendUsersDto): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) {
+            throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
+        }
+
+        const existingFriends = await this.friendRepository.findByUserId({ userId: dto.userId })
+        const userIds = existingFriends.map(({ friendId }) => { return friendId })
+        userIds.push(dto.userId)
+
+        const nonFriendUsers = await this.userRepository.findManyExcludingUserIds({ userIds })
+        if (nonFriendUsers.length === 0) {
+            throw new HttpException("All Users Are Already Friends", HttpStatus.NOT_FOUND)
+        }
+
+        return { message: "Non Friend Users Data Retrieved Successfull", statusCode: HttpStatus.OK, data: nonFriendUsers }
+    }
+
+    async getUserFriends(dto: getUserFriendDto): Promise<{ message: string, statusCode: number, data: Friend[] }> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
@@ -19,10 +38,10 @@ export class FriendService {
             throw new HttpException("Friend Not Found", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "user retrieved successfully", statusCode: HttpStatus.OK, data: existingFriend }
+        return { message: "User Retrieved Successfully", statusCode: HttpStatus.OK, data: existingFriend }
     }
 
-    async addFriend(dto: AddFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
+    async addFriend(dto: addFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
         const existingUser = await this.userRepository.findById({ userId: dto.friendId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
@@ -37,7 +56,7 @@ export class FriendService {
         return { message: "Friend Created Successfull", statusCode: HttpStatus.CREATED, data: createdFriend }
     }
 
-    async deleteFriend(dto: DeleteFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
+    async deleteFriend(dto: deleteFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)

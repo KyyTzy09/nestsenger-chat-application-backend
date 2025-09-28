@@ -16,6 +16,27 @@ export class UserRepository {
         })
     }
 
+    async findManyExcludingUserIds(data: { userIds: string[] }): Promise<Partial<User>[]> {
+        return await this.prisma.user.findMany({
+            where: {
+                userId: {
+                    notIn: data.userIds
+                }
+            },
+            include: {
+                profile: true,
+            },
+            omit: {
+                password: true
+            },
+            orderBy: {
+                profile: {
+                    userName: "asc"
+                }
+            }
+        })
+    }
+
     async findAll(data: { userId: string }): Promise<Partial<User>[]> {
         return await this.prisma.user.findMany({
             where: {
