@@ -22,8 +22,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   friends   Friend[]
-  rooms     Member[]
-  chats     Chat[]
+  rooms     Member[] @relation("User Rooms")
+  chats     Chat[]   @relation("Chat Sender")
 }
 
 model Profile {
@@ -44,8 +44,9 @@ model Friend {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User?    @relation(fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
-  friend Profile? @relation("Friends Of", fields: [friendId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  friend     Profile? @relation("Friends Of", fields: [friendId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  userUserId String?
 
   @@unique([userId, friendId])
 }
@@ -59,7 +60,7 @@ model Room {
   updatedAt  DateTime @updatedAt
   lastChatId String
   // Relations
-  members    Member[]
+  members    Member[] @relation("Room Members")
   chats      Chat[]   @relation("Room Chats")
   lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
 }
@@ -73,7 +74,7 @@ model Chat {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sender     User   @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sender     User   @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   room       Room?  @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
   lastChatOf Room[] @relation("Room Last Chat")
 }
@@ -85,8 +86,8 @@ model Member {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  room Room @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  room Room @relation("Room Members", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation("User Rooms", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, roomId])
 }
