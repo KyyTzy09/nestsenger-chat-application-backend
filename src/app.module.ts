@@ -8,6 +8,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FriendModule } from './modules/friend/friend.module';
 import { RoomModule } from './modules/room/room.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { RoomModule } from './modules/room/room.module';
       rootPath: join(process.cwd(), "uploads"),
       serveRoot : "/uploads"
     }),
-    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule],
+    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
