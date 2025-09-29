@@ -29,7 +29,7 @@ export class RoomRepository {
                 roomId: data.roomId
             },
             include: {
-                member: {
+                members: {
                     where: {
                         NOT: {
                             userId: data.userId
@@ -46,7 +46,7 @@ export class RoomRepository {
     async findUserRoom(data: { userId: string }): Promise<Room[]> {
         return await this.prisma.room.findMany({
             where: {
-                member: {
+                members: {
                     some: {
                         userId: data.userId
                     }

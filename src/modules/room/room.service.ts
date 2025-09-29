@@ -27,10 +27,10 @@ export class RoomService {
             existingRoom.map(async (room) => {
                 let roomAlias
                 const fullRoom = await this.roomRepository.findChatRoom({ roomId: room.roomId, userId: dto.userId })
-                if (fullRoom?.type === 'PRIVATE' && fullRoom?.member.length === 1) {
-                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: fullRoom.member[0].userId })
+                if (fullRoom?.type === 'PRIVATE' && fullRoom?.members.length === 1) {
+                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: fullRoom.members[0].userId })
                     if (!roomAlias) {
-                        roomAlias = await this.userRepository.findUserInfo({ userId: fullRoom.member[0].userId })
+                        roomAlias = await this.userRepository.findUserInfo({ userId: fullRoom.members[0].userId })
                     }
                 }
 
@@ -48,10 +48,10 @@ export class RoomService {
             throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
         }
 
-        if (existingRoom.member.length === 1) {
-            existingFriend = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingRoom.member[0].userId })
+        if (existingRoom.members.length === 1) {
+            existingFriend = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingRoom.members[0].userId })
             if (!existingFriend) {
-                existingFriend = await this.userRepository.findUserInfo({ userId: existingRoom.member[0].userId })
+                existingFriend = await this.userRepository.findUserInfo({ userId: existingRoom.members[0].userId })
             }
         }
 
