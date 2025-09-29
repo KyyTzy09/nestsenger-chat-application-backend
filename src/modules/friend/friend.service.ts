@@ -16,9 +16,6 @@ export class FriendService {
         }
 
         const existingFriends = await this.friendRepository.findByUserId({ userId: dto.userId })
-        if (existingFriends.length === 0) {
-            throw new HttpException("Friends Not Found", HttpStatus.NOT_FOUND)
-        }
         const userIds = existingFriends.map(({ friendId }) => { return friendId })
         userIds.push(dto.userId)
 
