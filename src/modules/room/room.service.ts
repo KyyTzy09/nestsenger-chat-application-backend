@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getUserRoomDto, OutFromGroupDto } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -56,6 +56,28 @@ export class RoomService {
         }
 
         return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: existingRoom, alias: existingFriend } }
+    }
+
+    async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom): Promise<{ data: { room: Room, member: Member[] | GetBatchResult } }> {
+        const userId = [dto.userIdA, dto.userIdB]
+        const roomId = generatePrivateRoomId(dto)
+
+        const existingUser = await this.userRepository.findManyById({ userId })
+        if (existingUser.length < 2) {
+            throw new HttpException("User not found", HttpStatus.NOT_FOUND)
+        }
+
+        let existingRoom = await this.roomRepository.findRoomById({ roomId })
+        if (!existingRoom) {
+            existingRoom = await this.roomRepository.createPrivateRoom({ roomId })
+        }
+
+        let existingMember: GetBatchResult | Member[] = await this.memberRepository.findByRoomId({ roomId: existingRoom.roomId })
+        if (existingMember.length === 0) {
+            existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId })
+        }
+
+        return { data: { room: existingRoom, member: existingMember } }
     }
 
     async createPrivateRoom(dto: createPrivateRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: GetBatchResult } }> {

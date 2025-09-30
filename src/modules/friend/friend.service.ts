@@ -2,11 +2,12 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "./friend.repository";
 import { addFriendDto, deleteFriendDto, getNonFriendUsersDto, getUserFriendDto } from "./friend.dto";
-import { Friend, User } from "@prisma/client";
+import { Friend, Room, User } from "@prisma/client";
+import { RoomService } from "../room/room.service";
 
 @Injectable()
 export class FriendService {
-    constructor(private readonly friendRepository: FriendRepository, private readonly userRepository: UserRepository) { }
+    constructor(private readonly friendRepository: FriendRepository, private readonly userRepository: UserRepository, private readonly roomService: RoomService) { }
 
     // Dapatkan semua data user yang bukan teman
     async getNonFriendUsers(dto: getNonFriendUsersDto): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
@@ -41,7 +42,7 @@ export class FriendService {
         return { message: "User Retrieved Successfully", statusCode: HttpStatus.OK, data: existingFriend }
     }
 
-    async addFriend(dto: addFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {
+    async addFriend(dto: addFriendDto): Promise<{ message: string, statusCode: number, data: { friend: Friend, room: Room } }> {
         const existingUser = await this.userRepository.findById({ userId: dto.friendId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
@@ -53,7 +54,9 @@ export class FriendService {
         }
 
         const createdFriend = await this.friendRepository.createFriend({ userId: dto.userId, friendId: existingUser.userId, alias: dto.alias })
-        return { message: "Friend Created Successfull", statusCode: HttpStatus.CREATED, data: createdFriend }
+        const createdRoom = await this.roomService.getOrCreatePrivateRoom({ userIdA: dto.userId, userIdB: dto.friendId })
+
+        return { message: "Friend Created Successfull", statusCode: HttpStatus.CREATED, data: { friend: createdFriend, room: createdRoom.data.room } }
     }
 
     async deleteFriend(dto: deleteFriendDto): Promise<{ message: string, statusCode: number, data: Friend }> {

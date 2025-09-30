@@ -1,12 +1,13 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { FriendController } from "./friend.controller";
 import { FriendService } from "./friend.service";
 import { FriendRepository } from "./friend.repository";
 import { UserModule } from "../user/user.module";
 import { PrismaModule } from "../prisma/prisma.module";
+import { RoomModule } from "../room/room.module";
 
 @Module({
-    imports: [UserModule, PrismaModule],
+    imports: [UserModule, PrismaModule, RoomModule],
     controllers: [FriendController],
     providers: [FriendService, FriendRepository],
     exports: [FriendRepository]

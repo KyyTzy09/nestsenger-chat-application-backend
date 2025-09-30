@@ -16,6 +16,16 @@ export class getChatRoomDto {
     userId: string
 }
 
+export class getOrCreatePrivateRoom {
+    @IsString()
+    @IsNotEmpty()
+    userIdA: string
+
+    @IsString()
+    @IsNotEmpty()
+    userIdB: string
+}
+
 export class createPrivateRoomDto {
     @IsString()
     @IsOptional()
