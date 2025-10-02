@@ -6,6 +6,21 @@ import { Chat } from "@prisma/client";
 export class ChatRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    async findById(data: { chatId: string }): Promise<Chat | null> {
+        return await this.prisma.chat.findUnique({
+            where: {
+                chatId: data.chatId
+            },
+            include: {
+                sender: {
+                    select: {
+                        userId: true,
+                    }
+                }
+            }
+        })
+    }
+
     async findByRoomId(data: { roomId: string }): Promise<Chat[]> {
         return await this.prisma.chat.findMany({
             where: {
@@ -15,14 +30,14 @@ export class ChatRepository {
                 room: true
             },
             orderBy: {
-                createdAt: "desc"
+                createdAt: "asc"
             }
         })
     }
 
     async createChat(data: { roomId: string, userId: string, message: string }): Promise<Chat> {
         return await this.prisma.chat.create({
-            data:data
+            data: data
         })
     }
 }

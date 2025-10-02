@@ -5,9 +5,10 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
 import { RoomModule } from '../room/room.module';
 import { ChatRepository } from './chat.repository';
+import { FriendModule } from '../friend/friend.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, RoomModule],
+  imports: [PrismaModule, UserModule, RoomModule, FriendModule],
   controllers: [ChatController],
   providers: [ChatService, ChatRepository],
   exports: [ChatRepository]

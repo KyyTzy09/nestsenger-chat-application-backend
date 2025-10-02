@@ -8,7 +8,7 @@ export class createNewChatDto {
     @IsString()
     @IsNotEmpty()
     roomId: string
-    
+
     @IsString()
     @IsNotEmpty()
     message: string
@@ -18,4 +18,8 @@ export class getChatByRoomIdDto {
     @IsString()
     @IsNotEmpty()
     roomId: string
+
+    @IsString()
+    @IsNotEmpty()
+    userId: string
 }

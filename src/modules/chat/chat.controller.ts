@@ -14,7 +14,8 @@ export class ChatController {
     }
 
     @Get(':roomId/get')
-    getChatByRoomId(@Param('roomId') roomId: string) {
-        return this.chatService.getChatByRoomId({ roomId })
+    @UseGuards(AuthGuard)
+    getChatByRoomId(@Req() req, @Param('roomId') roomId: string) {
+        return this.chatService.getChatByRoomId({ roomId, userId: req.user.userId })
     }
 }
