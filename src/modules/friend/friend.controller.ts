@@ -8,6 +8,12 @@ import { AuthGuard } from "src/shared/guards/auth.guard";
 export class FriendController {
     constructor(private readonly friendService: FriendService) { }
 
+    @Get(':friendId/by-id/get')
+    @UseGuards(AuthGuard)
+    getFriendById(@Req() req, @Param('friendId') friendId: string) {
+        return this.friendService.getFriendById({ userId: req.user.userId, friendId  })
+    }
+
     @Get("non-friends/get")
     @UseGuards(AuthGuard)
     getNonFriendUsers(@Req() req) {

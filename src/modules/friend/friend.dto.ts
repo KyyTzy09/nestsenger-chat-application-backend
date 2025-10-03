@@ -1,5 +1,15 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
+export class getFriendById {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    friendId: string
+}
+
 export class getNonFriendUsersDto {
     @IsString()
     @IsNotEmpty()

@@ -1,13 +1,27 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "./friend.repository";
-import { addFriendDto, deleteFriendDto, getNonFriendUsersDto, getUserFriendDto } from "./friend.dto";
+import { addFriendDto, deleteFriendDto, getFriendById, getNonFriendUsersDto, getUserFriendDto } from "./friend.dto";
 import { Friend, Room, User } from "@prisma/client";
 import { RoomService } from "../room/room.service";
 
 @Injectable()
 export class FriendService {
     constructor(private readonly friendRepository: FriendRepository, private readonly userRepository: UserRepository, private readonly roomService: RoomService) { }
+
+    async getFriendById(dto: getFriendById): Promise<{ message: string, statusCode: number, data: Friend }> {
+        const existingUser = await this.userRepository.findById({ userId: dto.friendId })
+        if (!existingUser) {
+            throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
+        }
+
+        const existingFriend = await this.friendRepository.findByUnique(({ userId: dto.userId, friendId: dto.friendId }))
+        if (!existingFriend) {
+            throw new HttpException("Friend Not Found", HttpStatus.NOT_FOUND)
+        }
+
+        return { message: "Friend data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingFriend }
+    }
 
     // Dapatkan semua data user yang bukan teman
     async getNonFriendUsers(dto: getNonFriendUsersDto): Promise<{ message: string, statusCode: number, data: Partial<User>[] }> {
