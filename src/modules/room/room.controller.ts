@@ -7,6 +7,13 @@ import { createGroupRoomDto, createPrivateRoomDto } from "./room.dto";
 export class RoomController {
     constructor(private readonly roomService: RoomService) { }
 
+    @Get('get-create/:userIdB/get')
+    @UseGuards(AuthGuard)
+    async getOrCreateRoom(@Req() req, @Param('userIdB') userIdB: string) {
+        const { data: result } = await this.roomService.getOrCreatePrivateRoom({ userIdA: req.user.userId, userIdB })
+        return { message: "Room Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+    }
+
     @Get("user/get")
     @UseGuards(AuthGuard)
     getUserRoom(@Req() req) {
