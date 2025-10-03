@@ -38,6 +38,15 @@ export class RoomRepository {
                     select: {
                         userId: true
                     }
+                },
+                lastChat: {
+                    include : {
+                        sender : {
+                            select : {
+                                email : true,
+                            }
+                        }
+                    }
                 }
             }
         })
@@ -73,6 +82,17 @@ export class RoomRepository {
                 roomId: data.roomId,
                 roomName: data.roomName,
                 type: "GROUP"
+            }
+        })
+    }
+
+    async updateLastMessage(data: { roomId: string, chatId: string }) {
+        return await this.prisma.room.update({
+            where: {
+                roomId: data.roomId
+            },
+            data: {
+                lastChatId: data.chatId,
             }
         })
     }

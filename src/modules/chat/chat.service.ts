@@ -17,6 +17,9 @@ export class ChatService {
         }
 
         const createdChat = await this.chatRepository.createChat(dto)
+        if (createdChat) {
+            await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
+        }
         return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 
