@@ -60,6 +60,8 @@ export class UserRepository {
             include: {
                 profile: {
                     select: {
+                        userName: true,
+                        bio: true,
                         avatar: true
                     }
                 }

@@ -26,7 +26,15 @@ export class FriendRepository {
                 }
             },
             include: {
-                friend: true
+                friend: {
+                    include: {
+                        user: {
+                            select: {
+                                email: true
+                            }
+                        }
+                    }
+                }
             }
         })
     }
