@@ -5,9 +5,10 @@ import { MemberController } from "./member.controller";
 import { MemberService } from "./member.service";
 import { RoomModule } from "../room/room.module";
 import { UserModule } from "../user/user.module";
+import { FriendModule } from "../friend/friend.module";
 
 @Module({
-    imports: [PrismaModule, forwardRef(() => RoomModule), UserModule],
+    imports: [PrismaModule, UserModule, forwardRef(() => RoomModule), forwardRef(() => FriendModule)],
     exports: [MemberRepository],
     controllers: [MemberController],
     providers: [MemberService, MemberRepository],
