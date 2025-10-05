@@ -16,7 +16,13 @@ export class ChatService {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
         }
 
-        const createdChat = await this.chatRepository.createChat(dto)
+        let createdChat
+        if (!dto.parentId) {
+            createdChat = await this.chatRepository.createChat({ message: dto.message, roomId: dto.roomId, userId: dto.userId })
+        } else {
+            createdChat = await this.chatRepository.createChatWithParent(dto)
+        }
+        
         if (createdChat) {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }

@@ -5,6 +5,10 @@ export class createNewChatDto {
     @IsOptional()
     userId: string
 
+    @IsOptional()
+    @IsString()
+    parentId: string
+
     @IsString()
     @IsNotEmpty()
     roomId: string

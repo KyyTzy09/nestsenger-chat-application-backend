@@ -10,7 +10,7 @@ export class ChatController {
     @Post('create/post')
     @UseGuards(AuthGuard)
     createNewChat(@Req() req, @Body() dto: createNewChatDto) {
-        return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message })
+        return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId:dto?.parentId })
     }
 
     @Get(':roomId/get')

@@ -40,4 +40,15 @@ export class ChatRepository {
             data: data
         })
     }
+
+    async createChatWithParent(data: { roomId: string, userId: string, parentId: string, message: string }): Promise<Chat> {
+        return await this.prisma.chat.create({
+            data: {
+                roomId: data.roomId,
+                userId: data.userId,
+                message: data.message,
+                parentId: data.parentId
+            }
+        })
+    }
 }
