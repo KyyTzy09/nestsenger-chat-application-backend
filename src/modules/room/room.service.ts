@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto } from "./room.dto";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -11,6 +11,33 @@ import { GetBatchResult } from "@prisma/client/runtime/library";
 @Injectable()
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
+
+    async getCurrentUSerRoom(dto: getCurrentUserRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias: Friend | Partial<User> | null }[] | {}[] }> {
+        const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
+        if (existingRooms.length === 0) {
+            throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
+        }
+
+        const result = await Promise.all(
+            existingRooms.map(async (room) => {
+                const fullRoom = await this.roomRepository.findChatRoom({ roomId: room.roomId, userId: dto.userId })
+                let roomAlias: Friend | Partial<User> | null = null
+                if (fullRoom?.type === 'PRIVATE' && fullRoom?.members.length === 1) {
+                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: fullRoom.members[0].userId })
+                    if (!roomAlias) {
+                        roomAlias = await this.userRepository.findUserInfo({ userId: fullRoom.members[0].userId })
+                    }
+                }
+
+                return { room: fullRoom, alias: roomAlias }
+            })
+        )
+        if (result.length === 0) {
+            throw new NotFoundException("Rooms Data Not Found")
+        }
+        
+        return { message: "Current User Rooms data Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+    }
 
     async getUserRoom(dto: getUserRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias: Friend | User | null }[] | {}[] }> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })

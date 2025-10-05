@@ -40,10 +40,10 @@ export class RoomRepository {
                     }
                 },
                 lastChat: {
-                    include : {
-                        sender : {
-                            select : {
-                                email : true,
+                    include: {
+                        sender: {
+                            select: {
+                                email: true,
                             }
                         }
                     }
@@ -60,6 +60,24 @@ export class RoomRepository {
                         userId: data.userId
                     }
                 },
+            },
+            orderBy: {
+                updatedAt: "desc"
+            }
+        })
+    }
+
+    async findWhereLastChatExist(data: { userId: string }): Promise<Room[]> {
+        return await this.prisma.room.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: data.userId
+                    }
+                },
+                lastChatId: {
+                    not: null
+                }
             },
             orderBy: {
                 updatedAt: "desc"

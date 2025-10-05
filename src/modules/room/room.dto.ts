@@ -1,5 +1,11 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
+export class getCurrentUserRoomDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
 export class getUserRoomDto {
     @IsString()
     @IsNotEmpty()

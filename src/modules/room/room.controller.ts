@@ -14,6 +14,12 @@ export class RoomController {
         return { message: "Room Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
     }
 
+    @Get('current/get')
+    @UseGuards(AuthGuard)
+    async getCurrentRooms(@Req() req,) {
+        return this.roomService.getCurrentUSerRoom({ userId: req.user.userId })
+    }
+
     @Get("user/get")
     @UseGuards(AuthGuard)
     getUserRoom(@Req() req) {
