@@ -16,7 +16,8 @@ export class ChatRepository {
                     select: {
                         userId: true,
                     }
-                }
+                },
+                parent: true
             }
         })
     }
@@ -27,7 +28,7 @@ export class ChatRepository {
                 roomId: data.roomId
             },
             include: {
-                room: true
+                room: true,
             },
             orderBy: {
                 createdAt: "asc"
@@ -47,7 +48,7 @@ export class ChatRepository {
                 roomId: data.roomId,
                 userId: data.userId,
                 message: data.message,
-                parentId: data.parentId
+                parentId: data.parentId,
             }
         })
     }
