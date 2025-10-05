@@ -73,7 +73,10 @@ model Chat {
   message   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  parentId  String?
 
+  parent     Chat?  @relation("Chat Reply", fields: [parentId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
+  replies    Chat[] @relation("Chat Reply")
   sender     User   @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   room       Room?  @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
   lastChatOf Room[] @relation("Room Last Chat")
