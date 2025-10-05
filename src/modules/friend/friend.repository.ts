@@ -13,6 +13,9 @@ export class FriendRepository {
             },
             include: {
                 friend: true
+            },
+            orderBy: {
+                alias: "asc"
             }
         })
     }
