@@ -27,3 +27,13 @@ export class getChatByRoomIdDto {
     @IsNotEmpty()
     userId: string
 }
+
+export class getChatParentDto {
+    @IsNotEmpty()
+    @IsString()
+    userId: string
+
+    @IsNotEmpty()
+    @IsString()
+    chatId: string
+}

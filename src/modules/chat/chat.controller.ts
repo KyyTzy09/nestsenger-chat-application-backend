@@ -10,12 +10,18 @@ export class ChatController {
     @Post('create/post')
     @UseGuards(AuthGuard)
     createNewChat(@Req() req, @Body() dto: createNewChatDto) {
-        return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId:dto?.parentId })
+        return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId: dto?.parentId })
     }
 
     @Get(':roomId/get')
     @UseGuards(AuthGuard)
     getChatByRoomId(@Req() req, @Param('roomId') roomId: string) {
         return this.chatService.getChatByRoomId({ roomId, userId: req.user.userId })
+    }
+
+    @Get(':chatId/parent/get')
+    @UseGuards(AuthGuard)
+    getChatParent(@Req() req, @Param("chatId") chatId: string) {
+        return this.chatService.getChatParent({ userId: req.user.userId, chatId })
     }
 }

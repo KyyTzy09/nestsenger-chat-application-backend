@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
-import { createNewChatDto, getChatByRoomIdDto } from './chat.dto';
+import { createNewChatDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
 import { Chat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 
@@ -22,7 +22,7 @@ export class ChatService {
         } else {
             createdChat = await this.chatRepository.createChatWithParent(dto)
         }
-        
+
         if (createdChat) {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
@@ -52,5 +52,24 @@ export class ChatService {
         )
 
         return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+    }
+
+    async getChatParent(dto: getChatParentDto): Promise<{ message: string, statusCode: number, data: { chat: Chat | null, alias: Friend | Partial<User> | null } }> {
+        const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
+        if (!existingChat) {
+            throw new HttpException("Chat Doesn't Exist", HttpStatus.NOT_FOUND)
+        }
+
+        const existingParent = await this.chatRepository.findById({ chatId: existingChat?.parentId! })
+        if (!existingChat) {
+            throw new HttpException("Chat Parent Doesn't Exist", HttpStatus.NOT_FOUND)
+        }
+
+        let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingParent?.userId! })
+        if (!alias) {
+            alias = await this.userRepository.findUserInfo({ userId: existingParent?.userId! })
+        }
+
+        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias } }
     }
 }
