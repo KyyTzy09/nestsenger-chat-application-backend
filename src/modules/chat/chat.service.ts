@@ -5,6 +5,8 @@ import { RoomRepository } from '../room/room.repository';
 import { createNewChatDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
 import { Chat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
+import { format } from 'date-fns';
+import { ChatWithAliasType } from 'src/shared/types/chat';
 
 @Injectable()
 export class ChatService {
@@ -29,7 +31,7 @@ export class ChatService {
         return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 
-    async getChatByRoomId(dto: getChatByRoomIdDto): Promise<{ message: string, statusCode: number, data: { chat: Chat[], alias: User | Friend }[] | {}[] }> {
+    async getChatByRoomId(dto: getChatByRoomIdDto): Promise<{ message: string, statusCode: number, data: { date: string, chats: ChatWithAliasType[] }[] }> {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
@@ -51,7 +53,27 @@ export class ChatService {
             })
         )
 
-        return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+        const groupedResult = result.reduce((acc, data) => {
+            const dateKey = format(new Date(data?.chat?.createdAt!), "MM/dd/yyyy");
+
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+
+            acc[dateKey].push({
+                chat: data.chat!,
+                alias: data.alias
+            });
+
+            return acc;
+        }, {} as Record<string, { chat: Chat; alias: Friend | Partial<User> | null }[]>)
+
+        const finalGrouped = Object.entries(groupedResult).map(([date, chats]) => ({
+            date,
+            chats
+        }))
+
+        return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: finalGrouped }
     }
 
     async getChatParent(dto: getChatParentDto): Promise<{ message: string, statusCode: number, data: { chat: Chat | null, alias: Friend | Partial<User> | null } }> {
