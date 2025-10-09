@@ -9,6 +9,9 @@ import { join } from 'path';
 import { FriendModule } from './modules/friend/friend.module';
 import { RoomModule } from './modules/room/room.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { ReactionController } from './modules/reaction/reaction.controller';
+import { ReactionService } from './modules/reaction/reaction.service';
+import { ReactionModule } from './modules/reaction/reaction.module';
 
 @Module({
   imports: [
@@ -16,8 +19,8 @@ import { ChatModule } from './modules/chat/chat.module';
       rootPath: join(process.cwd(), "uploads"),
       serveRoot : "/uploads"
     }),
-    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule],
-  controllers: [AppController],
-  providers: [AppService],
+    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule, ReactionModule],
+  controllers: [AppController, ReactionController],
+  providers: [AppService, ReactionService],
 })
 export class AppModule { }
