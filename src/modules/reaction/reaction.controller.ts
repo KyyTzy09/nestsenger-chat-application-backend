@@ -14,6 +14,12 @@ export class ReactionController {
         return this.reactionService.createReaction({ userId: req.user.userId, chatId: dto.chatId, content: dto.content })
     }
 
+    @Get(':chatId/user/get')
+    @UseGuards(AuthGuard)
+    getUserReaction(@Req() req, @Param('chatId') chatId: string) {
+        return this.reactionService.getUserReaction({ userId: req.user.userId, chatId })
+    }
+
     @Get(':chatId/chat/get')
     @UseGuards(AuthGuard)
     getChatReactions(@Req() req, @Param('chatId') chatId: string) {

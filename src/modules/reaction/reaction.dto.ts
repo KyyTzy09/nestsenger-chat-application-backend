@@ -14,6 +14,16 @@ export class createReactionDto {
     content: string
 }
 
+export class getUserReactionDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    chatId: string
+}
+
 export class getChatReactionsDto {
     @IsString()
     @IsNotEmpty()

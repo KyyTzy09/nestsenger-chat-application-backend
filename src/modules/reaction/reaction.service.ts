@@ -1,6 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { ReactionRepository } from './reaction.repository';
-import { createReactionDto, getChatReactionsDto } from './reaction.dto';
+import { createReactionDto, getChatReactionsDto, getUserReactionDto } from './reaction.dto';
 import { UserRepository } from '../user/user.repository';
 import { ChatRepository } from '../chat/chat.repository';
 import { Friend, Reaction, User } from '@prisma/client';
@@ -19,6 +19,20 @@ export class ReactionService {
         const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
         return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction }
+    }
+
+    async getUserReaction(dto: getUserReactionDto): Promise<{ message: string, statusCode: number, data: Reaction }> {
+        const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
+        if (!existingChat) {
+            throw new NotFoundException("Chat Doesn't Exist")
+        }
+
+        const existingReaction = await this.reactionRepository.findByUnique(dto)
+        if (!existingReaction) {
+            throw new NotFoundException("Reaction Doesn't Exist In This Chat")
+        }
+
+        return { message: "Reaction Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingReaction }
     }
 
     async getChatReactions(dto: getChatReactionsDto): Promise<{ message: string, statusCode: number, data: { reaction: Reaction, alias: AliasType }[] | {}[] }> {
