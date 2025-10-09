@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
-export class CreateReactionDto {
+export class createReactionDto {
     @IsString()
     @IsOptional()
     userId: string
@@ -12,4 +12,14 @@ export class CreateReactionDto {
     @IsString()
     @IsNotEmpty()
     content: string
+}
+
+export class getChatReactionsDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    chatId: string
 }

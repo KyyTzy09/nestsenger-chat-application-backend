@@ -6,6 +6,33 @@ import { Reaction } from "@prisma/client";
 export class ReactionRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    async findById(data: { reactionId: string }): Promise<Reaction | null> {
+        return await this.prisma.reaction.findUnique({
+            where: {
+                reactionId: data.reactionId
+            },
+            include: {
+                user: {
+                    select: {
+                        email: true,
+                        profile: true
+                    }
+                }
+            }
+        })
+    }
+
+    async findChatReactions(data: { chatId: string }): Promise<Reaction[]> {
+        return await this.prisma.reaction.findMany({
+            where: {
+                chatId: data.chatId
+            },
+            orderBy: {
+                updatedAt: "desc"
+            }
+        })
+    }
+
     async findByUnique(data: { chatId: string, userId: string }): Promise<Reaction | null> {
         return await this.prisma.reaction.findUnique({
             where: {
