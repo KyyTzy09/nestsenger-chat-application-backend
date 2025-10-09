@@ -21,10 +21,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile Profile?
-  friends Friend[]
-  rooms   Member[] @relation("User Rooms")
-  chats   Chat[]   @relation("Chat Sender")
+  profile   Profile?
+  friends   Friend[]
+  rooms     Member[]   @relation("User Rooms")
+  chats     Chat[]     @relation("Chat Sender")
+  reactions Reaction[] @relation("User Reactions")
 }
 
 model Profile {
@@ -75,11 +76,24 @@ model Chat {
   updatedAt DateTime @updatedAt
   parentId  String?
 
-  parent     Chat?  @relation("Chat Reply", fields: [parentId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
-  replies    Chat[] @relation("Chat Reply")
-  sender     User   @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  room       Room?  @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
-  lastChatOf Room[] @relation("Room Last Chat")
+  parent     Chat?      @relation("Chat Reply", fields: [parentId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
+  replies    Chat[]     @relation("Chat Reply")
+  sender     User       @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  room       Room?      @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  lastChatOf Room[]     @relation("Room Last Chat")
+  reactions  Reaction[] @relation("Chat Reactions")
+}
+
+model Reaction {
+  reactionId String @id @default(ulid())
+  content    String
+  createdAt  String
+  updatedAt  String
+
+  userId String
+  user   User   @relation("User Reactions", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  chatId String
+  chat   Chat   @relation("Chat Reactions", fields: [chatId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Member {
