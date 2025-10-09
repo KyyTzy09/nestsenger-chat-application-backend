@@ -85,15 +85,17 @@ model Chat {
 }
 
 model Reaction {
-  reactionId String @id @default(ulid())
+  reactionId String   @id @default(ulid())
   content    String
-  createdAt  String
-  updatedAt  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   userId String
   user   User   @relation("User Reactions", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   chatId String
   chat   Chat   @relation("Chat Reactions", fields: [chatId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, chatId])
 }
 
 model Member {
