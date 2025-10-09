@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { ReactionRepository } from './reaction.repository';
 import { CreateReactionDto } from './reaction.dto';
 import { UserRepository } from '../user/user.repository';
@@ -14,8 +14,7 @@ export class ReactionService {
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't Exist")
         }
-
-        const createdReaction = await this.reactionRepository.createReaction(dto)
+        const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
         return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction }
     }

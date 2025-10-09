@@ -6,12 +6,32 @@ import { Reaction } from "@prisma/client";
 export class ReactionRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async createReaction(data: { content: string, userId: string, chatId: string }): Promise<Reaction> {
-        return await this.prisma.reaction.create({
-            data: {
+    async findByUnique(data: { chatId: string, userId: string }): Promise<Reaction | null> {
+        return await this.prisma.reaction.findUnique({
+            where: {
+                userId_chatId: {
+                    chatId: data.chatId,
+                    userId: data.userId
+                }
+            }
+        })
+    }
+
+    async upsertReaction(data: { content: string, userId: string, chatId: string }): Promise<Reaction> {
+        return await this.prisma.reaction.upsert({
+            where: {
+                userId_chatId: {
+                    chatId: data.chatId,
+                    userId: data.userId
+                }
+            },
+            create: {
                 chatId: data.chatId,
                 userId: data.userId,
                 content: data.content,
+            },
+            update: {
+                content: data.content
             }
         })
     }
