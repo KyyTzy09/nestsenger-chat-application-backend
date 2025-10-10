@@ -17,7 +17,8 @@ export class ChatRepository {
                         userId: true,
                     }
                 },
-                parent: true
+                parent: true,
+                reactions: true
             }
         })
     }
