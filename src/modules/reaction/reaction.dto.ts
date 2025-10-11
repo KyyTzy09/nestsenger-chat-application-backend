@@ -14,6 +14,16 @@ export class createReactionDto {
     content: string
 }
 
+export class deleteReactionByIdDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    reactionId: string
+}
+
 export class getUserReactionDto {
     @IsString()
     @IsNotEmpty()

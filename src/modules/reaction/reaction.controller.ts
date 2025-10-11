@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Delete, Req, UseGuards } from '@nestjs/common';
 import { ReactionService } from './reaction.service';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { createReactionDto } from './reaction.dto';
@@ -12,6 +12,12 @@ export class ReactionController {
     @HttpCode(HttpStatus.CREATED)
     createReaction(@Req() req, @Body() dto: createReactionDto) {
         return this.reactionService.createReaction({ userId: req.user.userId, chatId: dto.chatId, content: dto.content })
+    }
+
+    @Delete(':reactId/delete')
+    @UseGuards(AuthGuard)
+    deleteReactionById(@Req() req, @Param('reactId') reactionId: string) {
+        return this.reactionService.deleteReactionById({ userId: req.user.userId, reactionId })
     }
 
     @Get(':chatId/user/get')

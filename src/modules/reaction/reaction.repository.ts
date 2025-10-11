@@ -22,6 +22,15 @@ export class ReactionRepository {
         })
     }
 
+    async finduserReaction(data: { reactionId: string, userId: string }): Promise<Reaction | null> {
+        return await this.prisma.reaction.findUnique({
+            where: {
+                reactionId: data.reactionId,
+                userId: data.userId
+            }
+        })
+    }
+
     async findChatReactions(data: { chatId: string }): Promise<Reaction[]> {
         return await this.prisma.reaction.findMany({
             where: {
@@ -59,6 +68,14 @@ export class ReactionRepository {
             },
             update: {
                 content: data.content
+            }
+        })
+    }
+
+    async deleteById(data: { reactionId: string }): Promise<Reaction> {
+        return await this.prisma.reaction.delete({
+            where: {
+                reactionId: data.reactionId
             }
         })
     }
