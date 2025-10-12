@@ -7,10 +7,12 @@ import { Chat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
 import { ChatWithAliasType } from 'src/shared/types/chat';
+import { ChatGateWay } from './chat.gateway';
+import { AliasType } from 'src/shared/types/alias';
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository) { }
+    constructor(private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
 
     async createNewChat(dto: createNewChatDto): Promise<{ message: string, statusCode: number, data: Chat }> {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
@@ -18,16 +20,17 @@ export class ChatService {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
         }
 
-        let createdChat
+        let createdChat: Chat
         if (!dto.parentId) {
             createdChat = await this.chatRepository.createChat({ message: dto.message, roomId: dto.roomId, userId: dto.userId })
         } else {
             createdChat = await this.chatRepository.createChatWithParent(dto)
         }
-
         if (createdChat) {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
+
+        this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
         return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 

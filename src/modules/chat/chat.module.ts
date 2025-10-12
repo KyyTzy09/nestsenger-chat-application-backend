@@ -6,11 +6,12 @@ import { UserModule } from '../user/user.module';
 import { RoomModule } from '../room/room.module';
 import { ChatRepository } from './chat.repository';
 import { FriendModule } from '../friend/friend.module';
+import { ChatGateWay } from './chat.gateway';
 
 @Module({
   imports: [PrismaModule, UserModule, RoomModule, FriendModule],
   controllers: [ChatController],
-  providers: [ChatService, ChatRepository],
+  providers: [ChatService, ChatRepository, ChatGateWay],
   exports: [ChatRepository]
 })
 export class ChatModule { }
