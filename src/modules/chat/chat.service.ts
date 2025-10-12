@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
@@ -15,9 +15,9 @@ export class ChatService {
     constructor(private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
 
     async createNewChat(dto: createNewChatDto): Promise<{ message: string, statusCode: number, data: Chat }> {
-        const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
-            throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
+            throw new ForbiddenException("You Don't Have Access To This Room")
         }
 
         let createdChat: Chat
