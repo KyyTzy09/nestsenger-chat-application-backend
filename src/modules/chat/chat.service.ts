@@ -1,8 +1,8 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
-import { createNewChatDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
+import { createNewChatDto, deleteChatForAllDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
 import { Chat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
@@ -96,5 +96,17 @@ export class ChatService {
         }
 
         return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias } }
+    }
+
+    async deleteChatForAll(dto: deleteChatForAllDto): Promise<{ message: string, statusCode: number, data: Chat }> {
+        const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
+        if (!existingChat) {
+            throw new NotFoundException("Chat Doesn't exist")
+        } if (existingChat && existingChat.userId !== dto.userId) {
+            throw new ForbiddenException("You Don't Have Access To Delete This Chat")
+        }
+
+        const deletedChat = await this.chatRepository.deleteById({ chatId: dto.chatId })
+        return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 }

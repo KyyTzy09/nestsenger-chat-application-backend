@@ -53,4 +53,10 @@ export class ChatRepository {
             }
         })
     }
+
+    async deleteById(data: { chatId: string }): Promise<Chat> {
+        return await this.prisma.chat.delete({
+            where: { chatId: data.chatId },
+        })
+    }
 }

@@ -37,3 +37,13 @@ export class getChatParentDto {
     @IsString()
     chatId: string
 }
+
+export class deleteChatForAllDto {
+    @IsNotEmpty()
+    @IsString()
+    userId: string
+
+    @IsNotEmpty()
+    @IsString()
+    chatId: string
+}
