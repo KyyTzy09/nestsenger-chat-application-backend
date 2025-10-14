@@ -18,8 +18,8 @@ export class ChatGateWay {
         client.join(data.roomId)
     }
 
-    @SubscribeMessage('newMessage')
-    handleNewMessage() {
-
+    @SubscribeMessage("get-current-room")
+    handleAllRoom(@ConnectedSocket() client: Socket) {
+        client.join("current-room")
     }
 }
