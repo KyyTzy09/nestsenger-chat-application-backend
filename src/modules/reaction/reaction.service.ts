@@ -6,10 +6,11 @@ import { ChatRepository } from '../chat/chat.repository';
 import { Friend, Reaction, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { AliasType } from 'src/shared/types/alias';
+import { ChatGateWay } from '../chat/chat.gateway';
 
 @Injectable()
 export class ReactionService {
-    constructor(private readonly reactionRepository: ReactionRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatRepository: ChatRepository) { }
+    constructor(private readonly reactionRepository: ReactionRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatRepository: ChatRepository, private readonly chatGateway: ChatGateWay) { }
 
     async createReaction(dto: createReactionDto): Promise<{ message: string, statusCode: number, data: Reaction }> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
@@ -18,6 +19,7 @@ export class ReactionService {
         }
         const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
+        this.chatGateway.server.to(existingChat?.roomId).emit("updateReaction")
         return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction }
     }
 
@@ -28,6 +30,7 @@ export class ReactionService {
         }
 
         const deletedReaction = await this.reactionRepository.deleteById(dto)
+        this.chatGateway.server.to(deletedReaction?.chat?.roomId).emit("updateReaction")
         return { message: "Reaction Deleted Successfull", statusCode: HttpStatus.OK, data: deletedReaction }
     }
 

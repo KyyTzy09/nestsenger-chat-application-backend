@@ -72,10 +72,17 @@ export class ReactionRepository {
         })
     }
 
-    async deleteById(data: { reactionId: string }): Promise<Reaction> {
+    async deleteById(data: { reactionId: string }) {
         return await this.prisma.reaction.delete({
             where: {
                 reactionId: data.reactionId
+            },
+            include: {
+                chat: {
+                    select: {
+                        roomId: true
+                    }
+                }
             }
         })
     }

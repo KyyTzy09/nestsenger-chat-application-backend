@@ -20,6 +20,7 @@ export class ChatService {
             throw new ForbiddenException("You Don't Have Access To This Room")
         }
 
+        existingRoom
         let createdChat: Chat
         if (!dto.parentId) {
             createdChat = await this.chatRepository.createChat({ message: dto.message, roomId: dto.roomId, userId: dto.userId })
