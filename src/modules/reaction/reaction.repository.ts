@@ -53,7 +53,7 @@ export class ReactionRepository {
         })
     }
 
-    async upsertReaction(data: { content: string, userId: string, chatId: string }): Promise<Reaction> {
+    async upsertReaction(data: { content: string, userId: string, chatId: string }) {
         return await this.prisma.reaction.upsert({
             where: {
                 userId_chatId: {
@@ -68,6 +68,13 @@ export class ReactionRepository {
             },
             update: {
                 content: data.content
+            },
+            include: {
+                chat: {
+                    select: {
+                        roomId: true
+                    }
+                }
             }
         })
     }

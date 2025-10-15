@@ -19,7 +19,7 @@ export class ReactionService {
         }
         const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
-        this.chatGateway.server.to(existingChat?.roomId).emit("updateReaction")
+        this.chatGateway.server.to(existingChat?.roomId).emit("updateReaction", createdReaction)
         return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction }
     }
 
@@ -30,7 +30,7 @@ export class ReactionService {
         }
 
         const deletedReaction = await this.reactionRepository.deleteById(dto)
-        this.chatGateway.server.to(deletedReaction?.chat?.roomId).emit("updateReaction")
+        this.chatGateway.server.to(deletedReaction?.chat?.roomId).emit("updateReaction", deletedReaction)
         return { message: "Reaction Deleted Successfull", statusCode: HttpStatus.OK, data: deletedReaction }
     }
 
