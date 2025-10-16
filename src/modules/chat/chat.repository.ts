@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Chat } from "@prisma/client";
+import { Chat, DeletedChat } from "@prisma/client";
 
 @Injectable()
 export class ChatRepository {
@@ -57,6 +57,16 @@ export class ChatRepository {
     async deleteById(data: { chatId: string }): Promise<Chat> {
         return await this.prisma.chat.delete({
             where: { chatId: data.chatId },
+        })
+    }
+
+    async deleteForYourself(data: { chatId: string, userId: string }): Promise<DeletedChat> {
+        return await this.prisma.deletedChat.create({
+            data: {
+                chatId: data.chatId,
+                userId: data.userId,
+                type: "SELF"
+            }
         })
     }
 }

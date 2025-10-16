@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { createNewChatDto } from './chat.dto';
+import { createNewChatDto, deleteChatForYourselfDto } from './chat.dto';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 @Controller('chat')
@@ -17,6 +17,12 @@ export class ChatController {
     @UseGuards(AuthGuard)
     deleteChatForAll(@Req() req, @Param('chatId') chatId: string) {
         return this.chatService.deleteChatForAll({ userId: req.user.userId, chatId })
+    }
+
+    @Delete("for-self/delete")
+    @UseGuards(AuthGuard)
+    deleteChatForYourSelf(@Req() req, @Body() dto: deleteChatForYourselfDto) {
+        return this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId: dto.chatId })
     }
 
     @Get(':roomId/get')

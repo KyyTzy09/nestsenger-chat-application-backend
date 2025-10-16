@@ -47,3 +47,13 @@ export class deleteChatForAllDto {
     @IsString()
     chatId: string
 }
+
+export class deleteChatForYourselfDto {
+    @IsOptional()
+    @IsString()
+    userId: string
+
+    @IsNotEmpty()
+    @IsString()
+    chatId: string
+}

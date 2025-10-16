@@ -2,7 +2,7 @@ import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundExce
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
-import { createNewChatDto, deleteChatForAllDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
+import { createNewChatDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
 import { Chat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
@@ -110,5 +110,15 @@ export class ChatService {
 
         const deletedChat = await this.chatRepository.deleteById({ chatId: dto.chatId })
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
+    }
+
+    async deleteChatForYourself(dto: deleteChatForYourselfDto) {
+        const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
+        if (!existingChat) {
+            throw new NotFoundException("This Chat Doesn't Exist")
+        }
+
+        const deletedChat = await this.chatRepository.deleteForYourself(dto)
+        return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
     }
 }
