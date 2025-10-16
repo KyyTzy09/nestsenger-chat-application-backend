@@ -21,11 +21,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile   Profile?
-  friends   Friend[]
-  rooms     Member[]   @relation("User Rooms")
-  chats     Chat[]     @relation("Chat Sender")
-  reactions Reaction[] @relation("User Reactions")
+  profile      Profile?
+  friends      Friend[]
+  rooms        Member[]      @relation("User Rooms")
+  chats        Chat[]        @relation("Chat Sender")
+  reactions    Reaction[]    @relation("User Reactions")
+  chatsDeleted DeletedChat[]
 }
 
 model Profile {
@@ -67,6 +68,19 @@ model Room {
   lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
 }
 
+model Member {
+  userId String
+  roomId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room Room @relation("Room Members", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation("User Rooms", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, roomId])
+}
+
 model Chat {
   chatId String @id @default(ulid())
 
@@ -77,12 +91,26 @@ model Chat {
   updatedAt DateTime @updatedAt
   parentId  String?
 
-  parent     Chat?      @relation("Chat Reply", fields: [parentId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
-  replies    Chat[]     @relation("Chat Reply")
-  sender     User       @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  room       Room?      @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
-  lastChatOf Room[]     @relation("Room Last Chat")
-  reactions  Reaction[] @relation("Chat Reactions")
+  parent       Chat?         @relation("Chat Reply", fields: [parentId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
+  replies      Chat[]        @relation("Chat Reply")
+  sender       User          @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  room         Room?         @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  lastChatOf   Room[]        @relation("Room Last Chat")
+  reactions    Reaction[]    @relation("Chat Reactions")
+  deletedChats DeletedChat[]
+}
+
+model DeletedChat {
+  userId    String
+  chatId    String
+  type      DeleteType
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  chat Chat @relation(fields: [chatId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, chatId])
 }
 
 model Reaction {
@@ -99,20 +127,12 @@ model Reaction {
   @@unique([userId, chatId])
 }
 
-model Member {
-  userId String
-  roomId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  room Room @relation("Room Members", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
-  user User @relation("User Rooms", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([userId, roomId])
-}
-
 enum RoomType {
   PRIVATE
   GROUP
+}
+
+enum DeleteType {
+  SELF
+  ALL
 }
