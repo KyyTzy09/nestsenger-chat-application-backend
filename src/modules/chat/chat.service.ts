@@ -2,8 +2,8 @@ import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundExce
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
-import { createNewChatDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto } from './chat.dto';
-import { Chat, Friend, User } from '@prisma/client';
+import { createNewChatDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto, getDeletedChatDto } from './chat.dto';
+import { Chat, DeletedChat, Friend, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
 import { ChatWithAliasType } from 'src/shared/types/chat';
@@ -110,6 +110,20 @@ export class ChatService {
 
         const deletedChat = await this.chatRepository.deleteById({ chatId: dto.chatId })
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
+    }
+
+    async getDeletedChat(dto: getDeletedChatDto): Promise<{ message: string, statusCode: number, data: DeletedChat[] }> {
+        const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
+        if (!existingRoom) {
+            throw new NotFoundException("Room Not Found")
+        }
+
+        const existingDeletedChats = await this.chatRepository.getDeletedChatByRoomId(dto)
+        if (existingDeletedChats.length === 0) {
+            throw new NotFoundException("Deleted Chats Not Found")
+        }
+
+        return { message: "Deleted Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingDeletedChats }
     }
 
     async deleteChatForYourself(dto: deleteChatForYourselfDto) {

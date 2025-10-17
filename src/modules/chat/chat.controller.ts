@@ -36,4 +36,9 @@ export class ChatController {
     getChatParent(@Req() req, @Param("chatId") chatId: string) {
         return this.chatService.getChatParent({ userId: req.user.userId, chatId })
     }
+
+    @Get('deleted-chat/:roomId/get')
+    getDeletedChat(@Param("roomId") roomId: string) {
+        return this.chatService.getDeletedChat({ roomId })
+    }
 }

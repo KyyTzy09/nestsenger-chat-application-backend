@@ -38,6 +38,12 @@ export class getChatParentDto {
     chatId: string
 }
 
+export class getDeletedChatDto {
+    @IsNotEmpty()
+    @IsString()
+    roomId: string
+}
+
 export class deleteChatForAllDto {
     @IsNotEmpty()
     @IsString()
