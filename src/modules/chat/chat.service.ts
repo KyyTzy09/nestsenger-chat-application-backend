@@ -100,7 +100,7 @@ export class ChatService {
         return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias } }
     }
 
-    async deleteChatForAll(dto: deleteChatForAllDto): Promise<{ message: string, statusCode: number, data: Chat }> {
+    async deleteChatForAll(dto: deleteChatForAllDto): Promise<{ message: string, statusCode: number, data: DeletedChat }> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")
@@ -108,7 +108,12 @@ export class ChatService {
             throw new ForbiddenException("You Don't Have Access To Delete This Chat")
         }
 
-        const deletedChat = await this.chatRepository.deleteById({ chatId: dto.chatId })
+        const existingDeletedChatData = await this.chatRepository.findDeletedChatByUnique(dto)
+        if (existingDeletedChatData) {
+            throw new ConflictException("This Chat Has Been Deleted")
+        }
+
+        const deletedChat = await this.chatRepository.deleteForAll(dto)
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 
@@ -136,7 +141,7 @@ export class ChatService {
         if (existingDeletedChatData) {
             throw new ConflictException("This Chat Has Been Deleted")
         }
-        
+
         const deletedChat = await this.chatRepository.deleteForYourself(dto)
         return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
     }

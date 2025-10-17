@@ -93,4 +93,14 @@ export class ChatRepository {
             }
         })
     }
+
+    async deleteForAll(data: { chatId: string, userId: string }): Promise<DeletedChat> {
+        return await this.prisma.deletedChat.create({
+            data: {
+                chatId: data.chatId,
+                userId: data.userId,
+                type: "ALL"
+            }
+        })
+    }
 }

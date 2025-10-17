@@ -13,7 +13,7 @@ export class ChatController {
         return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId: dto?.parentId })
     }
 
-    @Delete(':chatId/delete')
+    @Delete('for-all/:chatId/delete')
     @UseGuards(AuthGuard)
     deleteChatForAll(@Req() req, @Param('chatId') chatId: string) {
         return this.chatService.deleteChatForAll({ userId: req.user.userId, chatId })
