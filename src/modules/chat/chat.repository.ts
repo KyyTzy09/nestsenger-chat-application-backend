@@ -67,6 +67,17 @@ export class ChatRepository {
         })
     }
 
+    async findDeletedChatByUnique(data: { chatId: string, userId: string }): Promise<DeletedChat | null> {
+        return await this.prisma.deletedChat.findUnique({
+            where: {
+                userId_chatId: {
+                    chatId: data.chatId,
+                    userId: data.userId
+                }
+            }
+        })
+    }
+
     async deleteById(data: { chatId: string }): Promise<Chat> {
         return await this.prisma.chat.delete({
             where: { chatId: data.chatId },

@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
@@ -132,6 +132,11 @@ export class ChatService {
             throw new NotFoundException("This Chat Doesn't Exist")
         }
 
+        const existingDeletedChatData = await this.chatRepository.findDeletedChatByUnique(dto)
+        if (existingDeletedChatData) {
+            throw new ConflictException("This Chat Has Been Deleted")
+        }
+        
         const deletedChat = await this.chatRepository.deleteForYourself(dto)
         return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
     }

@@ -19,10 +19,10 @@ export class ChatController {
         return this.chatService.deleteChatForAll({ userId: req.user.userId, chatId })
     }
 
-    @Delete("for-self/delete")
+    @Delete("for-self/:chatId/delete")
     @UseGuards(AuthGuard)
-    deleteChatForYourSelf(@Req() req, @Body() dto: deleteChatForYourselfDto) {
-        return this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId: dto.chatId })
+    deleteChatForYourSelf(@Req() req, @Param('chatId') chatId:string) {
+        return this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId })
     }
 
     @Get(':roomId/get')
