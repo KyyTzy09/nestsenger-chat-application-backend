@@ -3,7 +3,7 @@ import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
 import { createNewChatDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto, getDeletedChatDto } from './chat.dto';
-import { Chat, DeletedChat, Friend, User } from '@prisma/client';
+import { Chat, DeletedChat, Friend, Prisma, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
 import { ChatWithAliasType } from 'src/shared/types/chat';
@@ -21,7 +21,6 @@ export class ChatService {
             throw new ForbiddenException("You Don't Have Access To This Room")
         }
 
-        existingRoom
         let createdChat: Chat
         if (!dto.parentId) {
             createdChat = await this.chatRepository.createChat({ message: dto.message, roomId: dto.roomId, userId: dto.userId })
@@ -49,13 +48,22 @@ export class ChatService {
         }
 
         const result = await Promise.all(
-            allChats.map(async ({ chatId, userId }) => {
-                const chat = await this.chatRepository.findById({ chatId })
-                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: userId })
+            allChats.map(async (chat) => {
+                type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+                type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
+                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: chat.userId })
                 if (!alias) {
-                    alias = await this.userRepository.findUserInfo({ userId })
+                    alias = await this.userRepository.findUserInfo({ userId: chat.userId })
                 }
-                return { chat, alias }
+
+                const aliasResult: AliasType = {
+                    userId: alias?.userId as string,
+                    name: alias ? (alias as friendWithFriend)?.alias || "~" + (alias as User)?.email : "",
+                    avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
+                }
+
+                return { chat, alias: aliasResult }
             })
         )
 
@@ -82,7 +90,10 @@ export class ChatService {
         return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: finalGrouped }
     }
 
-    async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, alias: Friend | Partial<User> | null }>> {
+    async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, alias: AliasType }>> {
+        type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+        type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new HttpException("Chat Doesn't Exist", HttpStatus.NOT_FOUND)
@@ -98,7 +109,13 @@ export class ChatService {
             alias = await this.userRepository.findUserInfo({ userId: existingParent?.userId! })
         }
 
-        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias } }
+        const aliasResult: AliasType = {
+            userId: alias?.userId as string,
+            name: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+            avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
+        }
+
+        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias: aliasResult } }
     }
 
     async deleteChatForAll(dto: deleteChatForAllDto): Promise<ResponseType<DeletedChat>> {

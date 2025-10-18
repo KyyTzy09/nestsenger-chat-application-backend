@@ -29,7 +29,13 @@ export class ChatRepository {
                 roomId: data.roomId
             },
             include: {
-                room: true,
+                sender: {
+                    select: {
+                        userId: true,
+                    }
+                },
+                parent: true,
+                reactions: true
             },
             orderBy: {
                 createdAt: "asc"
