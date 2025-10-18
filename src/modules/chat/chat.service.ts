@@ -153,8 +153,6 @@ export class ChatService {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")
-        } if (existingChat && existingChat.userId !== dto.userId) {
-            throw new ForbiddenException("You Don't Have Access To Delete This Chat")
         }
 
         const existingDeletedChatData = await this.chatRepository.findDeletedChatByUnique(dto)
