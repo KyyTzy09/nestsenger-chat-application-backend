@@ -7,12 +7,13 @@ import { generateGroupRoomId, generatePrivateRoomId } from "src/shared/helpers/g
 import { Friend, Member, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
 import { GetBatchResult } from "@prisma/client/runtime/library";
+import { ResponseType } from "src/shared/types/response";
 
 @Injectable()
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getCurrentUSerRoom(dto: getCurrentUserRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias: Friend | Partial<User> | null }[] | {}[] }> {
+    async getCurrentUSerRoom(dto: getCurrentUserRoomDto): Promise<ResponseType<{ room: Room, alias: Friend | Partial<User> | null }[] | {}[]>> {
         const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
         if (existingRooms.length === 0) {
             throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
@@ -35,11 +36,11 @@ export class RoomService {
         if (result.length === 0) {
             throw new NotFoundException("Rooms Data Not Found")
         }
-        
+
         return { message: "Current User Rooms data Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
     }
 
-    async getUserRoom(dto: getUserRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias: Friend | User | null }[] | {}[] }> {
+    async getUserRoom(dto: getUserRoomDto): Promise<ResponseType<{ room: Room, alias: Friend | Partial<User> | null }[] | {}[]>> {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
             throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
@@ -68,7 +69,7 @@ export class RoomService {
         return { message: "User Room Retrieved Successfully", statusCode: HttpStatus.OK, data: result }
     }
 
-    async getRoomById(dto: getChatRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, alias?: Friend | Partial<User> | null } }> {
+    async getRoomById(dto: getChatRoomDto): Promise<ResponseType<{ room: Room, alias?: Friend | Partial<User> | null }>> {
         let existingFriend: Friend | Partial<User> | null = null
         const existingRoom = await this.roomRepository.findChatRoom({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
@@ -85,7 +86,7 @@ export class RoomService {
         return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: existingRoom, alias: existingFriend } }
     }
 
-    async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom): Promise<{ data: { room: Room, member: Member[] | GetBatchResult } }> {
+    async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom): Promise<ResponseType<{ room: Room, member: Member[] | GetBatchResult }>> {
         const userId = [dto.userIdA, dto.userIdB]
         const roomId = generatePrivateRoomId(dto)
 
@@ -104,10 +105,10 @@ export class RoomService {
             existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId })
         }
 
-        return { data: { room: existingRoom, member: existingMember } }
+        return { message: "Room Data Retrieved Successfull", statusCode: HttpStatus.OK, data: { room: existingRoom, member: existingMember } }
     }
 
-    async createPrivateRoom(dto: createPrivateRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: GetBatchResult } }> {
+    async createPrivateRoom(dto: createPrivateRoomDto): Promise<ResponseType<{ room: Room, member: GetBatchResult }>> {
         const userId = [dto.userIdA, dto.userIdB]
         const roomId = generatePrivateRoomId(dto)
 
@@ -127,7 +128,7 @@ export class RoomService {
         return { message: "Private Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
 
-    async createGroupRoom(dto: createGroupRoomDto): Promise<{ message: string, statusCode: number, data: { room: Room, member: GetBatchResult } }> {
+    async createGroupRoom(dto: createGroupRoomDto): Promise<ResponseType<{ room: Room, member: GetBatchResult }>> {
         const roomId = generateGroupRoomId()
         dto.memberId.push(dto.userId)
         const existingUser = await this.userRepository.findManyById({ userId: dto.memberId })
@@ -141,7 +142,7 @@ export class RoomService {
         return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
 
-    async outFromGroup(dto: OutFromGroupDto): Promise<{ message: string, statusCode: number, data: Member }> {
+    async outFromGroup(dto: OutFromGroupDto): Promise<ResponseType<Member>> {
         const existingGroup = await this.roomRepository.findByGroupId({ groupId: dto.groupId })
         if (!existingGroup || existingGroup.type === "PRIVATE") {
             throw new HttpException("Group Not Found", HttpStatus.NOT_FOUND)

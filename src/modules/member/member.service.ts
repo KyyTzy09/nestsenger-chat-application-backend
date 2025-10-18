@@ -5,12 +5,13 @@ import { RoomRepository } from "../room/room.repository";
 import { Friend, Member, User } from "@prisma/client";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
+import { ResponseType } from "src/shared/types/response";
 
 @Injectable()
 export class MemberService {
     constructor(private readonly memberRepository: MemberRepository, private readonly roomRepository: RoomRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getRoomMember(dto: getRoomMemberDto): Promise<{ message: string, statusCode: number, data: ({ member: Member, alias: Friend | Partial<User> | null }[]  | {}[]) | (Member | null)}> { 
+    async getRoomMember(dto: getRoomMemberDto): Promise<ResponseType<({ member: Member, alias: Friend | Partial<User> | null }[] | {}[]) | (Member | null)>> {
         let result: { member: Member, alias: Friend | Partial<User> | null }[] = []
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {

@@ -9,12 +9,13 @@ import { format } from 'date-fns';
 import { ChatWithAliasType } from 'src/shared/types/chat';
 import { ChatGateWay } from './chat.gateway';
 import { AliasType } from 'src/shared/types/alias';
+import { ResponseType } from 'src/shared/types/response';
 
 @Injectable()
 export class ChatService {
     constructor(private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
 
-    async createNewChat(dto: createNewChatDto): Promise<{ message: string, statusCode: number, data: Chat }> {
+    async createNewChat(dto: createNewChatDto): Promise<ResponseType<Chat>> {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new ForbiddenException("You Don't Have Access To This Room")
@@ -36,7 +37,7 @@ export class ChatService {
         return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 
-    async getChatByRoomId(dto: getChatByRoomIdDto): Promise<{ message: string, statusCode: number, data: { date: string, chats: ChatWithAliasType[] }[] }> {
+    async getChatByRoomId(dto: getChatByRoomIdDto): Promise<ResponseType<{ date: string, chats: ChatWithAliasType[] }[]>> {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
@@ -81,7 +82,7 @@ export class ChatService {
         return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: finalGrouped }
     }
 
-    async getChatParent(dto: getChatParentDto): Promise<{ message: string, statusCode: number, data: { chat: Chat | null, alias: Friend | Partial<User> | null } }> {
+    async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, alias: Friend | Partial<User> | null }>> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new HttpException("Chat Doesn't Exist", HttpStatus.NOT_FOUND)
@@ -100,7 +101,7 @@ export class ChatService {
         return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias } }
     }
 
-    async deleteChatForAll(dto: deleteChatForAllDto): Promise<{ message: string, statusCode: number, data: DeletedChat }> {
+    async deleteChatForAll(dto: deleteChatForAllDto): Promise<ResponseType<DeletedChat>> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")
@@ -117,7 +118,7 @@ export class ChatService {
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 
-    async getDeletedChat(dto: getDeletedChatDto): Promise<{ message: string, statusCode: number, data: DeletedChat[] }> {
+    async getDeletedChat(dto: getDeletedChatDto): Promise<ResponseType<DeletedChat[]>> {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {
             throw new NotFoundException("Room Not Found")
@@ -131,7 +132,7 @@ export class ChatService {
         return { message: "Deleted Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingDeletedChats }
     }
 
-    async deleteChatForYourself(dto: deleteChatForYourselfDto) {
+    async deleteChatForYourself(dto: deleteChatForYourselfDto): Promise<ResponseType<DeletedChat>> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")

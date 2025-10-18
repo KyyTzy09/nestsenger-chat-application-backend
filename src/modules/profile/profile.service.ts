@@ -3,12 +3,13 @@ import { ProfileRepository } from './profile.repository';
 import { DeleteAvatarDto, getProfileDto, UpdateAvatarDto, UpdateBioDto, UpdateUsernameDto } from './profile.dto';
 import { defaultImage } from 'src/shared/constants/image';
 import { Profile, User } from '@prisma/client';
+import { ResponseType } from 'src/shared/types/response';
 
 @Injectable()
 export class ProfileService {
     constructor(private readonly profileRepository: ProfileRepository) { }
 
-    async getUserProfile(dto: getProfileDto): Promise<{ message: string, statusCode: number, data: User }> {
+    async getUserProfile(dto: getProfileDto): Promise<ResponseType<User>> {
         const existingProfile = await this.profileRepository.getUserProfile(dto)
 
         if (!existingProfile) {
@@ -18,7 +19,7 @@ export class ProfileService {
         return { message: "User retrieved successfull", statusCode: HttpStatus.OK, data: existingProfile }
     }
 
-    async updateUsername(dto: UpdateUsernameDto): Promise<{ message: string, statusCode: number, data: Partial<Profile> }> {
+    async updateUsername(dto: UpdateUsernameDto): Promise<ResponseType<Partial<Profile>>> {
         const existingProfile = await this.profileRepository.getUserProfile(dto)
         if (!existingProfile) {
             throw new HttpException("User is not registered", HttpStatus.NOT_FOUND)
@@ -28,7 +29,7 @@ export class ProfileService {
         return { message: "Profile updated successfully", statusCode: HttpStatus.OK, data: updatedUserName }
     }
 
-    async updateBio(dto: UpdateBioDto): Promise<{ message: string, statusCode: number, data: Partial<Profile> }> {
+    async updateBio(dto: UpdateBioDto): Promise<ResponseType<Partial<Profile>>> {
         const existingProfile = await this.profileRepository.getUserProfile(dto)
         if (!existingProfile) {
             throw new HttpException("User is not registered", HttpStatus.NOT_FOUND)
@@ -38,7 +39,7 @@ export class ProfileService {
         return { message: "Profile updated successfully", statusCode: HttpStatus.OK, data: updatedUserName }
     }
 
-    async updateAvatar(dto: UpdateAvatarDto): Promise<{ message: string, statusCode: number, data: Partial<Profile> }> {
+    async updateAvatar(dto: UpdateAvatarDto): Promise<ResponseType<Partial<Profile>>> {
         const existingProfile = await this.profileRepository.getUserProfile({ userId: dto.userId })
 
         if (!existingProfile) {
@@ -49,7 +50,7 @@ export class ProfileService {
         return { message: "Avatar updated successfully", statusCode: HttpStatus.OK, data: updatedAvatar }
     }
 
-    async deleteAvatar(dto: DeleteAvatarDto): Promise<{ message: string, statusCode: number, data: Profile }> {
+    async deleteAvatar(dto: DeleteAvatarDto): Promise<ResponseType<Profile>> {
         const existingProfile = await this.profileRepository.getUserProfile({ userId: dto.userId })
         if (!existingProfile) {
             throw new HttpException("User is not registered", HttpStatus.NOT_FOUND)
