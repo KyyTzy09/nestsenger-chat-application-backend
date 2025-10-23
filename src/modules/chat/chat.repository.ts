@@ -90,18 +90,21 @@ export class ChatRepository {
         })
     }
 
-    async deleteForYourself(data: { chatId: string, userId: string }): Promise<DeletedChat> {
+    async deleteForYourself(data: { chatId: string, userId: string }) {
         return await this.prisma.deletedChat.create({
             data: {
                 chatId: data.chatId,
                 userId: data.userId,
                 type: "SELF"
+            },
+            include: {
+                chat: true
             }
         })
     }
 
 
-    async updateDeletedChat(data: { userId: string, chatId: string }): Promise<DeletedChat> {
+    async updateDeletedChat(data: { userId: string, chatId: string }) {
         return await this.prisma.deletedChat.update({
             where: {
                 userId_chatId: {
@@ -111,16 +114,22 @@ export class ChatRepository {
             },
             data: {
                 isDeleted: true,
+            },
+            include: {
+                chat: true
             }
         })
     }
 
-    async deleteForAll(data: { chatId: string, userId: string }): Promise<DeletedChat> {
+    async deleteForAll(data: { chatId: string, userId: string }) {
         return await this.prisma.deletedChat.create({
             data: {
                 chatId: data.chatId,
                 userId: data.userId,
                 type: "ALL"
+            },
+            include: {
+                chat: true
             }
         })
     }

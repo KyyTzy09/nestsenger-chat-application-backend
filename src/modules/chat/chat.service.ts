@@ -132,6 +132,7 @@ export class ChatService {
         }
 
         const deletedChat = await this.chatRepository.deleteForAll(dto)
+        this.chatGateway.server.to(deletedChat.chat.roomId).emit("deletedChat")
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 
@@ -150,12 +151,18 @@ export class ChatService {
     }
 
     async deleteChatForYourself(dto: deleteChatForYourselfDto): Promise<ResponseType<DeletedChat>> {
+        type deletedChatWithChat = Prisma.DeletedChatGetPayload<{
+            include: {
+                chat: true
+            }
+        }>;
+
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")
         }
 
-        let deletedChat: DeletedChat
+        let deletedChat: deletedChatWithChat
         const existingDeletedChatData = await this.chatRepository.findDeletedChatByUnique(dto)
         if (existingDeletedChatData) {
             deletedChat = await this.chatRepository.updateDeletedChat(dto)
@@ -163,6 +170,7 @@ export class ChatService {
             deletedChat = await this.chatRepository.deleteForYourself(dto)
         }
 
+        this.chatGateway.server.to(deletedChat?.chat?.roomId).emit("deletedChat")
         return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
     }
 }
