@@ -155,12 +155,14 @@ export class ChatService {
             throw new NotFoundException("Chat Doesn't exist")
         }
 
+        let deletedChat: DeletedChat
         const existingDeletedChatData = await this.chatRepository.findDeletedChatByUnique(dto)
         if (existingDeletedChatData) {
-            throw new ConflictException("This Chat Has Been Deleted")
+            deletedChat = await this.chatRepository.updateDeletedChat(dto)
+        } else {
+            deletedChat = await this.chatRepository.deleteForYourself(dto)
         }
 
-        const deletedChat = await this.chatRepository.deleteForYourself(dto)
         return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
     }
 }
