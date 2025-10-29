@@ -27,9 +27,9 @@ export class ChatRepository {
         return await this.prisma.chat.findMany({
             where: {
                 roomId: data.roomId,
-                deletedChats: {
-                    every: {
-                        NOT: {
+                NOT: {
+                    deletedChats: {
+                        some: {
                             userId: data.userId,
                             type: "SELF"
                         }
