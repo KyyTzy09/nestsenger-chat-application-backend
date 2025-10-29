@@ -23,17 +23,20 @@ export class ChatRepository {
         })
     }
 
-    async findByRoomId(data: { roomId: string }): Promise<Chat[]> {
+    async findByRoomId(data: { userId: string, roomId: string }): Promise<Chat[]> {
         return await this.prisma.chat.findMany({
             where: {
-                roomId: data.roomId
+                roomId: data.roomId,
+                deletedChats: {
+                    every: {
+                        NOT: {
+                            userId: data.userId,
+                            type: "SELF"
+                        }
+                    }
+                }
             },
             include: {
-                sender: {
-                    select: {
-                        userId: true,
-                    }
-                },
                 parent: true,
                 reactions: true
             },
@@ -102,7 +105,6 @@ export class ChatRepository {
             }
         })
     }
-
 
     async updateDeletedChat(data: { userId: string, chatId: string }) {
         return await this.prisma.deletedChat.update({
