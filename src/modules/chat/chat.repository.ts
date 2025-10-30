@@ -31,7 +31,11 @@ export class ChatRepository {
                     deletedChats: {
                         some: {
                             userId: data.userId,
-                            type: "SELF"
+                            OR: [{
+                                type: "SELF"
+                            }, {
+                                isDeleted: true
+                            }]
                         }
                     }
                 }
