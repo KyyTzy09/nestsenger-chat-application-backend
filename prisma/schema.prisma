@@ -14,9 +14,10 @@ datasource db {
 }
 
 model User {
-  userId   String @id @default(ulid())
-  email    String @unique
+  userId   String  @id @default(ulid())
+  email    String  @unique
   password String
+  isOnline Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
