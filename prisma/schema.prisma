@@ -108,6 +108,7 @@ model ChatRead {
   chatReadId String   @id @default(ulid())
   chatId     String
   userId     String
+  isRead     Boolean  @default(false)
   readAt     DateTime @default(now())
 
   chat Chat   @relation("Read Chat", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
