@@ -5,6 +5,11 @@ export class GetReadChatsDto {
     @IsNotEmpty()
     @IsString()
     chatId: string
+
+    
+    @IsNotEmpty()
+    @IsString()
+    userId: string
 }
 
 export class CreateReadChatsDto {

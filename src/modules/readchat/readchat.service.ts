@@ -2,10 +2,14 @@ import { HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { ReadChatRepository } from "./readchat.repository";
 import { ChatRepository } from "../chat/chat.repository";
 import { CreateReadChatsDto, GetReadChatsDto } from "./readchat.dto";
+import { UserRepository } from "../user/user.repository";
+import { FriendRepository } from "../friend/friend.repository";
+import { Friend, Prisma, User } from "@prisma/client";
+import { AliasType } from "src/shared/types/alias";
 
 @Injectable()
 export class ReadChatService {
-    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository) { }
+    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
     async createReadChats(dto: CreateReadChatsDto) {
         const createdReadChats = await this.readChatRepository.createMany(dto)
@@ -24,6 +28,26 @@ export class ReadChatService {
             throw new NotFoundException("ReadChats Don't Exist In This Chat")
         }
 
-        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingReadChats }
+        const result = await Promise.all(
+            existingReadChats.map(async (readChat) => {
+                type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+                type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
+                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: readChat.user.userId })
+                if (!alias) {
+                    alias = await this.userRepository.findUserInfo({ userId: readChat.user.userId })
+                }
+
+                const aliasResult: AliasType = {
+                    userId: alias?.userId as string,
+                    name: alias ? (alias as friendWithFriend)?.alias || "~" + (alias as User)?.email : "",
+                    avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
+                }
+
+                return { readChat, alias: aliasResult }
+            })
+        )
+
+        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
     }
 }

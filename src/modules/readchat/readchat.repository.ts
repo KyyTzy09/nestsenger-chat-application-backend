@@ -14,13 +14,7 @@ export class ReadChatRepository {
             include: {
                 user: {
                     select: {
-                        user: {
-                            select: {
-                                email: true,
-                                profile: true,
-                                isOnline: true,
-                            }
-                        }
+                        userId: true
                     }
                 }
             }

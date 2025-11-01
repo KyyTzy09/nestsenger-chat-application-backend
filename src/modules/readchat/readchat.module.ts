@@ -5,9 +5,10 @@ import { ReadChatService } from "./readchat.service";
 import { ReadChatRepository } from "./readchat.repository";
 import { UserModule } from "../user/user.module";
 import { ReadChatController } from "./readchat.controller";
+import { FriendModule } from "../friend/friend.module";
 
 @Module({
-    imports: [UserModule, forwardRef(() => ChatModule), PrismaModule],
+    imports: [UserModule, forwardRef(() => ChatModule), PrismaModule, UserModule, FriendModule],
     controllers: [ReadChatController],
     providers: [ReadChatService, ReadChatRepository],
     exports: [ReadChatService, ReadChatRepository]
