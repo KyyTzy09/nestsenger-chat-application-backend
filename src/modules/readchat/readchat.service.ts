@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { ReadChatRepository } from "./readchat.repository";
 import { ChatRepository } from "../chat/chat.repository";
 import { CreateReadChatsDto, GetReadChatsDto } from "./readchat.dto";
@@ -21,9 +21,11 @@ export class ReadChatService {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't Exist")
+        } else if (existingChat.userId !== dto.userId) {
+            throw new ForbiddenException("You Don't Have Access To This Chat")
         }
 
-        const existingReadChats = await this.readChatRepository.findByChatId({ chatId: dto.chatId })
+        const existingReadChats = await this.readChatRepository.findByChatId(dto)
         if (existingReadChats.length === 0) {
             throw new NotFoundException("ReadChats Don't Exist In This Chat")
         }
@@ -33,9 +35,9 @@ export class ReadChatService {
                 type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
                 type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
 
-                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: readChat.user.userId })
+                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: readChat.member.userId })
                 if (!alias) {
-                    alias = await this.userRepository.findUserInfo({ userId: readChat.user.userId })
+                    alias = await this.userRepository.findUserInfo({ userId: readChat.member.userId })
                 }
 
                 const aliasResult: AliasType = {

@@ -6,10 +6,15 @@ import { Member } from "@prisma/client";
 export class ReadChatRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async findByChatId(data: { chatId: string }) {
+    async findByChatId(data: { chatId: string, userId: string }) {
         return await this.prisma.chatRead.findMany({
             where: {
-                chatId: data.chatId
+                chatId: data.chatId,
+                NOT: {
+                    member: {
+                        userId: data.userId
+                    }
+                }
             },
             include: {
                 member: {
