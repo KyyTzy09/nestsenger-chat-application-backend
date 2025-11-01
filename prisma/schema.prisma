@@ -70,14 +70,16 @@ model Room {
 }
 
 model Member {
-  userId String
-  roomId String
+  memberId String @id @default(ulid())
+  userId   String
+  roomId   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  room Room @relation("Room Members", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
-  user User @relation("User Rooms", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  room      Room       @relation("Room Members", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  user      User       @relation("User Rooms", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  readChats ChatRead[] @relation("Member Read Chat")
 
   @@unique([userId, roomId])
 }
@@ -99,6 +101,19 @@ model Chat {
   lastChatOf   Room[]        @relation("Room Last Chat")
   reactions    Reaction[]    @relation("Chat Reactions")
   deletedChats DeletedChat[]
+  readChats    ChatRead[]    @relation("Read Chat")
+}
+
+model ChatRead {
+  chatReadId String   @id @default(ulid())
+  chatId     String
+  userId     String
+  readAt     DateTime @default(now())
+
+  chat Chat   @relation("Read Chat", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
+  user Member @relation("Member Read Chat", fields: [userId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, chatId])
 }
 
 model DeletedChat {
