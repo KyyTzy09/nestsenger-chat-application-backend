@@ -91,6 +91,18 @@ export class ChatRepository {
         })
     }
 
+    async updateMessage(data: { chatId: string, userId: string }) {
+        return await this.prisma.chat.update({
+            where: {
+                userId: data.userId,
+                chatId: data.chatId
+            },
+            data: {
+                message: "Pesan ini telah dihapus"
+            }
+        })
+    }
+
     async deleteById(data: { chatId: string }): Promise<Chat> {
         return await this.prisma.chat.delete({
             where: { chatId: data.chatId },

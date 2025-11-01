@@ -138,6 +138,10 @@ export class ChatService {
         }
 
         const deletedChat = await this.chatRepository.deleteForAll(dto)
+        if (deletedChat) {
+            await this.chatRepository.updateMessage({ chatId: deletedChat.chatId, userId: existingChat.userId })
+        }
+        
         this.chatGateway.server.to(deletedChat.chat.roomId).emit("deletedChat")
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
