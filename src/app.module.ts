@@ -12,15 +12,16 @@ import { ChatModule } from './modules/chat/chat.module';
 import { ReactionController } from './modules/reaction/reaction.controller';
 import { ReactionService } from './modules/reaction/reaction.service';
 import { ReactionModule } from './modules/reaction/reaction.module';
+import { ReadChatModule } from './modules/readchat/readchat.module';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), "uploads"),
-      serveRoot : "/uploads"
+      serveRoot: "/uploads"
     }),
-    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule, ReactionModule],
-  controllers: [AppController, ReactionController],
-  providers: [AppService, ReactionService],
+    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule, ReactionModule, ReadChatModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule { }
