@@ -12,7 +12,7 @@ export class ReadChatRepository {
                 chatId: data.chatId
             },
             include: {
-                user: {
+                member: {
                     select: {
                         userId: true
                     }
@@ -25,7 +25,7 @@ export class ReadChatRepository {
         return await this.prisma.chatRead.createMany({
             data: data.members.map(({ memberId }) => ({
                 chatId: data.chatId,
-                userId: memberId
+                memberId
             }))
         })
     }

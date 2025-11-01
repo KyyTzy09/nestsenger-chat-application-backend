@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../node_modules/@prisma/output"
 }
 
 datasource db {
@@ -106,16 +105,18 @@ model Chat {
 }
 
 model ChatRead {
-  chatReadId String   @id @default(ulid())
+  chatReadId String  @id @default(ulid())
   chatId     String
-  userId     String
-  isRead     Boolean  @default(false)
-  readAt     DateTime @default(now())
+  memberId   String
+  isRead     Boolean @default(false)
 
-  chat Chat   @relation("Read Chat", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
-  user Member @relation("Member Read Chat", fields: [userId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+  readAt    DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([userId, chatId])
+  chat   Chat   @relation("Read Chat", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
+  member Member @relation("Member Read Chat", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([memberId, chatId])
 }
 
 model DeletedChat {
