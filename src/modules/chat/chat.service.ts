@@ -10,16 +10,21 @@ import { ChatWithAliasType } from 'src/shared/types/chat';
 import { ChatGateWay } from './chat.gateway';
 import { AliasType } from 'src/shared/types/alias';
 import { ResponseType } from 'src/shared/types/response';
+import { ReadChatService } from '../readchat/readchat.service';
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly chatRepository: ChatRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
+    constructor(private readonly chatRepository: ChatRepository, private readonly readChatService: ReadChatService, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
 
     async createNewChat(dto: createNewChatDto): Promise<ResponseType<Chat>> {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new ForbiddenException("You Don't Have Access To This Room")
         }
+
+        const roomMembers = existingRoom.members.filter(({ userId }) => {
+            return userId !== dto.userId
+        })
 
         let createdChat: Chat
         if (!dto.parentId) {
@@ -28,6 +33,7 @@ export class ChatService {
             createdChat = await this.chatRepository.createChatWithParent(dto)
         }
         if (createdChat) {
+            await this.readChatService.createReadChats({ chatId: createdChat.chatId, members: roomMembers })
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
 

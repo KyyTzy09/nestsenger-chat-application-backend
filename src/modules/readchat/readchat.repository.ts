@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { Member } from "@prisma/client";
 
 @Injectable()
 export class ReadChatRepository {
@@ -17,12 +18,21 @@ export class ReadChatRepository {
                             select: {
                                 email: true,
                                 profile: true,
-                                isOnline: true
+                                isOnline: true,
                             }
                         }
                     }
                 }
             }
+        })
+    }
+
+    async createMany(data: { members: Member[], chatId: string }) {
+        return await this.prisma.chatRead.createMany({
+            data: data.members.map(({ memberId }) => ({
+                chatId: data.chatId,
+                userId: memberId
+            }))
         })
     }
 }

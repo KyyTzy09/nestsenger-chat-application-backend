@@ -67,7 +67,7 @@ model Room {
   // Relations
   members    Member[] @relation("Room Members")
   chats      Chat[]   @relation("Room Chats")
-  lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
+  lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: SetNull)
 }
 
 model Member {

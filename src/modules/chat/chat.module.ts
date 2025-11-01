@@ -7,9 +7,10 @@ import { RoomModule } from '../room/room.module';
 import { ChatRepository } from './chat.repository';
 import { FriendModule } from '../friend/friend.module';
 import { ChatGateWay } from './chat.gateway';
+import { ReadChatModule } from '../readchat/readchat.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, RoomModule, FriendModule],
+  imports: [PrismaModule, UserModule, RoomModule, FriendModule, ReadChatModule],
   controllers: [ChatController],
   providers: [ChatService, ChatRepository, ChatGateWay],
   exports: [ChatRepository, ChatGateWay]

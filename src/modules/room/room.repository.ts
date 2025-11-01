@@ -14,7 +14,7 @@ export class RoomRepository {
         })
     }
 
-    async findRoomIdWithMember(data: { roomId: string, userId: string }): Promise<Room | null> {
+    async findRoomIdWithMember(data: { roomId: string, userId: string }) {
         return await this.prisma.room.findUnique({
             where: {
                 roomId: data.roomId,
@@ -23,6 +23,9 @@ export class RoomRepository {
                         userId: data.userId
                     }
                 }
+            },
+            include: {
+                members: true
             }
         })
     }
