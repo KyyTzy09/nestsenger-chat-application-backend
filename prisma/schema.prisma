@@ -107,16 +107,16 @@ model Chat {
 model ChatRead {
   chatReadId String  @id @default(ulid())
   chatId     String
-  memberId   String
+  readerId   String
   isRead     Boolean @default(false)
 
-  readAt    DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  sendAt DateTime @default(now())
+  readAt DateTime @updatedAt
 
   chat   Chat   @relation("Read Chat", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
-  member Member @relation("Member Read Chat", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+  reader Member @relation("Member Read Chat", fields: [readerId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([memberId, chatId])
+  @@unique([readerId, chatId])
 }
 
 model DeletedChat {

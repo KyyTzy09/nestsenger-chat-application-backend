@@ -11,13 +11,13 @@ export class ReadChatRepository {
             where: {
                 chatId: data.chatId,
                 NOT: {
-                    member: {
+                    reader: {
                         userId: data.userId
                     }
                 }
             },
             include: {
-                member: {
+                reader: {
                     select: {
                         userId: true
                     }
@@ -30,7 +30,7 @@ export class ReadChatRepository {
         return await this.prisma.chatRead.createMany({
             data: data.members.map(({ memberId }) => ({
                 chatId: data.chatId,
-                memberId
+                readerId: memberId
             }))
         })
     }
