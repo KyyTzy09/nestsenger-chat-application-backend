@@ -6,7 +6,7 @@ export class GetReadChatsDto {
     @IsString()
     chatId: string
 
-    
+
     @IsNotEmpty()
     @IsString()
     userId: string
@@ -16,6 +16,16 @@ export class CreateReadChatsDto {
     @IsNotEmpty()
     @IsArray()
     members: Member[]
+
+    @IsNotEmpty()
+    @IsString()
+    chatId: string
+}
+
+export class UpdateReadChatDto {
+    @IsNotEmpty()
+    @IsString()
+    userId: string
 
     @IsNotEmpty()
     @IsString()
