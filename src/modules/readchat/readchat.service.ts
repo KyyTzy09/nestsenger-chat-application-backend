@@ -23,13 +23,14 @@ export class ReadChatService {
             throw new NotFoundException("Member Not Found")
         }
 
-        const existingReadChat = await this.readChatRepository.findByUnique({ chatId: dto.chatId, readerId: existingMember.memberId })
+        let existingReadChat = await this.readChatRepository.findByUnique({ chatId: dto.chatId, readerId: existingMember.memberId })
         if (!existingReadChat) {
             throw new NotFoundException("Read Chat Doesn't Exist")
+        } else if (existingReadChat.isRead === false) {
+            existingReadChat = await this.readChatRepository.updateReadChat({ chatId: dto.chatId, readerId: existingMember.memberId })
         }
 
-        const updatedReadChat = await this.readChatRepository.updateReadChat({ chatId: dto.chatId, readerId: existingMember.memberId })
-        return { message: "ReadChats updated successfull", statusCode: HttpStatus.OK, data: updatedReadChat }
+        return { message: "ReadChats updated successfull", statusCode: HttpStatus.OK, data: existingReadChat }
     }
 
     async createReadChats(dto: CreateReadChatsDto) {
