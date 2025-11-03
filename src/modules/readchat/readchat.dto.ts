@@ -29,5 +29,5 @@ export class UpdateReadChatDto {
 
     @IsNotEmpty()
     @IsString()
-    chatId: string
+    roomId: string
 }

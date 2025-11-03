@@ -1,10 +1,23 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Member } from "@prisma/client";
+import { Chat, Member } from "@prisma/client";
 
 @Injectable()
 export class ReadChatRepository {
     constructor(private readonly prisma: PrismaService) { }
+
+    async findManyByChatId(data: { chatIds: string[] }) {
+        return await this.prisma.chatRead.findMany({
+            where: {
+                chatId: {
+                    in: data.chatIds
+                }
+            },
+            orderBy: {
+                sendAt: "desc"
+            }
+        })
+    }
 
     async findByUnique(data: { chatId: string, readerId: string }) {
         return await this.prisma.chatRead.findUnique({
@@ -43,6 +56,19 @@ export class ReadChatRepository {
                 chatId: data.chatId,
                 readerId: memberId
             }))
+        })
+    }
+
+    async updateMany(data: { readChatIds: string[] }) {
+        return await this.prisma.chatRead.updateMany({
+            where: {
+                chatReadId: {
+                    in: data.readChatIds
+                }
+            },
+            data: {
+                isRead: true
+            }
         })
     }
 

@@ -7,30 +7,25 @@ import { FriendRepository } from "../friend/friend.repository";
 import { Friend, Prisma, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
 import { MemberRepository } from "../member/member.repository";
+import { ChatGateWay } from "../chat/chat.gateway";
 
 @Injectable()
 export class ReadChatService {
-    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
+    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatGateway: ChatGateWay) { }
 
-    async updateReadChat(dto: UpdateReadChatDto) {
-        const existingChats = await this.chatRepository.findById({ chatId: dto.chatId })
-        if (!existingChats) {
-            throw new NotFoundException("Chat Not Found")
-        }
+    async readChats(dto: UpdateReadChatDto) {
+        const existingChats = await this.chatRepository.findByRoomId({ roomId: dto.roomId, userId: dto.userId })
+        if (existingChats.length === 0) throw new NotFoundException("Chat Not Founds")
+        const chatIds = existingChats.map(({ chatId }) => { return chatId })
 
-        const existingMember = await this.memberRepository.findByUnique({ roomId: existingChats.roomId, userId: dto.userId })
-        if (!existingMember) {
-            throw new NotFoundException("Member Not Found")
-        }
+        const existingReadChats = await this.readChatRepository.findManyByChatId({ chatIds })
+        if (existingReadChats.length === 0) throw new NotFoundException("Read Chat Not Founds")
+        const readChatIds = existingReadChats.map(({ chatReadId }) => { return chatReadId })
 
-        let existingReadChat = await this.readChatRepository.findByUnique({ chatId: dto.chatId, readerId: existingMember.memberId })
-        if (!existingReadChat) {
-            throw new NotFoundException("Read Chat Doesn't Exist")
-        } else if (existingReadChat.isRead === false) {
-            existingReadChat = await this.readChatRepository.updateReadChat({ chatId: dto.chatId, readerId: existingMember.memberId })
-        }
-
-        return { message: "ReadChats updated successfull", statusCode: HttpStatus.OK, data: existingReadChat }
+        const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })
+        this.chatGateway.server.to(dto.roomId).emit("readChatUpdate")
+        
+        return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
     }
 
     async createReadChats(dto: CreateReadChatsDto) {

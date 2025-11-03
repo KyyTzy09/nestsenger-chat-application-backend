@@ -6,10 +6,10 @@ import { AuthGuard } from "src/shared/guards/auth.guard";
 export class ReadChatController {
     constructor(private readonly readChatService: ReadChatService) { }
 
-    @Patch(":chatId/update/patch")
+    @Patch(":roomId/patch")
     @UseGuards(AuthGuard)
-    updateReadChat(@Req() req, @Param('chatId') chatId: string) {
-        return this.readChatService.updateReadChat({ chatId, userId: req.user.userId })
+    updateReadChat(@Req() req, @Param('roomId') roomId: string) {
+        return this.readChatService.readChats({ roomId, userId: req.user.userId })
     }
 
     @Get(":chatId/get")
