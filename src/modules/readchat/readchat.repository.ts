@@ -6,11 +6,17 @@ import { Chat, Member } from "@prisma/client";
 export class ReadChatRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async findManyByChatId(data: { chatIds: string[] }) {
+    async findManyByRoomId(data: { roomId: string, userId: string }) {
         return await this.prisma.chatRead.findMany({
             where: {
-                chatId: {
-                    in: data.chatIds
+                chat: {
+                    roomId: data.roomId
+                },
+                isRead: false,
+                NOT: {
+                    reader: {
+                        userId: data.userId
+                    }
                 }
             },
             orderBy: {

@@ -14,17 +14,13 @@ export class ReadChatService {
     constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatGateway: ChatGateWay) { }
 
     async readChats(dto: UpdateReadChatDto) {
-        const existingChats = await this.chatRepository.findByRoomId({ roomId: dto.roomId, userId: dto.userId })
-        if (existingChats.length === 0) throw new NotFoundException("Chat Not Founds")
-        const chatIds = existingChats.map(({ chatId }) => { return chatId })
-
-        const existingReadChats = await this.readChatRepository.findManyByChatId({ chatIds })
+        const existingReadChats = await this.readChatRepository.findManyByRoomId({ roomId: dto.roomId, userId: dto.userId })
         if (existingReadChats.length === 0) throw new NotFoundException("Read Chat Not Founds")
         const readChatIds = existingReadChats.map(({ chatReadId }) => { return chatReadId })
 
         const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })
+
         this.chatGateway.server.to(dto.roomId).emit("readChatUpdate")
-        
         return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
     }
 
