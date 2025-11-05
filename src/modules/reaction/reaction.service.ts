@@ -3,7 +3,7 @@ import { ReactionRepository } from './reaction.repository';
 import { createReactionDto, deleteReactionByIdDto, getChatReactionsDto, getUserReactionDto } from './reaction.dto';
 import { UserRepository } from '../user/user.repository';
 import { ChatRepository } from '../chat/chat.repository';
-import { Friend, Reaction, User } from '@prisma/client';
+import { Friend, Prisma, Reaction, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { AliasType } from 'src/shared/types/alias';
 import { ChatGateWay } from '../chat/chat.gateway';
@@ -61,13 +61,21 @@ export class ReactionService {
         }
 
         const result = await Promise.all(existingReactions.map(async ({ chatId, userId }, i) => {
+            type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+            type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
             const reaction = await this.reactionRepository.findByUnique({ chatId, userId })
             let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: userId })
             if (!alias) {
                 alias = await this.userRepository.findUserInfo({ userId })
             }
 
-            return { reaction, alias }
+            const aliasResult: AliasType = {
+                userId: alias?.userId as string,
+                name: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+                avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
+            }
+            return { reaction, alias: aliasResult }
         }))
 
         return { message: "Chat Reactions Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
