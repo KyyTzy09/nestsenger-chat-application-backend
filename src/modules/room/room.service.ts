@@ -13,7 +13,7 @@ import { ResponseType } from "src/shared/types/response";
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getCurrentUSerRoom(dto: getCurrentUserRoomDto): Promise<ResponseType<{ room: Room, alias: Friend | Partial<User> | null }[] | {}[]>> {
+    async getCurrentUserRoom(dto: getCurrentUserRoomDto): Promise<ResponseType<{ room: Room, alias: Friend | Partial<User> | null }[] | {}[]>> {
         const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
         if (existingRooms.length === 0) {
             throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
@@ -21,16 +21,14 @@ export class RoomService {
 
         const result = await Promise.all(
             existingRooms.map(async (room) => {
-                const fullRoom = await this.roomRepository.findChatRoom({ roomId: room.roomId, userId: dto.userId })
                 let roomAlias: Friend | Partial<User> | null = null
-                if (fullRoom?.type === 'PRIVATE' && fullRoom?.members.length === 1) {
-                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: fullRoom.members[0].userId })
+                if (room?.type === 'PRIVATE' && room?.members.length === 1) {
+                    roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: room.members[0].userId })
                     if (!roomAlias) {
-                        roomAlias = await this.userRepository.findUserInfo({ userId: fullRoom.members[0].userId })
+                        roomAlias = await this.userRepository.findUserInfo({ userId: room.members[0].userId })
                     }
                 }
-
-                return { room: fullRoom, alias: roomAlias }
+                return { room, alias: roomAlias }
             })
         )
         if (result.length === 0) {

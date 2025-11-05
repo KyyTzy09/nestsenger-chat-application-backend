@@ -17,7 +17,7 @@ export class RoomController {
     @Get('current/get')
     @UseGuards(AuthGuard)
     async getCurrentRooms(@Req() req,) {
-        return this.roomService.getCurrentUSerRoom({ userId: req.user.userId })
+        return this.roomService.getCurrentUserRoom({ userId: req.user.userId })
     }
 
     @Get("user/get")
