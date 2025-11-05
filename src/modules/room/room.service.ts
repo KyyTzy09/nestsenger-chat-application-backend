@@ -4,10 +4,11 @@ import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
 import { generateGroupRoomId, generatePrivateRoomId } from "src/shared/helpers/generate.room-key";
-import { Friend, Member, Room, User } from "@prisma/client";
+import { Friend, Member, Prisma, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
 import { GetBatchResult } from "@prisma/client/runtime/library";
 import { ResponseType } from "src/shared/types/response";
+import { AliasType } from "src/shared/types/alias";
 
 @Injectable()
 export class RoomService {
@@ -21,6 +22,9 @@ export class RoomService {
 
         const result = await Promise.all(
             existingRooms.map(async (room) => {
+                type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+                type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
                 let roomAlias: Friend | Partial<User> | null = null
                 if (room?.type === 'PRIVATE' && room?.members.length === 1) {
                     roomAlias = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: room.members[0].userId })
@@ -28,7 +32,13 @@ export class RoomService {
                         roomAlias = await this.userRepository.findUserInfo({ userId: room.members[0].userId })
                     }
                 }
-                return { room, alias: roomAlias }
+                const aliasResult: AliasType = {
+                    userId: roomAlias?.userId as string,
+                    name: roomAlias ? (roomAlias as friendWithFriend)?.alias || (roomAlias as User)?.email : "",
+                    avatar: roomAlias ? (roomAlias as friendWithFriend)?.friend?.avatar as string || (roomAlias as userWithProfile)?.profile?.avatar as string : "",
+                }
+
+                return { room, alias: aliasResult }
             })
         )
         if (result.length === 0) {
