@@ -13,11 +13,10 @@ export class ReadChatRepository {
                     roomId: data.roomId
                 },
                 isRead: false,
-                NOT: {
-                    reader: {
-                        userId: data.userId
-                    }
+                reader: {
+                    userId: data.userId
                 }
+
             },
             orderBy: {
                 sendAt: "desc"
