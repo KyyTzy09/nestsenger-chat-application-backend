@@ -90,4 +90,18 @@ export class ReadChatRepository {
             }
         })
     }
+
+    async countRoomUnreadChats(data: { roomId: string, userId: string }): Promise<number> {
+        return await this.prisma.chatRead.count({
+            where: {
+                chat: {
+                    roomId: data.roomId
+                },
+                reader: {
+                    userId: data.userId
+                },
+                isRead: false
+            },
+        })
+    }
 }

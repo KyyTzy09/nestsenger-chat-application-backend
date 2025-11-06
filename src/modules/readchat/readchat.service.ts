@@ -1,17 +1,27 @@
 import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { ReadChatRepository } from "./readchat.repository";
 import { ChatRepository } from "../chat/chat.repository";
-import { CreateReadChatsDto, GetReadChatsDto, UpdateReadChatDto } from "./readchat.dto";
+import { CountRoomUnreadChatsDto, CreateReadChatsDto, GetReadChatsDto, UpdateReadChatDto } from "./readchat.dto";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 import { Friend, Prisma, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
 import { MemberRepository } from "../member/member.repository";
 import { ChatGateWay } from "../chat/chat.gateway";
+import { ResponseType } from "src/shared/types/response";
 
 @Injectable()
 export class ReadChatService {
     constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatGateway: ChatGateWay) { }
+
+    async countRoomUnreadChats(dto: CountRoomUnreadChatsDto): Promise<ResponseType<number>> {
+        const countUnreadChats = await this.readChatRepository.countRoomUnreadChats(dto)
+        if (countUnreadChats === 0) {
+            throw new NotFoundException("All Chat's Has Been Readed")
+        }
+
+        return { message: "Count Unread Chats Successfully", statusCode: HttpStatus.OK, data: countUnreadChats }
+    }
 
     async readChats(dto: UpdateReadChatDto) {
         const existingReadChats = await this.readChatRepository.findManyByRoomId({ roomId: dto.roomId, userId: dto.userId })
