@@ -41,16 +41,16 @@ export class ReadChatService {
         const existingMembers = await this.memberRepository.findWithoutSpecificUSerId({ userId: dto.userId, roomId: existingChat.roomId })
         if (existingMembers.length === 0) throw new NotFoundException("Member Data Not Founds")
 
-        const existingReadChats = await this.readChatRepository.findByChatId({ userId: dto.userId, chatId: dto.chatId })
+        const existingReadChats = await this.readChatRepository.findReadedChats({ chatId: dto.chatId })
         if (existingReadChats.length === 0) throw new NotFoundException("ReadChat Data Not Founds")
 
-        return { message: "Chat Has Been Readed By All Member", statusCode: HttpStatus.OK, data: existingMembers.length === existingReadChats.length }
+        return { message: "Read Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: existingMembers.length === existingReadChats.length }
     }
 
     async createReadChats(dto: CreateReadChatsDto) {
         const createdReadChats = await this.readChatRepository.createMany(dto)
 
-        return { message: "ReadChats created successfull", statusCode: HttpStatus.CREATED, data: createdReadChats }
+        return { message: "ReadChats Created Successfull", statusCode: HttpStatus.CREATED, data: createdReadChats }
     }
 
     async getReadChats(dto: GetReadChatsDto) {
