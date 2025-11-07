@@ -34,6 +34,19 @@ export class ReadChatService {
         return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
     }
 
+    async isChatHasRead(dto): Promise<ResponseType<boolean>> {
+        const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
+        if (!existingChat) throw new NotFoundException("Chat Not Found")
+
+        const existingMembers = await this.memberRepository.findWithoutSpecificUSerId({ userId: dto.userId, roomId: existingChat.roomId })
+        if (existingMembers.length === 0) throw new NotFoundException("Member Data Not Founds")
+
+        const existingReadChats = await this.readChatRepository.findByChatId({ userId: dto.userId, chatId: dto.chatId })
+        if (existingReadChats.length === 0) throw new NotFoundException("ReadChat Data Not Founds")
+
+        return { message: "Chat Has Been Readed By All Member", statusCode: HttpStatus.OK, data: existingMembers.length === existingReadChats.length }
+    }
+
     async createReadChats(dto: CreateReadChatsDto) {
         const createdReadChats = await this.readChatRepository.createMany(dto)
 

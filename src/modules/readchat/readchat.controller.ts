@@ -18,6 +18,12 @@ export class ReadChatController {
         return this.readChatService.countRoomUnreadChats({ userId: req.user.userId, roomId })
     }
 
+    @Get(':chatId/has-read/get')
+    @UseGuards(AuthGuard)
+    isChatHasRead(@Req() req, @Param('chatId') chatId: string) {
+        return this.readChatService.isChatHasRead({ userId: req.user.userId, chatId })
+    }
+
     @Patch(":roomId/patch")
     @UseGuards(AuthGuard)
     updateReadChat(@Req() req, @Param('roomId') roomId: string) {

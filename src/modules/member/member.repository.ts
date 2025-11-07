@@ -26,6 +26,17 @@ export class MemberRepository {
         })
     }
 
+    async findWithoutSpecificUSerId(data: { userId: string, roomId: string }) {
+        return await this.prisma.member.findMany({
+            where: {
+                roomId: data.roomId,
+                NOT: {
+                    userId: data.userId
+                }
+            }
+        })
+    }
+
     async findPrivateRoomMember(data: { userId: string, roomId: string }) {
         return await this.prisma.member.findFirst({
             where: {
