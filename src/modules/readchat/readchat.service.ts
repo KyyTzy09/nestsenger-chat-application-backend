@@ -1,7 +1,7 @@
 import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { ReadChatRepository } from "./readchat.repository";
 import { ChatRepository } from "../chat/chat.repository";
-import { CountRoomUnreadChatsDto, CreateReadChatsDto, GetReadChatsDto, UpdateReadChatDto } from "./readchat.dto";
+import { CountRoomUnreadChatsDto, CreateReadChatsDto, GetReadChatsDto, IsChatReadDto, UpdateReadChatDto } from "./readchat.dto";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 import { Friend, Prisma, User } from "@prisma/client";
@@ -34,7 +34,7 @@ export class ReadChatService {
         return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
     }
 
-    async isChatHasRead(dto): Promise<ResponseType<boolean>> {
+    async isChatHasRead(dto: IsChatReadDto): Promise<ResponseType<boolean>> {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) throw new NotFoundException("Chat Not Found")
 
