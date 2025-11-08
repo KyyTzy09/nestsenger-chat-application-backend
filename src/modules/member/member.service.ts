@@ -23,15 +23,11 @@ export class MemberService {
         if (existingRoom.type === "PRIVATE") {
             existingMember = await this.memberRepository.findPrivateRoomMember({ roomId: dto.roomId, userId: dto.userId })
         } else if (existingRoom.type == "GROUP" && result.length === 0) {
-            result = await Promise.all(existingMember.map(async ({ userId }) => {
-                const member = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId })
-                if (!member) {
-                    throw new HttpException("Member Not Found", HttpStatus.NOT_FOUND)
-                }
-
-                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: userId })
+            result = await Promise.all(existingMember.map(async (member) => {
+                // Query Friends
+                let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: member.userId })
                 if (!alias) {
-                    alias = await this.userRepository.findUserInfo({ userId: userId })
+                    alias = await this.userRepository.findUserInfo({ userId: member.userId })
                 }
 
                 return { member, alias }
