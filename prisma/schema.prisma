@@ -98,10 +98,20 @@ model Chat {
   replies      Chat[]        @relation("Chat Reply")
   sender       User          @relation("Chat Sender", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   room         Room?         @relation("Room Chats", fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  media        ChatMedia?    @relation("Chat Media")
   lastChatOf   Room[]        @relation("Room Last Chat")
   reactions    Reaction[]    @relation("Chat Reactions")
   deletedChats DeletedChat[]
   readChats    ChatRead[]    @relation("Read Chat")
+}
+
+model ChatMedia {
+  chatId    String   @id @default(ulid())
+  mediaUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chat Chat @relation("Chat Media", fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model ChatRead {
