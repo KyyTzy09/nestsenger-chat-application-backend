@@ -67,6 +67,22 @@ export class ChatRepository {
         })
     }
 
+    async createNewChatWithMedia(data: { roomId: string, userId: string, parentId: string, mediaUrl: string, message: string }) {
+        return await this.prisma.chat.create({
+            data: {
+                parentId: data.parentId,
+                roomId: data.roomId,
+                userId: data.userId,
+                message: data.message,
+                media: {
+                    create: {
+                        mediaUrl: data.mediaUrl
+                    }
+                }
+            },
+        })
+    }
+
     async getDeletedChatByRoomId(data: { roomId: string }): Promise<DeletedChat[]> {
         return await this.prisma.deletedChat.findMany({
             where: {

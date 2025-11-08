@@ -1,7 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { createNewChatDto, deleteChatForYourselfDto } from './chat.dto';
+import { createNewChatDto, createNewChatWithMediaDto, deleteChatForYourselfDto } from './chat.dto';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MEDIA_FIELD_NAME, MEDIA_UPLOAD_PATH } from 'src/shared/constants/upload';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('chat')
 export class ChatController {
@@ -13,6 +17,24 @@ export class ChatController {
         return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId: dto?.parentId })
     }
 
+    @Post('create-media/post')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor(MEDIA_FIELD_NAME, {
+        storage: diskStorage({
+            destination: MEDIA_UPLOAD_PATH,
+            filename(_req, file, cb) {
+                const uniqueSuffix = "media" + '-' + Date.now() + '-' + Math.round(Math.random() * 1e9);
+                cb(null, uniqueSuffix + extname(file.originalname));
+            }
+        })
+    }))
+    createNewChatWithMedia(@UploadedFile() file: Express.Multer.File, @Req() req, @Body() dto: createNewChatWithMediaDto) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const mediaUrl = `${baseUrl}/uploads/media/${file.filename}`;
+
+        return this.chatService.createNewChatWithMedia({ userId: req.user.userId, roomId: dto.roomId, mediaUrl, parentId: dto.parentId, message: dto.message });
+    }
+
     @Delete('for-all/:chatId/delete')
     @UseGuards(AuthGuard)
     deleteChatForAll(@Req() req, @Param('chatId') chatId: string) {
@@ -21,7 +43,7 @@ export class ChatController {
 
     @Delete("for-self/:chatId/delete")
     @UseGuards(AuthGuard)
-    deleteChatForYourSelf(@Req() req, @Param('chatId') chatId:string) {
+    deleteChatForYourSelf(@Req() req, @Param('chatId') chatId: string) {
         return this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId })
     }
 

@@ -2,7 +2,7 @@ import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injec
 import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
-import { createNewChatDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto, getDeletedChatDto } from './chat.dto';
+import { createNewChatDto, createNewChatWithMediaDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto, getDeletedChatDto } from './chat.dto';
 import { Chat, DeletedChat, Friend, Prisma, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
@@ -40,6 +40,25 @@ export class ChatService {
         this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
         this.chatGateway.server.to("current-room").emit("refreshRoom")
         return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
+    }
+
+    async createNewChatWithMedia(dto: createNewChatWithMediaDto): Promise<ResponseType<Chat>> {
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
+        if (!existingRoom) {
+            throw new ForbiddenException("You Don't Have Access To This Room")
+        }
+
+        const roomMembers = existingRoom.members.filter(({ userId }) => {
+            return userId !== dto.userId
+        })
+
+        let createdChat: Chat = await this.chatRepository.createNewChatWithMedia(dto)
+        if (createdChat) {
+            await this.readChatService.createReadChats({ chatId: createdChat.chatId, members: roomMembers })
+            await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
+        }
+
+        return { message: "Chat With Media Created Successfull", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 
     async getChatByRoomId(dto: getChatByRoomIdDto): Promise<ResponseType<{ date: string, chats: ChatWithAliasType[] }[]>> {

@@ -18,6 +18,28 @@ export class createNewChatDto {
     message: string
 }
 
+export class createNewChatWithMediaDto {
+    @IsString()
+    @IsOptional()
+    userId: string
+
+    @IsOptional()
+    @IsString()
+    parentId: string
+
+    @IsString()
+    @IsNotEmpty()
+    roomId: string
+
+    @IsString()
+    @IsOptional()
+    mediaUrl: string
+
+    @IsString()
+    @IsNotEmpty()
+    message: string
+}
+
 export class getChatByRoomIdDto {
     @IsString()
     @IsNotEmpty()
