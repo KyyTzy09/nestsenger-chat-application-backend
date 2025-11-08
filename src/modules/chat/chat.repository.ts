@@ -42,6 +42,7 @@ export class ChatRepository {
             },
             include: {
                 parent: true,
+                media: true,
                 reactions: true
             },
             orderBy: {
