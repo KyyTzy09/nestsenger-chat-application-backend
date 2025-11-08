@@ -58,6 +58,8 @@ export class ChatService {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
 
+        this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
+        this.chatGateway.server.to("current-room").emit("refreshRoom")
         return { message: "Chat With Media Created Successfull", statusCode: HttpStatus.CREATED, data: createdChat }
     }
 
