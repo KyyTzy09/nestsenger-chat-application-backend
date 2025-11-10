@@ -68,7 +68,7 @@ export class ChatRepository {
         })
     }
 
-    async createNewChatWithMedia(data: { roomId: string, userId: string, parentId: string, mediaUrl: string, message: string }) {
+    async createNewChatWithMedia(data: { roomId: string, userId: string, parentId: string, mediaUrl: string, mediaSize: string, mediaName: string, message: string }) {
         return await this.prisma.chat.create({
             data: {
                 parentId: data.parentId,
@@ -78,8 +78,8 @@ export class ChatRepository {
                 media: {
                     create: {
                         mediaUrl: data.mediaUrl,
-                        mediaName: "",
-                        size: "",
+                        mediaName: data.mediaName,
+                        size: data.mediaSize,
                     }
                 }
             },

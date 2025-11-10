@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class createNewChatDto {
     @IsString()
@@ -34,6 +34,14 @@ export class createNewChatWithMediaDto {
     @IsString()
     @IsOptional()
     mediaUrl: string
+
+    @IsString()
+    @IsOptional()
+    mediaName: string
+
+    @IsNumber()
+    @IsOptional()
+    mediaSize: number
 
     @IsString()
     @IsNotEmpty()

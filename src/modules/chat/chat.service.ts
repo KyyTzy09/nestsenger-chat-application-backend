@@ -52,7 +52,15 @@ export class ChatService {
             return userId !== dto.userId
         })
 
-        let createdChat: Chat = await this.chatRepository.createNewChatWithMedia(dto)
+        let createdChat: Chat = await this.chatRepository.createNewChatWithMedia({
+            roomId: dto.roomId,
+            userId: dto.userId,
+            parentId: dto.parentId,
+            mediaName: dto.mediaName,
+            mediaSize: "",
+            mediaUrl: dto.mediaUrl,
+            message: dto.message
+        })
         if (createdChat) {
             await this.readChatService.createReadChats({ chatId: createdChat.chatId, members: roomMembers })
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })

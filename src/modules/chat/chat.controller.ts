@@ -32,7 +32,7 @@ export class ChatController {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         const mediaUrl = `${baseUrl}/uploads/media/${file.filename}`;
 
-        return this.chatService.createNewChatWithMedia({ userId: req.user.userId, roomId: dto.roomId, mediaUrl, parentId: dto.parentId, message: dto.message });
+        return this.chatService.createNewChatWithMedia({ userId: req.user.userId, roomId: dto.roomId, mediaUrl, mediaName: file.filename, mediaSize: file.size, parentId: dto.parentId, message: dto.message });
     }
 
     @Delete('for-all/:chatId/delete')
