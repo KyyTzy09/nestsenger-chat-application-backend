@@ -77,7 +77,9 @@ export class ChatRepository {
                 message: data.message,
                 media: {
                     create: {
-                        mediaUrl: data.mediaUrl
+                        mediaUrl: data.mediaUrl,
+                        mediaName: "",
+                        size: "",
                     }
                 }
             },

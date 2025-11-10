@@ -107,7 +107,9 @@ model Chat {
 
 model ChatMedia {
   chatId    String   @id @default(ulid())
+  mediaName String?
   mediaUrl  String
+  size      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
