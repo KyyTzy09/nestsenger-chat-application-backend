@@ -34,11 +34,11 @@ export class RoomService {
                 }
                 const aliasResult: AliasType = {
                     userId: roomAlias?.userId as string,
-                    name: roomAlias ? (roomAlias as friendWithFriend)?.alias || (roomAlias as User)?.email : "",
+                    alias: roomAlias ? (roomAlias as friendWithFriend)?.alias || (roomAlias as User)?.email : "",
                     avatar: roomAlias ? (roomAlias as friendWithFriend)?.friend?.avatar as string || (roomAlias as userWithProfile)?.profile?.avatar as string : "",
                 }
 
-                return { room, alias: aliasResult }
+                return { room, user: aliasResult }
             })
         )
         if (result.length === 0) {

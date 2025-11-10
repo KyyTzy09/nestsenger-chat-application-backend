@@ -72,10 +72,10 @@ export class ReactionService {
 
             const aliasResult: AliasType = {
                 userId: alias?.userId as string,
-                name: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+                alias: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
                 avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
             }
-            return { reaction, alias: aliasResult }
+            return { reaction, user: aliasResult }
         }))
 
         return { message: "Chat Reactions Retrieved Successfull", statusCode: HttpStatus.OK, data: result }

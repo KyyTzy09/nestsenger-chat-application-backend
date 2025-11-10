@@ -96,11 +96,11 @@ export class ChatService {
 
                 const aliasResult: AliasType = {
                     userId: alias?.userId as string,
-                    name: alias ? (alias as friendWithFriend)?.alias || "~" + (alias as User)?.email : "",
+                    alias: alias ? (alias as friendWithFriend)?.alias || "~" + (alias as User)?.email : "",
                     avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
                 }
 
-                return { chat, alias: aliasResult }
+                return { chat, user: aliasResult }
             })
         )
 
@@ -113,11 +113,11 @@ export class ChatService {
 
             acc[dateKey].push({
                 chat: data.chat!,
-                alias: data.alias
+                user: data.user
             });
 
             return acc;
-        }, {} as Record<string, { chat: Chat; alias: Friend | Partial<User> | null }[]>)
+        }, {} as Record<string, { chat: Chat; user: Friend | Partial<User> | null }[]>)
 
         const finalGrouped = Object.entries(groupedResult).map(([date, chats]) => ({
             date,
@@ -127,7 +127,7 @@ export class ChatService {
         return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: finalGrouped }
     }
 
-    async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, alias: AliasType }>> {
+    async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, user: AliasType }>> {
         type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
         type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
 
@@ -148,11 +148,11 @@ export class ChatService {
 
         const aliasResult: AliasType = {
             userId: alias?.userId as string,
-            name: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+            alias: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
             avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
         }
 
-        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, alias: aliasResult } }
+        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, user: aliasResult } }
     }
 
     async deleteChatForAll(dto: deleteChatForAllDto): Promise<ResponseType<DeletedChat>> {
