@@ -84,6 +84,9 @@ export class ChatRepository {
                     }
                 }
             },
+            include: {
+                media: true
+            }
         })
     }
 
