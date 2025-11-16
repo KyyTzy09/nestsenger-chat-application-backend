@@ -9,4 +9,9 @@ export class MediaController {
     getMediaByRoomId(@Param("roomId") roomId: string) {
         return this.mediaService.getMediaByRoomId({ roomId })
     }
+
+    @Get(":roomId/non-file/get")
+    getNonFileMediaByRoomId(@Param("roomId") roomId: string) {
+        return this.mediaService.getNonFileMediaByRoomId({ roomId })
+    }
 }

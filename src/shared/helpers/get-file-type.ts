@@ -1,5 +1,5 @@
-export function GetMediaType(mediaName: string): "document" | "image" | "video" | "audio" | "archive" {
-    let result: "document" | "image" | "video" | "audio" | "archive"
+export function GetMediaType(mediaName: string): "image" | "video" | "audio" | "file" {
+    let result: "file" | "image" | "video" | "audio"
     const name = mediaName.toLowerCase()
     if (
         name.endsWith(".jpg") ||
@@ -31,22 +31,8 @@ export function GetMediaType(mediaName: string): "document" | "image" | "video" 
     ) {
         result = "audio"
     }
-    else if (
-        name.endsWith(".pdf") ||
-        name.endsWith(".doc") ||
-        name.endsWith(".docx") ||
-        name.endsWith(".xls") ||
-        name.endsWith(".ppt") ||
-        name.endsWith(".pptx") ||
-        name.endsWith(".txt") ||
-        name.endsWith(".md") ||
-        name.endsWith(".csv") ||
-        mediaName.endsWith(".rtf")
-    ) {
-        result = "document"
-    }
     else {
-        result = "archive"
+        result = "file"
     }
 
     return result

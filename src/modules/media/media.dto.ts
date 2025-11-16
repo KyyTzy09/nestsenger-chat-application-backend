@@ -6,3 +6,9 @@ export class GetMediaByRoomIdDto {
     roomId: string
 }
 
+export class GetNonFileMediaByRoomIdDto {
+    @IsString()
+    @IsNotEmpty()
+    roomId: string
+}
+
