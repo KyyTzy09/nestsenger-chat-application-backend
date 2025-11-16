@@ -4,9 +4,10 @@ import { PrismaModule } from "../prisma/prisma.module";
 import { ChatModule } from "../chat/chat.module";
 import { MediaService } from "./media.service";
 import { MediaRepository } from "./media.repository";
+import { RoomModule } from "../room/room.module";
 
 @Module({
-    imports: [ChatModule, PrismaModule],
+    imports: [RoomModule, ChatModule, PrismaModule],
     controllers: [MediaController],
     providers: [MediaService, MediaRepository],
     exports: [MediaRepository]
