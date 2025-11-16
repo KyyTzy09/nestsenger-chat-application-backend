@@ -12,6 +12,7 @@ import { AliasType } from 'src/shared/types/alias';
 import { ResponseType } from 'src/shared/types/response';
 import { ReadChatService } from '../readchat/readchat.service';
 import { generateFileSize } from 'src/shared/helpers/generate-file-size';
+import { GetMediaType } from 'src/shared/helpers/get-file-type';
 
 @Injectable()
 export class ChatService {
@@ -54,12 +55,14 @@ export class ChatService {
         })
 
         const mediaSize = generateFileSize(dto.mediaSize)
+        const mediaType = GetMediaType(dto.mediaName)
         let createdChat: Chat = await this.chatRepository.createNewChatWithMedia({
             roomId: dto.roomId,
             userId: dto.userId,
             parentId: dto.parentId,
             mediaName: dto.mediaName,
             mediaSize,
+            mediaType,
             mediaUrl: dto.mediaUrl,
             message: dto.message
         })
