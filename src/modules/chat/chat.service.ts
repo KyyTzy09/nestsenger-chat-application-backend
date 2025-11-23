@@ -77,7 +77,7 @@ export class ChatService {
     }
 
     async getChatByRoomId(dto: getChatByRoomIdDto): Promise<ResponseType<{ date: string, chats: ChatWithAliasType[] }[]>> {
-        const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
         }
