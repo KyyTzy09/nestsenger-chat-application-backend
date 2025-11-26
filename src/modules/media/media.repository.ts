@@ -28,6 +28,13 @@ export class MediaRepository {
                     mediaType: "file",
                 }
             },
+            include: {
+                chat: {
+                    select: {
+                        message: true
+                    }
+                }
+            },
             orderBy: {
                 createdAt: "asc"
             }
