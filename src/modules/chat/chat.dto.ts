@@ -14,7 +14,7 @@ export class createNewChatDto {
     roomId: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     message: string
 }
 
@@ -44,7 +44,7 @@ export class createNewChatWithMediaDto {
     mediaSize: number
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     message: string
 }
 
