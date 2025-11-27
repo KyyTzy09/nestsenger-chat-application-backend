@@ -89,7 +89,7 @@ model Chat {
 
   userId    String
   roomId    String
-  message   String   @db.Text
+  message   String?   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   parentId  String?
