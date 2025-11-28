@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Req, UseGuards } from "@nestjs/common";
 import { MediaService } from "./media.service";
+import { AuthGuard } from "src/shared/guards/auth.guard";
 
 @Controller("media")
 export class MediaController {
@@ -11,7 +12,8 @@ export class MediaController {
     }
 
     @Get(":roomId/non-file/get")
-    getNonFileMediaByRoomId(@Param("roomId") roomId: string) {
-        return this.mediaService.getNonFileMediaByRoomId({ roomId })
+    @UseGuards(AuthGuard)
+    getNonFileMediaByRoomId(@Req() req, @Param("roomId") roomId: string) {
+        return this.mediaService.getNonFileMediaByRoomId({ userId: req.user.userId, roomId })
     }
 }

@@ -18,11 +18,25 @@ export class MediaRepository {
         })
     }
 
-    async findNonFileMediaByRoomId(data: { roomId: string }) {
+    async findNonFileMediaByRoomId(data: { userId: string, roomId: string }) {
         return await this.prisma.chatMedia.findMany({
             where: {
                 chat: {
-                    roomId: data.roomId
+                    roomId: data.roomId,
+                    NOT: {
+                        deletedChats: {
+                            some: {
+                                OR: [{
+                                    type: "ALL"
+                                }, {
+                                    isDeleted: true
+                                }, {
+                                    userId: data.userId,
+                                    type: "SELF"
+                                }]
+                            }
+                        }
+                    }
                 },
                 NOT: {
                     mediaType: "file",
