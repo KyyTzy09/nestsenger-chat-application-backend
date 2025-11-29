@@ -45,6 +45,7 @@ export class MediaRepository {
             include: {
                 chat: {
                     select: {
+                        userId : true,
                         message: true
                     }
                 }
