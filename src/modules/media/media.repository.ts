@@ -45,7 +45,43 @@ export class MediaRepository {
             include: {
                 chat: {
                     select: {
-                        userId : true,
+                        userId: true,
+                        message: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        })
+    }
+
+    async findFileMediaByRoomId(data: { userId: string, roomId: string }) {
+        return await this.prisma.chatMedia.findMany({
+            where: {
+                mediaType: "file",
+                chat: {
+                    roomId: data.roomId,
+                    NOT: {
+                        deletedChats: {
+                            some: {
+                                OR: [{
+                                    type: "ALL"
+                                }, {
+                                    isDeleted: true
+                                }, {
+                                    userId: data.userId,
+                                    type: "SELF"
+                                }]
+                            }
+                        }
+                    }
+                },
+            },
+            include: {
+                chat: {
+                    select: {
+                        userId: true,
                         message: true
                     }
                 }

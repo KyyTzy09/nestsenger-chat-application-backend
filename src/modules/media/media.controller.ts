@@ -16,4 +16,10 @@ export class MediaController {
     getNonFileMediaByRoomId(@Req() req, @Param("roomId") roomId: string) {
         return this.mediaService.getNonFileMediaByRoomId({ userId: req.user.userId, roomId })
     }
+
+    @Get(":roomId/file/get")
+    @UseGuards(AuthGuard)
+    getFileMediaByRoomId(@Req() req, @Param("roomId") roomId: string) {
+        return this.mediaService.getFileMediaByRoomId({ userId: req.user.userId, roomId })
+    }
 }

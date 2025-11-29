@@ -16,3 +16,12 @@ export class GetNonFileMediaByRoomIdDto {
     roomId: string
 }
 
+export class GetFileMediaByRoomIdDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    roomId: string
+}

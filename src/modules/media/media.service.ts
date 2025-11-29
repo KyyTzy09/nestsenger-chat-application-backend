@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { MediaRepository } from "./media.repository";
-import { GetMediaByRoomIdDto, GetNonFileMediaByRoomIdDto } from "./media.dto";
+import { GetFileMediaByRoomIdDto, GetMediaByRoomIdDto, GetNonFileMediaByRoomIdDto } from "./media.dto";
 import { RoomRepository } from "../room/room.repository";
 import { ResponseType } from "src/shared/types/response";
 import { ChatMedia } from "@prisma/client";
@@ -27,5 +27,15 @@ export class MediaService {
         if (existingMedia.length === 0) throw new NotFoundException("Media Don't Exist In This Room")
 
         return { message: "Non File Media Retrieved Successfully", statusCode: HttpStatus.OK, data: existingMedia }
+    }
+
+    async getFileMediaByRoomId(dto: GetFileMediaByRoomIdDto) {
+        const existingRoom = await this.roomRepository.findRoomById(dto)
+        if (!existingRoom) throw new NotFoundException("This Room Doesn't Exist")
+
+        const existingMedia = await this.mediaRepository.findFileMediaByRoomId(dto)
+        if (existingMedia.length === 0) throw new NotFoundException("Media Don't Exist In This Room")
+
+        return { message: "File Media Retrieved Successfully", statusCode: HttpStatus.OK, data: existingMedia }
     }
 }
