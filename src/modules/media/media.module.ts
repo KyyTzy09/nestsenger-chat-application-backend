@@ -6,11 +6,12 @@ import { MediaService } from "./media.service";
 import { MediaRepository } from "./media.repository";
 import { RoomModule } from "../room/room.module";
 import { UserModule } from "../user/user.module";
+import { ResponseHelper } from "src/shared/helpers/response";
 
 @Module({
     imports: [RoomModule, ChatModule, UserModule, PrismaModule],
     controllers: [MediaController],
-    providers: [MediaService, MediaRepository],
+    providers: [MediaService, MediaRepository, ResponseHelper],
     exports: [MediaRepository]
 })
 export class MediaModule { }

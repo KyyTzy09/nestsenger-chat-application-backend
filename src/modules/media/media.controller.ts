@@ -1,25 +1,31 @@
-import { Controller, Get, Param, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Param, Req, Res, UseGuards } from "@nestjs/common";
 import { MediaService } from "./media.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
+import { ResponseHelper } from "src/shared/helpers/response";
+import { ChatMedia } from "@prisma/client";
+import { ResponseType } from "src/shared/types/response";
 
 @Controller("media")
 export class MediaController {
-    constructor(private readonly mediaService: MediaService) { }
+    constructor(private readonly mediaService: MediaService, private readonly response: ResponseHelper) { }
 
     @Get(":roomId/room/get")
-    getMediaByRoomId(@Param("roomId") roomId: string) {
-        return this.mediaService.getMediaByRoomId({ roomId })
+    async getMediaByRoomId(@Res() res, @Param("roomId") roomId: string) {
+        const media = await this.mediaService.getMediaByRoomId({ roomId })
+        this.response.successResponse<ChatMedia[]>(res, "Media Retrieved Successfully", media?.data)
     }
 
     @Get(":roomId/non-file/get")
     @UseGuards(AuthGuard)
-    getNonFileMediaByRoomId(@Req() req, @Param("roomId") roomId: string) {
-        return this.mediaService.getNonFileMediaByRoomId({ userId: req.user.userId, roomId })
+    async getNonFileMediaByRoomId(@Req() req, @Res() res, @Param("roomId") roomId: string) {
+        const media = await this.mediaService.getNonFileMediaByRoomId({ userId: req.user.userId, roomId })
+        this.response.successResponse(res, "Non File Media Retrieved Successfully", media.data)
     }
 
     @Get(":roomId/file/get")
     @UseGuards(AuthGuard)
-    getFileMediaByRoomId(@Req() req, @Param("roomId") roomId: string) {
-        return this.mediaService.getFileMediaByRoomId({ userId: req.user.userId, roomId })
+    async getFileMediaByRoomId(@Req() req, @Res() res, @Param("roomId") roomId: string) {
+        const media = await this.mediaService.getFileMediaByRoomId({ userId: req.user.userId, roomId })
+        this.response.successResponse(res, "File Media Retrieved Successfully", media.data)
     }
 }
