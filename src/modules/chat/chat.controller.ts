@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { createNewChatDto, createNewChatWithMediaDto, deleteChatForYourselfDto } from './chat.dto';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
@@ -6,6 +6,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MEDIA_FIELD_NAME, MEDIA_UPLOAD_PATH } from 'src/shared/constants/upload';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ResponseType } from 'src/shared/types/response';
+import { Chat, DeletedChat } from '@prisma/client';
+import { ChatWithAliasType } from 'src/shared/types/chat';
+import { AliasType } from 'src/shared/types/alias';
 
 @Controller('chat')
 export class ChatController {
@@ -13,8 +17,9 @@ export class ChatController {
 
     @Post('create/post')
     @UseGuards(AuthGuard)
-    createNewChat(@Req() req, @Body() dto: createNewChatDto) {
-        return this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId: dto?.parentId })
+    async createNewChat(@Req() req, @Body() dto: createNewChatDto): Promise<ResponseType<Chat>> {
+        const createdChat = await this.chatService.createNewChat({ userId: req.user.userId, roomId: dto.roomId, message: dto.message, parentId: dto?.parentId })
+        return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat.data }
     }
 
     @Post('create-media/post')
@@ -28,39 +33,46 @@ export class ChatController {
             }
         })
     }))
-    createNewChatWithMedia(@UploadedFile() file: Express.Multer.File, @Req() req, @Body() dto: createNewChatWithMediaDto) {
+    async createNewChatWithMedia(@UploadedFile() file: Express.Multer.File, @Req() req, @Body() dto: createNewChatWithMediaDto): Promise<ResponseType<Chat>> {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         const mediaUrl = `${baseUrl}/uploads/media/${file.filename}`;
 
-        return this.chatService.createNewChatWithMedia({ userId: req.user.userId, roomId: dto.roomId, mediaUrl, mediaName: file.filename, mediaSize: file.size, parentId: dto.parentId, message: dto.message });
+        const createdChat = await this.chatService.createNewChatWithMedia({ userId: req.user.userId, roomId: dto.roomId, mediaUrl, mediaName: file.filename, mediaSize: file.size, parentId: dto.parentId, message: dto.message });
+        return { message: "Chat With Media Created Successfull", statusCode: HttpStatus.CREATED, data: createdChat.data }
     }
 
-    @Delete('for-all/:chatId/delete')
-    @UseGuards(AuthGuard)
-    deleteChatForAll(@Req() req, @Param('chatId') chatId: string) {
-        return this.chatService.deleteChatForAll({ userId: req.user.userId, chatId })
-    }
-
-    @Delete("for-self/:chatId/delete")
-    @UseGuards(AuthGuard)
-    deleteChatForYourSelf(@Req() req, @Param('chatId') chatId: string) {
-        return this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId })
-    }
 
     @Get(':roomId/get')
     @UseGuards(AuthGuard)
-    getChatByRoomId(@Req() req, @Param('roomId') roomId: string) {
-        return this.chatService.getChatByRoomId({ roomId, userId: req.user.userId })
+    async getChatByRoomId(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<{ date: string, chats: ChatWithAliasType[] }[]>> {
+        const results = await this.chatService.getChatByRoomId({ roomId, userId: req.user.userId })
+        return { message: "Chats Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
     }
 
     @Get(':chatId/parent/get')
     @UseGuards(AuthGuard)
-    getChatParent(@Req() req, @Param("chatId") chatId: string) {
-        return this.chatService.getChatParent({ userId: req.user.userId, chatId })
+    async getChatParent(@Req() req, @Param("chatId") chatId: string): Promise<ResponseType<{ chat: Chat | null, user: AliasType }>> {
+        const result = await this.chatService.getChatParent({ userId: req.user.userId, chatId })
+        return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: result.data.chat, user: result.data.user } }
     }
 
     @Get('deleted-chat/:roomId/get')
-    getDeletedChat(@Param("roomId") roomId: string) {
-        return this.chatService.getDeletedChat({ roomId })
+    async getDeletedChat(@Param("roomId") roomId: string): Promise<ResponseType<DeletedChat[]>> {
+        const deletedChats = await this.chatService.getDeletedChat({ roomId })
+        return { message: "Deleted Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: deletedChats.data }
+    }
+
+    @Delete('for-all/:chatId/delete')
+    @UseGuards(AuthGuard)
+    async deleteChatForAll(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<DeletedChat>> {
+        const deletedChat = await this.chatService.deleteChatForAll({ userId: req.user.userId, chatId })
+        return { message: "Deleted Chat For All Successfully", statusCode: HttpStatus.OK, data: deletedChat.data }
+    }
+
+    @Delete("for-self/:chatId/delete")
+    @UseGuards(AuthGuard)
+    async deleteChatForYourSelf(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<DeletedChat>> {
+        const deletedChat = await this.chatService.deleteChatForYourself({ userId: req.user.userId, chatId })
+        return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat.data }
     }
 }

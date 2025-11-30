@@ -3,10 +3,9 @@ import { ChatRepository } from './chat.repository';
 import { UserRepository } from '../user/user.repository';
 import { RoomRepository } from '../room/room.repository';
 import { createNewChatDto, createNewChatWithMediaDto, deleteChatForAllDto, deleteChatForYourselfDto, getChatByRoomIdDto, getChatParentDto, getDeletedChatDto } from './chat.dto';
-import { Chat, DeletedChat, Friend, Prisma, User } from '@prisma/client';
+import { Chat, Friend, Prisma, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { format } from 'date-fns';
-import { ChatWithAliasType } from 'src/shared/types/chat';
 import { ChatGateWay } from './chat.gateway';
 import { AliasType } from 'src/shared/types/alias';
 import { ResponseType } from 'src/shared/types/response';
@@ -18,7 +17,7 @@ import { GetMediaType } from 'src/shared/helpers/get-file-type';
 export class ChatService {
     constructor(private readonly chatRepository: ChatRepository, private readonly readChatService: ReadChatService, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
 
-    async createNewChat(dto: createNewChatDto): Promise<ResponseType<Chat>> {
+    async createNewChat(dto: createNewChatDto) {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new ForbiddenException("You Don't Have Access To This Room")
@@ -41,10 +40,10 @@ export class ChatService {
 
         this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
         this.chatGateway.server.to("current-room").emit("refreshRoom")
-        return { message: "Chat Created Successfully", statusCode: HttpStatus.CREATED, data: createdChat }
+        return { data: createdChat }
     }
 
-    async createNewChatWithMedia(dto: createNewChatWithMediaDto): Promise<ResponseType<Chat>> {
+    async createNewChatWithMedia(dto: createNewChatWithMediaDto) {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new ForbiddenException("You Don't Have Access To This Room")
@@ -73,10 +72,10 @@ export class ChatService {
 
         this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
         this.chatGateway.server.to("current-room").emit("refreshRoom")
-        return { message: "Chat With Media Created Successfull", statusCode: HttpStatus.CREATED, data: createdChat }
+        return { data: createdChat }
     }
 
-    async getChatByRoomId(dto: getChatByRoomIdDto): Promise<ResponseType<{ date: string, chats: ChatWithAliasType[] }[]>> {
+    async getChatByRoomId(dto: getChatByRoomIdDto) {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
@@ -127,7 +126,7 @@ export class ChatService {
             chats
         }))
 
-        return { message: "Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: finalGrouped }
+        return { data: finalGrouped }
     }
 
     async getChatParent(dto: getChatParentDto): Promise<ResponseType<{ chat: Chat | null, user: AliasType }>> {
@@ -158,7 +157,7 @@ export class ChatService {
         return { message: "Parent Chat Data Retrieved Successfully", statusCode: HttpStatus.OK, data: { chat: existingParent, user: aliasResult } }
     }
 
-    async deleteChatForAll(dto: deleteChatForAllDto): Promise<ResponseType<DeletedChat>> {
+    async deleteChatForAll(dto: deleteChatForAllDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't exist")
@@ -181,7 +180,7 @@ export class ChatService {
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 
-    async getDeletedChat(dto: getDeletedChatDto): Promise<ResponseType<DeletedChat[]>> {
+    async getDeletedChat(dto: getDeletedChatDto) {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {
             throw new NotFoundException("Room Not Found")
@@ -192,10 +191,10 @@ export class ChatService {
             throw new NotFoundException("Deleted Chats Not Found")
         }
 
-        return { message: "Deleted Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingDeletedChats }
+        return { data: existingDeletedChats }
     }
 
-    async deleteChatForYourself(dto: deleteChatForYourselfDto): Promise<ResponseType<DeletedChat>> {
+    async deleteChatForYourself(dto: deleteChatForYourselfDto) {
         type deletedChatWithChat = Prisma.DeletedChatGetPayload<{
             include: {
                 chat: true
@@ -216,6 +215,6 @@ export class ChatService {
         }
 
         this.chatGateway.server.to(deletedChat?.chat?.roomId).emit("deletedChat")
-        return { message: "Deleted Chat Successfully", statusCode: HttpStatus.OK, data: deletedChat }
+        return { data: deletedChat }
     }
 }
