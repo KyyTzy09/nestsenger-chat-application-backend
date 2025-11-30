@@ -1,23 +1,28 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
+import { ResponseType } from 'src/shared/types/response';
+import { User } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
-    
+
     @Get("get")
-    getAllUsers() {
-        return this.userService.findAllUser()
+    async getAllUsers(): Promise<ResponseType<Partial<User[]>>> {
+        const users = await this.userService.findAllUser()
+        return { message: "Users retrieved successfully", statusCode: HttpStatus.OK, data: users.data }
     }
 
     @Get(":email/get")
-    getUserByUsername(@Param("email") email: string) {
-        return this.userService.findByEmail({ email })
+    async getUserByUsername(@Param("email") email: string): Promise<ResponseType<User>> {
+        const user = await this.userService.findByEmail({ email })
+        return { message: "User retrieved successfully", statusCode: HttpStatus.OK, data: user.data }
     }
 
     @Get(":userId/get-id")
-    getUserById(@Param("userId") userId: string) {
-        return this.userService.findUserId({ userId })
+    async getUserById(@Param("userId") userId: string): Promise<ResponseType<User>> {
+        const user = await this.userService.findUserId({ userId })
+        return { message: "Getting user successfully", statusCode: HttpStatus.OK, data: user.data }
     }
 }

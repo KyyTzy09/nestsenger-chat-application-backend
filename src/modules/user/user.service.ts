@@ -8,31 +8,31 @@ import { ResponseType } from 'src/shared/types/response';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
 
-    async findAllUser(): Promise<ResponseType<Partial<User[]>>> {
+    async findAllUser() {
         const existingUsers = await this.userRepository.findAll()
 
         if (existingUsers.length === 0) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Users retrieved successfully", statusCode: HttpStatus.OK, data: existingUsers }
+        return { data: existingUsers }
     }
 
-    async findUserId(dto: GetUserByUserIdDto): Promise<ResponseType<User>> {
+    async findUserId(dto: GetUserByUserIdDto) {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Getting user successfully", statusCode: HttpStatus.OK, data: existingUser }
+        return { data: existingUser }
     }
 
-    async findByEmail(dto: GetUserByUsernameDto): Promise<ResponseType<User>> {
+    async findByEmail(dto: GetUserByUsernameDto) {
         const existingUser = await this.userRepository.findByEmail({ email: dto.email })
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "User retrieved successfully", statusCode: HttpStatus.OK, data: existingUser }
+        return { data: existingUser }
     }
 }
