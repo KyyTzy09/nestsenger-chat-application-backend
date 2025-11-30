@@ -20,14 +20,9 @@ export class AuthGuard implements CanActivate {
         try {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: jwtSecret
-            })
+            }) as { userId: string }
 
-            const existingUser = await this.userRepository.findById({ userId: payload.userId })
-            if (!existingUser) {
-                throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
-            }
-
-            request["user"] = existingUser
+            request["user"] = payload
         } catch (error) {
             throw new UnauthorizedException()
         }
