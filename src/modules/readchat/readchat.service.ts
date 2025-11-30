@@ -14,13 +14,13 @@ import { ResponseType } from "src/shared/types/response";
 export class ReadChatService {
     constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatGateway: ChatGateWay) { }
 
-    async countRoomUnreadChats(dto: CountRoomUnreadChatsDto): Promise<ResponseType<number>> {
+    async countRoomUnreadChats(dto: CountRoomUnreadChatsDto) {
         const countUnreadChats = await this.readChatRepository.countRoomUnreadChats(dto)
         if (countUnreadChats === 0) {
             throw new NotFoundException("All Chat's Has Been Readed")
         }
 
-        return { message: "Count Unread Chats Successfully", statusCode: HttpStatus.OK, data: countUnreadChats }
+        return { data: countUnreadChats }
     }
 
     async readChats(dto: UpdateReadChatDto) {
@@ -31,10 +31,10 @@ export class ReadChatService {
         const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })
 
         this.chatGateway.server.to(dto.roomId).emit("readChatUpdate")
-        return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
+        return { count: updatedReadChats.count }
     }
 
-    async isChatHasRead(dto: IsChatReadDto): Promise<ResponseType<boolean>> {
+    async isChatHasRead(dto: IsChatReadDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) throw new NotFoundException("Chat Not Found")
 
@@ -44,7 +44,7 @@ export class ReadChatService {
         const existingReadChats = await this.readChatRepository.findReadedChats({ chatId: dto.chatId })
         if (existingReadChats.length === 0) throw new NotFoundException("ReadChat Data Not Founds")
 
-        return { message: "Read Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: existingMembers.length === existingReadChats.length }
+        return { data: existingMembers.length === existingReadChats.length }
     }
 
     async createReadChats(dto: CreateReadChatsDto) {
@@ -86,6 +86,6 @@ export class ReadChatService {
             })
         )
 
-        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+        return { data: result }
     }
 }

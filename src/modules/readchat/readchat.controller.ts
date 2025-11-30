@@ -1,6 +1,9 @@
-import { Controller, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { ReadChatService } from "./readchat.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
+import { ResponseType } from "src/shared/types/response";
+import { ChatRead } from "@prisma/client";
+import { AliasType } from "src/shared/types/alias";
 
 @Controller("readchat")
 export class ReadChatController {
@@ -8,25 +11,29 @@ export class ReadChatController {
 
     @Get(":chatId/get")
     @UseGuards(AuthGuard)
-    getReadChat(@Req() req, @Param('chatId') chatId: string) {
-        return this.readChatService.getReadChats({ userId: req.user.userId, chatId })
+    async getReadChat(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<{ readChat: ChatRead, user: AliasType }[]>> {
+        const results = await this.readChatService.getReadChats({ userId: req.user.userId, chatId })
+        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
     }
 
     @Get(":roomId/unread/get")
     @UseGuards(AuthGuard)
-    countUnreadChats(@Req() req, @Param('roomId') roomId: string) {
-        return this.readChatService.countRoomUnreadChats({ userId: req.user.userId, roomId })
+    async countUnreadChats(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<number>> {
+        const countUnreadChats = await this.readChatService.countRoomUnreadChats({ userId: req.user.userId, roomId })
+        return { message: "Count Unread Chats Successfully", statusCode: HttpStatus.OK, data: countUnreadChats.data }
     }
 
     @Get(':chatId/has-read/get')
     @UseGuards(AuthGuard)
-    isChatHasRead(@Req() req, @Param('chatId') chatId: string) {
-        return this.readChatService.isChatHasRead({ userId: req.user.userId, chatId })
+    async isChatHasRead(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<boolean>> {
+        const result = await this.readChatService.isChatHasRead({ userId: req.user.userId, chatId })
+        return { message: "Read Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Patch(":roomId/patch")
     @UseGuards(AuthGuard)
-    updateReadChat(@Req() req, @Param('roomId') roomId: string) {
-        return this.readChatService.readChats({ roomId, userId: req.user.userId })
+    async updateReadChat(@Req() req, @Param('roomId') roomId: string): Promise<{ message: string, statusCode: number, count: number }> {
+        const updatedReadChats = await this.readChatService.readChats({ roomId, userId: req.user.userId })
+        return { message: "ReadChats Updated Successfull", statusCode: HttpStatus.OK, count: updatedReadChats.count }
     }
 }
