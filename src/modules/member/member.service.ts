@@ -11,7 +11,7 @@ import { ResponseType } from "src/shared/types/response";
 export class MemberService {
     constructor(private readonly memberRepository: MemberRepository, private readonly roomRepository: RoomRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
-    async getRoomMember(dto: getRoomMemberDto): Promise<ResponseType<({ member: Member, alias: Friend | Partial<User> | null }[] | {}[]) | (Member | null)>> {
+    async getRoomMember(dto: getRoomMemberDto) {
         let result: { member: Member, alias: Friend | Partial<User> | null }[] = []
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) {
@@ -34,6 +34,6 @@ export class MemberService {
             }))
         }
 
-        return { message: "Member Retrieved Successfully", statusCode: HttpStatus.OK, data: result.length > 0 ? result : existingMember }
+        return { data: result.length > 0 ? result : existingMember }
     }
 }
