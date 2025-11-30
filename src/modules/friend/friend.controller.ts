@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { FriendService } from "./friend.service";
-import { addFriendDto } from "./friend.dto";
+import { addFriendDto, updateFriendAliasDto } from "./friend.dto";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Room, User } from "@prisma/client";
@@ -37,6 +37,12 @@ export class FriendController {
     async addFriend(@Req() req, @Body() dto: addFriendDto): Promise<ResponseType<{ friend: Friend, room: Room }>> {
         const result = await this.friendService.addFriend({ userId: req.user.userId, alias: dto.alias, friendId: dto.friendId })
         return { message: "Friend Created Successfull", statusCode: HttpStatus.CREATED, data: { friend: result.data.friend, room: result.data.room } }
+    }
+
+    @Patch("update-alias/patch")
+    async updateFriendAlias(@Req() req, @Body() dto: updateFriendAliasDto): Promise<ResponseType<Friend>> {
+        const result = await this.friendService.updateFriendAlias({ userId: req.user.userId, friendId: dto.friendId, alias: dto.alias })
+        return { message: "Friend Alias Updated Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Delete("delete-friend/:friendId/delete")

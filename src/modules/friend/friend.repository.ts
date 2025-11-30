@@ -24,8 +24,7 @@ export class FriendRepository {
         return await this.prisma.friend.findUnique({
             where: {
                 userId_friendId: {
-                    userId: data.userId,
-                    friendId: data.friendId
+                   ...data
                 }
             },
             include: {
@@ -45,9 +44,20 @@ export class FriendRepository {
     async createFriend(data: { userId: string, friendId: string, alias: string }): Promise<Friend> {
         return await this.prisma.friend.create({
             data: {
-                friendId: data.friendId,
-                userId: data.userId,
-                alias: data.alias,
+                ...data
+            }
+        })
+    }
+
+    async updateAlias(data: { userId: string, friendId: string, alias: string }) {
+        return await this.prisma.friend.update({
+            where: {
+                userId_friendId: {
+                    ...data
+                }
+            },
+            data: {
+                alias: data.alias
             }
         })
     }
@@ -56,8 +66,7 @@ export class FriendRepository {
         return await this.prisma.friend.delete({
             where: {
                 userId_friendId: {
-                    userId: data.userId,
-                    friendId: data.friendId
+                    ...data
                 }
             }
         })

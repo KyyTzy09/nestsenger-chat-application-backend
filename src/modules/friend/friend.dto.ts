@@ -36,6 +36,20 @@ export class addFriendDto {
     friendId: string
 }
 
+export class updateFriendAliasDto {
+    @IsString()
+    @IsNotEmpty()
+    alias: string
+
+    @IsString()
+    @IsNotEmpty()
+    friendId: string
+
+    @IsString()
+    @IsOptional()
+    userId:string
+}
+
 export class deleteFriendDto {
     @IsString()
     @IsOptional()

@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "./friend.repository";
-import { addFriendDto, deleteFriendDto, getFriendById, getNonFriendUsersDto, getUserFriendDto } from "./friend.dto";
+import { addFriendDto, deleteFriendDto, getFriendById, getNonFriendUsersDto, getUserFriendDto, updateFriendAliasDto } from "./friend.dto";
 import { Friend, Room, User } from "@prisma/client";
 import { RoomService } from "../room/room.service";
 import { ResponseType } from "src/shared/types/response";
@@ -72,6 +72,17 @@ export class FriendService {
         const createdRoom = await this.roomService.getOrCreatePrivateRoom({ userIdA: dto.userId, userIdB: dto.friendId })
 
         return { data: { friend: createdFriend, room: createdRoom.data.room } }
+    }
+
+    async updateFriendAlias(dto: updateFriendAliasDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new NotFoundException("User Not Registered")
+
+        const existingFriend = await this.friendRepository.findByUnique(dto)
+        if (!existingFriend) throw new BadRequestException("You Was Not This User Friend")
+
+        const updatedAlias = await this.friendRepository.updateAlias(dto)
+        return { data: updatedAlias }
     }
 
     async deleteFriend(dto: deleteFriendDto) {
