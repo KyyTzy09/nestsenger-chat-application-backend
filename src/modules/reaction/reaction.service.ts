@@ -13,7 +13,7 @@ import { ResponseType } from 'src/shared/types/response';
 export class ReactionService {
     constructor(private readonly reactionRepository: ReactionRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatRepository: ChatRepository, private readonly chatGateway: ChatGateWay) { }
 
-    async createReaction(dto: createReactionDto): Promise<ResponseType<Reaction>> {
+    async createReaction(dto: createReactionDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't Exist")
@@ -21,7 +21,7 @@ export class ReactionService {
         const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
         this.chatGateway.server.to(existingChat?.roomId).emit("updateReaction", createdReaction)
-        return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction }
+        return { data: createdReaction }
     }
 
     async deleteReactionById(dto: deleteReactionByIdDto): Promise<ResponseType<Reaction>> {
@@ -35,7 +35,7 @@ export class ReactionService {
         return { message: "Reaction Deleted Successfull", statusCode: HttpStatus.OK, data: deletedReaction }
     }
 
-    async getUserReaction(dto: getUserReactionDto): Promise<ResponseType<Reaction>> {
+    async getUserReaction(dto: getUserReactionDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't Exist")
@@ -46,10 +46,10 @@ export class ReactionService {
             throw new NotFoundException("Reaction Doesn't Exist In This Chat")
         }
 
-        return { message: "Reaction Data Retrieved Successfull", statusCode: HttpStatus.OK, data: existingReaction }
+        return { data: existingReaction }
     }
 
-    async getChatReactions(dto: getChatReactionsDto): Promise<ResponseType<{ reaction: Reaction, alias: AliasType }[] | {}[]>> {
+    async getChatReactions(dto: getChatReactionsDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
         if (!existingChat) {
             throw new NotFoundException("Chat Doesn't Exist")
@@ -78,6 +78,6 @@ export class ReactionService {
             return { reaction, user: aliasResult }
         }))
 
-        return { message: "Chat Reactions Retrieved Successfull", statusCode: HttpStatus.OK, data: result }
+        return { data: result }
     }
 }

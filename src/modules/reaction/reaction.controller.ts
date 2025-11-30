@@ -2,6 +2,9 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Delete, Req, 
 import { ReactionService } from './reaction.service';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { createReactionDto } from './reaction.dto';
+import { ResponseType } from 'src/shared/types/response';
+import { Reaction } from '@prisma/client';
+import { AliasType } from 'src/shared/types/alias';
 
 @Controller('reaction')
 export class ReactionController {
@@ -10,25 +13,29 @@ export class ReactionController {
     @Post('create/post')
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.CREATED)
-    createReaction(@Req() req, @Body() dto: createReactionDto) {
-        return this.reactionService.createReaction({ userId: req.user.userId, chatId: dto.chatId, content: dto.content })
+    async createReaction(@Req() req, @Body() dto: createReactionDto): Promise<ResponseType<Reaction>> {
+        const createdReaction = await this.reactionService.createReaction({ userId: req.user.userId, chatId: dto.chatId, content: dto.content })
+        return { message: "Reaction Created Successfull", statusCode: HttpStatus.CREATED, data: createdReaction.data }
     }
 
     @Delete(':reactId/delete')
     @UseGuards(AuthGuard)
-    deleteReactionById(@Req() req, @Param('reactId') reactionId: string) {
-        return this.reactionService.deleteReactionById({ userId: req.user.userId, reactionId })
+    async deleteReactionById(@Req() req, @Param('reactId') reactionId: string): Promise<ResponseType<Reaction>> {
+        const deletedReaction = await this.reactionService.deleteReactionById({ userId: req.user.userId, reactionId })
+        return { message: "Reaction Deleted Successfull", statusCode: HttpStatus.OK, data: deletedReaction.data }
     }
 
     @Get(':chatId/user/get')
     @UseGuards(AuthGuard)
-    getUserReaction(@Req() req, @Param('chatId') chatId: string) {
-        return this.reactionService.getUserReaction({ userId: req.user.userId, chatId })
+    async getUserReaction(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<Reaction>> {
+        const userReactions = await this.reactionService.getUserReaction({ userId: req.user.userId, chatId })
+        return { message: "Reaction Data Retrieved Successfull", statusCode: HttpStatus.OK, data: userReactions.data }
     }
 
     @Get(':chatId/chat/get')
     @UseGuards(AuthGuard)
-    getChatReactions(@Req() req, @Param('chatId') chatId: string) {
-        return this.reactionService.getChatReactions({ userId: req.user.userId, chatId })
+    async getChatReactions(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<{ reaction: Reaction, alias: AliasType }[] | {}[]>> {
+        const chatReactions = await this.reactionService.getChatReactions({ userId: req.user.userId, chatId })
+        return { message: "Chat Reactions Retrieved Successfull", statusCode: HttpStatus.OK, data: chatReactions.data }
     }
 }
