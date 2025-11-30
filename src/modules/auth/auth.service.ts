@@ -9,13 +9,13 @@ import * as bcrypt from "bcrypt"
 export class AuthService {
     constructor(private readonly userRepository: UserRepository, private readonly jwtService: JwtService) { }
 
-    async getSession(dto: GetSessionDto): Promise<{ message: string, statusCode: number, data: User }> {
+    async getSession(dto: GetSessionDto) {
         const existingUser = await this.userRepository.findById(dto)
         if (!existingUser) {
             throw new HttpException("User not registered", HttpStatus.NOT_FOUND)
         }
 
-        return { message: "Getting user session successfully", statusCode: HttpStatus.OK, data: existingUser }
+        return { data: existingUser }
     }
 
     async Register(dto: RegisterDto): Promise<{ message: string, statusCode: number, data: User }> {
