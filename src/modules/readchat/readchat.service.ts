@@ -25,8 +25,8 @@ export class ReadChatService {
     }
 
     async readChats(dto: UpdateReadChatDto) {
-        const existingReadChats = await this.readChatRepository.findManyByRoomId({ roomId: dto.roomId, userId: dto.userId })
-        if (existingReadChats.length === 0) throw new NotFoundException("Read Chat Not Founds")
+        const existingReadChats = await this.readChatRepository.findUnreadChatsByRoomId({ roomId: dto.roomId, userId: dto.userId })
+        if (existingReadChats.length === 0) throw new NotFoundException("Unread Chat Not Founds")
         const readChatIds = existingReadChats.map(({ chatReadId }) => { return chatReadId })
 
         const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })

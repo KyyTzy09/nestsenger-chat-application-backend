@@ -18,7 +18,7 @@ export class ReadChatRepository {
         })
     }
 
-    async findManyByRoomId(data: { roomId: string, userId: string }) {
+    async findUnreadChatsByRoomId(data: { roomId: string, userId: string }) {
         return await this.prisma.chatRead.findMany({
             where: {
                 chat: {
@@ -29,6 +29,26 @@ export class ReadChatRepository {
                     userId: data.userId
                 }
 
+            },
+            include: {
+                reader: {
+                    select: {
+                        userId: true
+                    }
+                }
+            },
+            orderBy: {
+                sendAt: "desc"
+            }
+        })
+    }
+
+    async findManyByRoomId(data: { roomId: string }) {
+        return await this.prisma.chatRead.findMany({
+            where: {
+                chat: {
+                    roomId: data.roomId
+                },
             },
             include: {
                 reader: {
