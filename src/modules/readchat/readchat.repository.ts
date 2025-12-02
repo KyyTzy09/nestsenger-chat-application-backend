@@ -30,6 +30,13 @@ export class ReadChatRepository {
                 }
 
             },
+            include: {
+                reader: {
+                    select: {
+                        userId: true
+                    }
+                }
+            },
             orderBy: {
                 sendAt: "desc"
             }

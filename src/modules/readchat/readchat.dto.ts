@@ -12,6 +12,17 @@ export class GetReadChatsDto {
     userId: string
 }
 
+export class GetReadChatsByRoomIdDto {
+    @IsNotEmpty()
+    @IsString()
+    roomId: string
+
+
+    @IsNotEmpty()
+    @IsString()
+    userId: string
+}
+
 export class IsChatReadDto {
     @IsNotEmpty()
     @IsString()

@@ -16,6 +16,14 @@ export class ReadChatController {
         return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
     }
 
+    @Get(":roomId/room/get")
+    @UseGuards(AuthGuard)
+    async getReadChatsByRoomId(@Req() req, @Param("roomId") roomId: string): Promise<ResponseType<{ readChat: ChatRead, user: AliasType }[]>> {
+        const results = await this.readChatService.getReadChatsByRoomId({ userId: req.user.userId, roomId })
+
+        return { message: "Read Chat Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
+    }
+
     @Get(":roomId/unread/get")
     @UseGuards(AuthGuard)
     async countUnreadChats(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<number>> {
