@@ -6,9 +6,10 @@ import { ReactionController } from './reaction.controller';
 import { ReactionService } from './reaction.service';
 import { ReactionRepository } from './reaction.repository';
 import { FriendModule } from '../friend/friend.module';
+import { RoomModule } from '../room/room.module';
 
 @Module({
-    imports: [UserModule, ChatModule, FriendModule, PrismaModule],
+    imports: [UserModule, ChatModule, FriendModule, RoomModule, PrismaModule],
     controllers: [ReactionController],
     providers: [ReactionService, ReactionRepository],
     exports: [ReactionRepository]

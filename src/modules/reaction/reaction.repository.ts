@@ -31,6 +31,19 @@ export class ReactionRepository {
         })
     }
 
+    async findByRoomId(data: { roomId: string }) {
+        return await this.prisma.reaction.findMany({
+            where: {
+                chat: {
+                    ...data
+                }
+            },
+            orderBy: {
+                updatedAt: "desc"
+            }
+        })
+    }
+
     async findChatReactions(data: { chatId: string }): Promise<Reaction[]> {
         return await this.prisma.reaction.findMany({
             where: {

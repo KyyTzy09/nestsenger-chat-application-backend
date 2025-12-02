@@ -34,6 +34,16 @@ export class getUserReactionDto {
     chatId: string
 }
 
+export class getChatReactionsByRoomIdDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    roomId: string
+}
+
 export class getChatReactionsDto {
     @IsString()
     @IsNotEmpty()

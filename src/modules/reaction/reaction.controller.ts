@@ -32,6 +32,14 @@ export class ReactionController {
         return { message: "Reaction Data Retrieved Successfull", statusCode: HttpStatus.OK, data: userReactions.data }
     }
 
+    @Get(":roomId/room/get")
+    @UseGuards(AuthGuard)
+    async getByRoomId(@Req() req, @Param("roomId") roomId: string): Promise<ResponseType<{ reaction: Reaction, alias: AliasType }[] | {}[]>> {
+        const chatReactions = await this.reactionService.getChatReactionsByRoomId({ userId: req.user.userId, roomId })
+
+        return { message: "Reactions Data Retrieved Successfully", statusCode: HttpStatus.OK, data: chatReactions.data }
+    }
+
     @Get(':chatId/chat/get')
     @UseGuards(AuthGuard)
     async getChatReactions(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<{ reaction: Reaction, alias: AliasType }[] | {}[]>> {
