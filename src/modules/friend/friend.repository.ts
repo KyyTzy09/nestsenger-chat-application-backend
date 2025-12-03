@@ -24,7 +24,8 @@ export class FriendRepository {
         return await this.prisma.friend.findUnique({
             where: {
                 userId_friendId: {
-                   ...data
+                    friendId: data.friendId,
+                    userId: data.userId
                 }
             },
             include: {
@@ -53,7 +54,8 @@ export class FriendRepository {
         return await this.prisma.friend.update({
             where: {
                 userId_friendId: {
-                    ...data
+                    friendId: data.friendId,
+                    userId: data.userId
                 }
             },
             data: {

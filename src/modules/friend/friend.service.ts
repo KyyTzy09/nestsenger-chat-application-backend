@@ -78,7 +78,7 @@ export class FriendService {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new NotFoundException("User Not Registered")
 
-        const existingFriend = await this.friendRepository.findByUnique(dto)
+        const existingFriend = await this.friendRepository.findByUnique({...dto})
         if (!existingFriend) throw new BadRequestException("You Was Not This User Friend")
 
         const updatedAlias = await this.friendRepository.updateAlias(dto)
