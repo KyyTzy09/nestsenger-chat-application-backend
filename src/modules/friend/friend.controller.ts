@@ -40,6 +40,7 @@ export class FriendController {
     }
 
     @Patch("update-alias/patch")
+    @UseGuards(AuthGuard)
     async updateFriendAlias(@Req() req, @Body() dto: updateFriendAliasDto): Promise<ResponseType<Friend>> {
         const result = await this.friendService.updateFriendAlias({ userId: req.user.userId, friendId: dto.friendId, alias: dto.alias })
         return { message: "Friend Alias Updated Successfully", statusCode: HttpStatus.OK, data: result.data }
