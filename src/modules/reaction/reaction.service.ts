@@ -57,17 +57,15 @@ export class ReactionService {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Room Not Found")
 
-        const reactions = await this.reactionRepository.findByRoomId(dto)
+        const reactions = await this.reactionRepository.findByRoomId({ roomId: dto.roomId })
         if (reactions.length === 0) throw new NotFoundException("Reaction Data Not Founds")
 
-        const result = await Promise.all(reactions.map(async ({ chatId, userId }, i) => {
+        const result = await Promise.all(reactions.map(async (reaction) => {
             type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
             type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
-
-            const reaction = await this.reactionRepository.findByUnique({ chatId, userId })
-            let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: userId })
+            let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: reaction.userId })
             if (!alias) {
-                alias = await this.userRepository.findUserInfo({ userId })
+                alias = await this.userRepository.findUserInfo({ userId: reaction.userId })
             }
 
             const aliasResult: AliasType = {

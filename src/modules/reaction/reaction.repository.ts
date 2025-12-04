@@ -35,7 +35,7 @@ export class ReactionRepository {
         return await this.prisma.reaction.findMany({
             where: {
                 chat: {
-                    ...data
+                    roomId: data.roomId
                 }
             },
             orderBy: {
