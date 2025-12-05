@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { MemberRepository } from "./member.repository";
-import { getRoomMemberDto } from "./member.dto";
+import { addGroupMemberDto, getRoomMemberDto } from "./member.dto";
 import { RoomRepository } from "../room/room.repository";
 import { Friend, Member, User } from "@prisma/client";
 import { UserRepository } from "../user/user.repository";
@@ -35,5 +35,20 @@ export class MemberService {
         }
 
         return { data: result.length > 0 ? result : existingMember }
+    }
+
+    async AddGroupMember(dto: addGroupMemberDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new UnauthorizedException("User Not Registered")
+
+        const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
+        if (!existingRoom) throw new NotFoundException("Group Not Found")
+
+        const existingUsers = await this.userRepository.findManyById({ userId: dto.userIds })
+        if (existingUsers.length !== dto.userIds.length) throw new NotFoundException("Users Not Found")
+
+        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId })
+
+        return { data: createdMembers.count }
     }
 }
