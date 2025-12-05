@@ -28,6 +28,7 @@ model User {
   chats        Chat[]        @relation("Chat Sender")
   reactions    Reaction[]    @relation("User Reactions")
   chatsDeleted DeletedChat[]
+  Creator      Room[]        @relation("Room Creator")
 }
 
 model Profile {
@@ -63,10 +64,12 @@ model Room {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   lastChatId String?
+  creatorId  String?
   // Relations
   members    Member[] @relation("Room Members")
   chats      Chat[]   @relation("Room Chats")
   lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: SetNull)
+  createdBy  User?    @relation("Room Creator", fields: [creatorId], references: [userId])
 }
 
 model Member {
@@ -89,7 +92,7 @@ model Chat {
 
   userId    String
   roomId    String
-  message   String?   @db.Text
+  message   String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   parentId  String?
