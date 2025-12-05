@@ -112,6 +112,11 @@ export class RoomRepository {
                             select: {
                                 email: true,
                             }
+                        },
+                        media: {
+                            select: {
+                                mediaType: true,
+                            }
                         }
                     }
                 }
