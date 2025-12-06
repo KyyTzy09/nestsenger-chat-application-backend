@@ -46,11 +46,15 @@ export class createGroupRoomDto {
     @IsArray()
     @ArrayMinSize(2)
     @IsString({ each: true })
-    memberId: string[]
+    userIds: string[]
 
     @IsNotEmpty()
     @IsString()
     roomName: string
+
+    @IsOptional()
+    @IsString()
+    avatarUrl: string
 
     @IsOptional()
     @IsString()

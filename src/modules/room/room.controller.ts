@@ -1,10 +1,14 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createGroupRoomDto, createPrivateRoomDto } from "./room.dto";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Member, Room, User } from "@prisma/client";
 import { GetBatchResult } from "@prisma/client/runtime/library";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ROOM_AVATAR_FIELD_NAME, ROOM_AVATAR_PATH } from "src/shared/constants/upload";
+import { extname } from "path";
+import { diskStorage } from "multer";
 
 @Controller("room")
 export class RoomController {
@@ -47,11 +51,23 @@ export class RoomController {
     }
 
     @Post("group-room/post")
+    @UseInterceptors(FileInterceptor(ROOM_AVATAR_FIELD_NAME, {
+        storage: diskStorage({
+            destination: ROOM_AVATAR_PATH,
+            filename(_req, file, cb) {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                cb(null, uniqueSuffix + extname(file.originalname));
+            },
+        })
+    }))
     @HttpCode(HttpStatus.CREATED)
     @UseGuards(AuthGuard)
-    async createGroupRoom(@Req() req, @Body() dto: createGroupRoomDto): Promise<ResponseType<{ room: Room, member: GetBatchResult }>> {
-        const result = await this.roomService.createGroupRoom({ userId: req.user.userId, roomName: dto.roomName, memberId: dto.memberId })
-        return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: { room: result.data.room, member: result.data.member } }
+    async createGroupRoom(@UploadedFile() file: Express.Multer.File, @Req() req, @Body() dto: createGroupRoomDto): Promise<ResponseType<{ room: Room, member: GetBatchResult }>> {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const fileUrl = `${baseUrl}/uploads/rooms/${file.filename}`
+
+        const result = await this.roomService.createGroupRoom({ userId: req.user.userId, avatarUrl: fileUrl, roomName: dto.roomName, userIds: dto.userIds })
+        return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: result.data }
     }
 
     @Delete(":groupId/out-group/delete")

@@ -91,7 +91,7 @@ export class RoomService {
             }
         }
 
-        return { data: { room: existingRoom, alias: existingFriend }}
+        return { data: { room: existingRoom, alias: existingFriend } }
     }
 
     async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom) {
@@ -138,13 +138,13 @@ export class RoomService {
 
     async createGroupRoom(dto: createGroupRoomDto) {
         const roomId = generateGroupRoomId()
-        dto.memberId.push(dto.userId)
-        const existingUser = await this.userRepository.findManyById({ userId: dto.memberId })
-        if (existingUser.length !== dto.memberId.length) {
+        dto.userIds.push(dto.userId)
+        const existingUser = await this.userRepository.findManyById({ userId: dto.userIds })
+        if (existingUser.length !== dto.userIds.length) {
             throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
         }
 
-        const createdRoom = await this.roomRepository.createGroupRoom({ roomId, roomName: dto.roomName })
+        const createdRoom = await this.roomRepository.createGroupRoom({ userId: dto.userId, avatar: dto.avatarUrl, roomId, roomName: dto.roomName })
         const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
         return { data: { room: createdRoom, member: createdMember } }
