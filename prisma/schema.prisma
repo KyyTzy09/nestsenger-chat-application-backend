@@ -56,10 +56,11 @@ model Friend {
 }
 
 model Room {
-  roomId   String   @id
-  roomName String?
-  type     RoomType @default(PRIVATE)
-  avatar   String?  @default("https://www.redcloud.us/wp-content/uploads/2020/08/Group-13.svg")
+  roomId      String   @id
+  roomName    String?
+  type        RoomType @default(PRIVATE)
+  avatar      String?  @default("https://www.redcloud.us/wp-content/uploads/2020/08/Group-13.svg")
+  description String?
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
