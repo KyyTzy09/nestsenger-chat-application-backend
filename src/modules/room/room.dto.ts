@@ -76,6 +76,20 @@ export class updateRoomNameDto {
 
 }
 
+export class updateRoomDescriptionDto {
+    @IsString()
+    @IsNotEmpty()
+    description: string
+
+    @IsString()
+    @IsOptional()
+    roomId: string
+
+    @IsString()
+    @IsOptional()
+    userId: string
+}
+
 export class OutFromGroupDto {
     @IsString()
     @IsNotEmpty()
