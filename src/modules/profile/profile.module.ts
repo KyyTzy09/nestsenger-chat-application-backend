@@ -4,9 +4,10 @@ import { ProfileService } from './profile.service';
 import { ProfileRepository } from './profile.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
-  imports: [PrismaModule, UserModule],
+  imports: [PrismaModule, UserModule, ChatModule],
   controllers: [ProfileController],
   providers: [ProfileService, ProfileRepository]
 })

@@ -4,10 +4,11 @@ import { DeleteAvatarDto, getProfileDto, UpdateAvatarDto, UpdateBioDto, UpdateUs
 import { defaultImage } from 'src/shared/constants/image';
 import { Profile, User } from '@prisma/client';
 import { ResponseType } from 'src/shared/types/response';
+import { ChatGateWay } from '../chat/chat.gateway';
 
 @Injectable()
 export class ProfileService {
-    constructor(private readonly profileRepository: ProfileRepository) { }
+    constructor(private readonly profileRepository: ProfileRepository, private readonly chatGateway: ChatGateWay) { }
 
     async getUserProfile(dto: getProfileDto) {
         const existingProfile = await this.profileRepository.getUserProfile(dto)
@@ -47,6 +48,7 @@ export class ProfileService {
         }
 
         const updatedAvatar = await this.profileRepository.updateUserAvatar(dto)
+        this.chatGateway.server.to("current-room").emit("refreshRoom")
         return { data: updatedAvatar }
     }
 
