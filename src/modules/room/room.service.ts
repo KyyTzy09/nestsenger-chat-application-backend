@@ -9,10 +9,11 @@ import { FriendRepository } from "../friend/friend.repository";
 import { GetBatchResult } from "@prisma/client/runtime/library";
 import { ResponseType } from "src/shared/types/response";
 import { AliasType } from "src/shared/types/alias";
+import { ChatGateWay } from "../chat/chat.gateway";
 
 @Injectable()
 export class RoomService {
-    constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
+    constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private chatGateway: ChatGateWay) { }
 
     async getCurrentUserRoom(dto: getCurrentUserRoomDto) {
         const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
@@ -162,6 +163,7 @@ export class RoomService {
         if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
 
         const updatedRoomName = await this.roomRepository.updateRoomName(dto)
+        this.chatGateway.server.to("current-room").emit("refreshRoom", updatedRoomName.roomId)
         return { data: updatedRoomName }
     }
 
