@@ -61,6 +61,21 @@ export class createGroupRoomDto {
     userId: string
 }
 
+export class updateRoomNameDto {
+    @IsString()
+    @IsNotEmpty()
+    roomName: string
+
+    @IsString()
+    @IsOptional()
+    roomId: string
+
+    @IsString()
+    @IsOptional()
+    userId: string
+
+}
+
 export class OutFromGroupDto {
     @IsString()
     @IsNotEmpty()

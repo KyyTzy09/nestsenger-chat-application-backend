@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto } from "./room.dto";
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto, updateRoomNameDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -148,6 +148,21 @@ export class RoomService {
         const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
         return { data: { room: createdRoom, member: createdMember } }
+    }
+
+    async updateRoomName(dto: updateRoomNameDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new UnauthorizedException("User Not Registered")
+
+
+        const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
+        if (!existingRoom) throw new NotFoundException("Group Not Found")
+
+        const isRoomMember = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId: dto.userId })
+        if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
+
+        const updatedRoomName = await this.roomRepository.updateRoomName(dto)
+        return { data: updatedRoomName }
     }
 
     async outFromGroup(dto: OutFromGroupDto) {

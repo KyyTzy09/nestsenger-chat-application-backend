@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
-import { createGroupRoomDto, createPrivateRoomDto } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, updateRoomNameDto } from "./room.dto";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Member, Room, User } from "@prisma/client";
 import { GetBatchResult } from "@prisma/client/runtime/library";
@@ -68,6 +68,13 @@ export class RoomController {
 
         const result = await this.roomService.createGroupRoom({ userId: req.user.userId, avatarUrl: fileUrl, roomName: dto.roomName, userIds: dto.userIds })
         return { message: "Group Created Successfully", statusCode: HttpStatus.CREATED, data: result.data }
+    }
+
+    @Patch(":roomId/name/patch")
+    @UseGuards(AuthGuard)
+    async updateRoomName(@Req() req, @Param("roomId") roomId: string, @Body() dto: updateRoomNameDto): Promise<ResponseType<Partial<Room>>> {
+        const result = await this.roomService.updateRoomName({ userId: req.user.userId, roomId, roomName: dto.roomName })
+        return { message: "Room Name Updated Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Delete(":groupId/out-group/delete")

@@ -147,6 +147,21 @@ export class RoomRepository {
         })
     }
 
+    async updateRoomName(data: { roomId: string, roomName: string }) {
+        return await this.prisma.room.update({
+            where: {
+                roomId: data.roomId
+            },
+            data: {
+                roomName: data.roomName
+            },
+            select: {
+                roomId: true,
+                roomName: true
+            }
+        })
+    }
+
     async updateLastMessage(data: { roomId: string, chatId: string }) {
         return await this.prisma.room.update({
             where: {
