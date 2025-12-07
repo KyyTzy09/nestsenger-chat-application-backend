@@ -4,11 +4,11 @@ import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createGroupRoomDto, createPrivateRoomDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Member, Room, User } from "@prisma/client";
-import { GetBatchResult } from "@prisma/client/runtime/library";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ROOM_AVATAR_FIELD_NAME, ROOM_AVATAR_PATH } from "src/shared/constants/upload";
 import { extname } from "path";
 import { diskStorage } from "multer";
+import { GetBatchResult } from "@prisma/client/runtime/client";
 
 @Controller("room")
 export class RoomController {
@@ -80,7 +80,7 @@ export class RoomController {
     @Patch(":roomId/desc/patch")
     @UseGuards(AuthGuard)
     async updateRoomDescription(@Req() req, @Param("roomId") roomId: string, @Body() dto: updateRoomDescriptionDto): Promise<ResponseType<Partial<Room>>> {
-        const result = await this.roomService.updateRoomDescription({ userId: req.user.userId, roomId, roomDescription: dto.description })
+        const result = await this.roomService.updateRoomDescription({ userId: req.user.userId, roomId, description: dto.description })
         return { message: "Room Description Updated Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 

@@ -5,7 +5,6 @@ import { AuthGuard } from "src/shared/guards/auth.guard";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Room, User } from "@prisma/client";
 
-
 @Controller('friend')
 export class FriendController {
     constructor(private readonly friendService: FriendService) { }

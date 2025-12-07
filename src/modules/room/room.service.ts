@@ -6,8 +6,7 @@ import { UserRepository } from "../user/user.repository";
 import { generateGroupRoomId, generatePrivateRoomId } from "src/shared/helpers/generate.room-key";
 import { Friend, Member, Prisma, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
-import { GetBatchResult } from "@prisma/client/runtime/library";
-import { ResponseType } from "src/shared/types/response";
+import { GetBatchResult } from "@prisma/client/runtime/client";
 import { AliasType } from "src/shared/types/alias";
 import { ChatGateWay } from "../chat/chat.gateway";
 
@@ -155,7 +154,6 @@ export class RoomService {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new UnauthorizedException("User Not Registered")
 
-
         const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Group Not Found")
 
@@ -167,11 +165,10 @@ export class RoomService {
         return { data: updatedRoomName }
     }
 
-    
+
     async updateRoomDescription(dto: updateRoomDescriptionDto) {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new UnauthorizedException("User Not Registered")
-
 
         const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Group Not Found")
@@ -179,9 +176,9 @@ export class RoomService {
         const isRoomMember = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId: dto.userId })
         if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
 
-        const updatedRoomName = await this.roomRepository.updateRoomDescription(dto)
-        this.chatGateway.server.to("current-room").emit("refreshRoom", updatedRoomName.roomId)
-        return { data: updatedRoomName }
+        const updatedRoomDescription = await this.roomRepository.updateRoomDescription(dto)
+        this.chatGateway.server.to("current-room").emit("refreshRoom", updatedRoomDescription.roomId)
+        return { data: updatedRoomDescription }
     }
 
     async outFromGroup(dto: OutFromGroupDto) {

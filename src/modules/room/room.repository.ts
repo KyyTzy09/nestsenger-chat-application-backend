@@ -168,11 +168,11 @@ export class RoomRepository {
                 roomId: data.roomId
             },
             data: {
-                
+                description: data.description
             },
             select: {
                 roomId: true,
-                roomName: true
+                description: true
             }
         })
     }
