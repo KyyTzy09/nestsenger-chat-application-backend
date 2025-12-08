@@ -171,6 +171,7 @@ model Status {
   mediaName String?
   mediaUrl  String  @db.Text
   mediaType String
+  message   String? @db.Text
 
   createdAt DateTime @default(now())
 
