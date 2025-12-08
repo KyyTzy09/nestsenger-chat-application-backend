@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class createStatusDto {
     @IsString()
@@ -15,5 +15,11 @@ export class createStatusDto {
 
     @IsString()
     @IsOptional()
+    userId: string
+}
+
+export class getTodayStatusDto {
+    @IsString()
+    @IsNotEmpty()
     userId: string
 }

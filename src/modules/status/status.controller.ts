@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { StatusService } from "./status.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { API_BASE_URL, STATUS_FIELD_NAME, STATuS_UPLOAD_PATH } from "src/shared/constants/upload";
@@ -31,5 +31,12 @@ export class StatusController {
 
         const result = await this.statusService.createNewStatus({ userId: req.user.userId, fileName: file.filename, fileUrl, message: dto.message })
         return { message: "Status Created Successfully", statusCode: HttpStatus.CREATED, data: result.data }
+    }
+
+    @Get("today/get")
+    @UseGuards(AuthGuard)
+    async getTodayStatus(@Req() req): Promise<ResponseType<any>> {
+        const result = await this.statusService.getTodayStatus({ userId: req.user.userId })
+        return { message: "Today Status Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 }

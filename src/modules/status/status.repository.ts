@@ -27,4 +27,14 @@ export class StatusRepository {
             }
         })
     }
+
+    async findTodayStatus(data: { friendIds: string[] }) {
+        return await this.prisma.status.findMany({
+            where: {
+                creatorId: {
+                    in : data.friendIds
+                },
+            }
+        })
+    }
 }
