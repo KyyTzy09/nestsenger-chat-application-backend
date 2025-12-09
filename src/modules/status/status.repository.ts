@@ -53,6 +53,9 @@ export class StatusRepository {
                     gt: data.now
                 }
             },
+            orderBy: {
+                createdAt: "desc"
+            },
             include: {
                 creator: true
             }
@@ -67,6 +70,9 @@ export class StatusRepository {
                 expiredAt: {
                     gt: data.now
                 }
+            },
+            orderBy: {
+                createdAt: "desc"
             },
             include: {
                 creator: true
