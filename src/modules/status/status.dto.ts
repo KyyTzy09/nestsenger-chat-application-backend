@@ -18,6 +18,12 @@ export class createStatusDto {
     userId: string
 }
 
+export class getTodayUserStatusDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}
+
 export class getTodayStatusDto {
     @IsString()
     @IsNotEmpty()

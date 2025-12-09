@@ -41,6 +41,16 @@ export class StatusService {
         return { data: createdStatus }
     }
 
+    async getTodayUserStatuses(dto: getTodayStatusDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new UnauthorizedException("User Is Not Registered")
+
+        const statuses = await this.statusRepository.findTodayUserStatus({ creatorId: dto.userId, now: new Date() })
+        if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
+
+        return { data: { user: existingUser, statuses } }
+    }
+
     async getTodayStatuses(dto: getTodayStatusDto) {
         type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
 

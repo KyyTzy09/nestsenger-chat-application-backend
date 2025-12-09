@@ -28,6 +28,19 @@ export class StatusRepository {
         })
     }
 
+    async findTodayUserStatus(data: { creatorId: string, now: Date }) {
+        return await this.prisma.status.findMany({
+            where: {
+                creatorId: data.creatorId,
+                expiredAt: {
+                    gt: data.now
+                }
+            },
+            include: {
+                creator: true
+            }
+        })
+    }
     async findTodayStatus(data: { friendIds: string[], now: Date }) {
         return await this.prisma.status.findMany({
             where: {

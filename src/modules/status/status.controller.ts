@@ -7,7 +7,7 @@ import { extname } from "path";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createStatusDto } from "./status.dto";
 import { ResponseType } from "src/shared/types/response";
-import { Status } from "@prisma/client";
+import { Status, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
 
 @Controller("status")
@@ -32,6 +32,13 @@ export class StatusController {
 
         const result = await this.statusService.createNewStatus({ userId: req.user.userId, fileName: file.filename, fileUrl, message: dto.message })
         return { message: "Status Created Successfully", statusCode: HttpStatus.CREATED, data: result.data }
+    }
+
+    @Get("today-user/get")
+    @UseGuards(AuthGuard)
+    async getTodayUserStatuses(@Req() req): Promise<ResponseType<{ user: User, statuses: Status[] }>> {
+        const result = await this.statusService.getTodayUserStatuses({ userId: req.user.userId })
+        return { message: "User Statuses Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Get("today/get")
