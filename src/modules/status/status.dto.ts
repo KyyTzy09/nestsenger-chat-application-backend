@@ -29,3 +29,14 @@ export class getTodayStatusDto {
     @IsNotEmpty()
     userId: string
 }
+
+
+export class deleteStatusByIdDto {
+    @IsString()
+    @IsNotEmpty()
+    statusId: string
+
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+}

@@ -28,6 +28,23 @@ export class StatusRepository {
         })
     }
 
+    async findById(data: { statusId: string }) {
+        return await this.prisma.status.findUnique({
+            where: {
+                statusId: data.statusId
+            }
+        })
+    }
+
+    async findByUnique(data: { userId: string, statusId: string }) {
+        return await this.prisma.status.findUnique({
+            where: {
+                statusId: data.statusId,
+                creatorId: data.userId
+            }
+        })
+    }
+
     async findTodayUserStatus(data: { creatorId: string, now: Date }) {
         return await this.prisma.status.findMany({
             where: {
@@ -53,6 +70,14 @@ export class StatusRepository {
             },
             include: {
                 creator: true
+            }
+        })
+    }
+
+    async deleteById(data: { statusId: string }) {
+        return await this.prisma.status.delete({
+            where: {
+                statusId: data.statusId
             }
         })
     }

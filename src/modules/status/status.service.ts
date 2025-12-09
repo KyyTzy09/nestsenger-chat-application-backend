@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { StatusRepository } from "./status.repository";
-import { createStatusDto, getTodayStatusDto } from "./status.dto";
+import { createStatusDto, deleteStatusByIdDto, getTodayStatusDto } from "./status.dto";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 import { generateFileSize } from "src/shared/helpers/generate-file-size";
@@ -83,5 +83,16 @@ export class StatusService {
         }))
 
         return { data: results }
+    }
+
+    async deleteStatusById(dto: deleteStatusByIdDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new UnauthorizedException("User Is Not Registered")
+
+        const existingStatus = await this.statusRepository.findByUnique(dto)
+        if (!existingStatus) throw new NotFoundException("Status Not Found")
+
+        const deletedStatus = await this.statusRepository.deleteById(dto)
+        return { data: deletedStatus }
     }
 }

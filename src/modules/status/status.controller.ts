@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { StatusService } from "./status.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { API_BASE_URL, STATUS_FIELD_NAME, STATuS_UPLOAD_PATH } from "src/shared/constants/upload";
@@ -45,6 +45,13 @@ export class StatusController {
     @UseGuards(AuthGuard)
     async getTodayStatuses(@Req() req): Promise<ResponseType<{ statuses: Status[], alias: AliasType }[]>> {
         const result = await this.statusService.getTodayStatuses({ userId: req.user.userId })
-        return { message: "Today Status Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
+        return { message: "Today User Statuses Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
+    }
+
+    @Delete(":statusId/delete")
+    @UseGuards(AuthGuard)
+    async deleteStatusById(@Req() req, @Param('statusId') statusId: string): Promise<ResponseType<Status>> {
+        const result = await this.statusService.deleteStatusById({ userId: req.user.userId, statusId })
+        return { message: "Status Deleted Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 }
