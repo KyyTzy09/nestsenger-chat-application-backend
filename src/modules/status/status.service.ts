@@ -12,6 +12,22 @@ import { AliasType } from "src/shared/types/alias";
 export class StatusService {
     constructor(private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
 
+    statusGrouper(statuses: Status[]) {
+        const groupedResult = statuses.reduce((acc, data) => {
+            const creatorIdKey = data?.creatorId || "";
+
+            if (!acc[creatorIdKey]) {
+                acc[creatorIdKey] = [];
+            }
+
+            acc[creatorIdKey].push(data);
+
+            return acc;
+        }, {} as Record<string, Status[]>)
+
+        return groupedResult
+    }
+
     async createNewStatus(dto: createStatusDto) {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new UnauthorizedException("User Is Not Registered")
@@ -38,18 +54,7 @@ export class StatusService {
         const statuses = await this.statusRepository.findTodayStatus({ friendIds, now: new Date() })
         if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
 
-        const groupedResult = statuses.reduce((acc, data) => {
-            const creatorIdKey = data?.creatorId || "";
-
-            if (!acc[creatorIdKey]) {
-                acc[creatorIdKey] = [];
-            }
-
-            acc[creatorIdKey].push(data);
-
-            return acc;
-        }, {} as Record<string, Status[]>)
-
+        const groupedResult = this.statusGrouper(statuses)
         const finalGrouped = Object.entries(groupedResult).map(([userId, statuses]) => ({
             userId,
             statuses
