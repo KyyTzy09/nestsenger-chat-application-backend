@@ -31,12 +31,9 @@ export class StatusService {
         if (existingFriends.length === 0) throw new NotFoundException("Friend Not Founds")
 
         const friendIds = existingFriends.map(({ friendId }) => { return friendId }) as string[]
-        const statuses = await this.statusRepository.findTodayStatus({ friendIds })
+        const statuses = await this.statusRepository.findTodayStatus({ friendIds, now: new Date() })
         if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
 
-        const filteredStatuses = statuses.filter(({ expiredAt }) => { return expiredAt > new Date() })
-        if (filteredStatuses.length === 0) throw new NotFoundException("Today Status Not Founds")
-
-        return { data: filteredStatuses }
+        return { data: statuses }
     }
 }
