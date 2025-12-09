@@ -5,6 +5,8 @@ import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 import { generateFileSize } from "src/shared/helpers/generate-file-size";
 import { GetMediaType } from "src/shared/helpers/get-file-type";
+import { Friend, Prisma, Status, User } from "@prisma/client";
+import { AliasType } from "src/shared/types/alias";
 
 @Injectable()
 export class StatusService {
@@ -23,17 +25,48 @@ export class StatusService {
         return { data: createdStatus }
     }
 
-    async getTodayStatus(dto: getTodayStatusDto) {
+    async getTodayStatuses(dto: getTodayStatusDto) {
+        type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: true } }>
+
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new UnauthorizedException("User Is Not Registered")
 
         const existingFriends = await this.friendRepository.findByUserId(dto)
         if (existingFriends.length === 0) throw new NotFoundException("Friend Not Founds")
-
         const friendIds = existingFriends.map(({ friendId }) => { return friendId }) as string[]
+
         const statuses = await this.statusRepository.findTodayStatus({ friendIds, now: new Date() })
         if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
 
-        return { data: statuses }
+        const groupedResult = statuses.reduce((acc, data) => {
+            const creatorIdKey = data?.creatorId || "";
+
+            if (!acc[creatorIdKey]) {
+                acc[creatorIdKey] = [];
+            }
+
+            acc[creatorIdKey].push(data);
+
+            return acc;
+        }, {} as Record<string, Status[]>)
+
+        const finalGrouped = Object.entries(groupedResult).map(([userId, statuses]) => ({
+            userId,
+            statuses
+        }))
+
+        const results = await Promise.all(finalGrouped.map(async ({ userId, statuses }) => {
+            let alias: friendWithFriend | null = existingFriends.find(({ friendId }) => { return friendId === userId }) || null
+
+            const aliasResult: AliasType = {
+                userId: alias ? alias.friendId : "",
+                alias: alias ? alias.alias : "",
+                avatar: alias ? alias?.friend?.avatar as string : ""
+            }
+
+            return { statuses, alias: aliasResult }
+        }))
+
+        return { data: results }
     }
 }

@@ -6,7 +6,7 @@ import { Friend } from "@prisma/client";
 export class FriendRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async findByUserId(data: { userId: string }): Promise<Friend[]> {
+    async findByUserId(data: { userId: string }) {
         return await this.prisma.friend.findMany({
             where: {
                 userId: data.userId

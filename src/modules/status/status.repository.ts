@@ -37,6 +37,9 @@ export class StatusRepository {
                 expiredAt: {
                     gt: data.now
                 }
+            },
+            include: {
+                creator: true
             }
         })
     }

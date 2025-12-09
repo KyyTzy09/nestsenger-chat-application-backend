@@ -35,8 +35,8 @@ export class StatusController {
 
     @Get("today/get")
     @UseGuards(AuthGuard)
-    async getTodayStatus(@Req() req): Promise<ResponseType<any>> {
-        const result = await this.statusService.getTodayStatus({ userId: req.user.userId })
+    async getTodayStatuses(@Req() req): Promise<ResponseType<any>> {
+        const result = await this.statusService.getTodayStatuses({ userId: req.user.userId })
         return { message: "Today Status Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 }
