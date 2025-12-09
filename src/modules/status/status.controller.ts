@@ -8,6 +8,7 @@ import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createStatusDto } from "./status.dto";
 import { ResponseType } from "src/shared/types/response";
 import { Status } from "@prisma/client";
+import { AliasType } from "src/shared/types/alias";
 
 @Controller("status")
 export class StatusController {
@@ -35,7 +36,7 @@ export class StatusController {
 
     @Get("today/get")
     @UseGuards(AuthGuard)
-    async getTodayStatuses(@Req() req): Promise<ResponseType<any>> {
+    async getTodayStatuses(@Req() req): Promise<ResponseType<{ statuses: Status[], alias: AliasType }[]>> {
         const result = await this.statusService.getTodayStatuses({ userId: req.user.userId })
         return { message: "Today Status Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
