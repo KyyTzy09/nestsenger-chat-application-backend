@@ -54,13 +54,14 @@ export class StatusRepository {
                 }
             },
             orderBy: {
-                createdAt: "desc"
+                createdAt: "asc"
             },
             include: {
                 creator: true
             }
         })
     }
+    
     async findTodayStatus(data: { friendIds: string[], now: Date }) {
         return await this.prisma.status.findMany({
             where: {
@@ -72,7 +73,7 @@ export class StatusRepository {
                 }
             },
             orderBy: {
-                createdAt: "desc"
+                createdAt: "asc"
             },
             include: {
                 creator: true
