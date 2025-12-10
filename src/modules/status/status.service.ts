@@ -48,7 +48,13 @@ export class StatusService {
         const statuses = await this.statusRepository.findTodayUserStatus({ creatorId: dto.userId, now: new Date() })
         if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
 
-        return { data: { user: existingUser, statuses } }
+        const aliasResult: AliasType = {
+            userId: existingUser.userId,
+            alias: existingUser.profile?.userName || "",
+            avatar: existingUser.profile?.avatar || "",
+        }
+
+        return { data: { alias: aliasResult, statuses } }
     }
 
     async getTodayStatuses(dto: getTodayStatusDto) {
