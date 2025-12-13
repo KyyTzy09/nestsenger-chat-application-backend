@@ -85,7 +85,16 @@ export class StatusRepository {
                 createdAt: "asc"
             },
             include: {
-                creator: true
+                creator: true,
+                viewers: {
+                    include: {
+                        friend: {
+                            select: {
+                                friendId: true
+                            }
+                        }
+                    }
+                }
             }
         })
     }
