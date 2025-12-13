@@ -7,10 +7,11 @@ import { generateFileSize } from "src/shared/helpers/generate-file-size";
 import { GetMediaType } from "src/shared/helpers/get-file-type";
 import { Friend, Prisma, Status, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
+import { ViewerRepository } from "../viewer/viewer.repository";
 
 @Injectable()
 export class StatusService {
-    constructor(private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
+    constructor(private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly viewerRepository: ViewerRepository) { }
 
     statusGrouper(statuses: Status[]) {
         const groupedResult = statuses.reduce((acc, data) => {
@@ -37,7 +38,14 @@ export class StatusService {
         const expiredDate = new Date(now);
         expiredDate.setDate(now.getDate() + 1);
 
+        const existingFriends = await this.friendRepository.findByUserId({ userId: existingUser.userId })
+        
         const createdStatus = await this.statusRepository.createNewStatus({ creatorId: dto.userId, mediaName: dto.fileName, mediaUrl: dto.fileUrl, mediaType, message: dto.message, createdAt: now, expiredAt: expiredDate })
+        if (createdStatus && existingFriends.length > 0) {
+            const friendIds = existingFriends.map(({ friendId }) => { return friendId })
+            await this.viewerRepository.createViewers({ userIds: friendIds, statusId: createdStatus?.statusId })
+        }
+
         return { data: createdStatus }
     }
 
