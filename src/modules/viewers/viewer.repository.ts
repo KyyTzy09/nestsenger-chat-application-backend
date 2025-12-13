@@ -15,6 +15,19 @@ export class ViewerRepository {
         })
     }
 
+    async findTodayUserViewers(data: { userId: string, now: Date }) {
+        return await this.prisma.statusViewer.findMany({
+            where: {
+                viewerId: data.userId,
+                status: {
+                    expiredAt: {
+                        gt: data.now
+                    }
+                }
+            }
+        })
+    }
+
     async findByUnique(data: { viewerId: string, statusId: string }) {
         return await this.prisma.statusViewer.findUnique({
             where: {
@@ -22,5 +35,5 @@ export class ViewerRepository {
             }
         })
     }
-    
+
 }
