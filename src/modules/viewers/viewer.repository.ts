@@ -14,4 +14,13 @@ export class ViewerRepository {
             skipDuplicates: true
         })
     }
+
+    async findByUnique(data: { viewerId: string, statusId: string }) {
+        return await this.prisma.statusViewer.findUnique({
+            where: {
+                statusId_viewerId: data
+            }
+        })
+    }
+    
 }

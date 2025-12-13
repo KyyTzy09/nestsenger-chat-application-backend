@@ -7,7 +7,7 @@ import { generateFileSize } from "src/shared/helpers/generate-file-size";
 import { GetMediaType } from "src/shared/helpers/get-file-type";
 import { Friend, Prisma, Status, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
-import { ViewerRepository } from "../viewer/viewer.repository";
+import { ViewerRepository } from "../viewers/viewer.repository";
 
 @Injectable()
 export class StatusService {
@@ -39,7 +39,7 @@ export class StatusService {
         expiredDate.setDate(now.getDate() + 1);
 
         const existingFriends = await this.friendRepository.findByUserId({ userId: existingUser.userId })
-        
+
         const createdStatus = await this.statusRepository.createNewStatus({ creatorId: dto.userId, mediaName: dto.fileName, mediaUrl: dto.fileUrl, mediaType, message: dto.message, createdAt: now, expiredAt: expiredDate })
         if (createdStatus && existingFriends.length > 0) {
             const friendIds = existingFriends.map(({ friendId }) => { return friendId })
@@ -75,7 +75,7 @@ export class StatusService {
         if (existingFriends.length === 0) throw new NotFoundException("Friend Not Founds")
         const friendIds = existingFriends.map(({ friendId }) => { return friendId }) as string[]
 
-        const statuses = await this.statusRepository.findTodayStatus({ friendIds, now: new Date() })
+        const statuses = await this.statusRepository.findTodayStatus({ userId: dto.userId, friendIds, now: new Date() })
         if (statuses.length === 0) throw new NotFoundException("Today Status Not Founds")
 
         const groupedResult = this.statusGrouper(statuses)

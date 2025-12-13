@@ -15,7 +15,7 @@ import { ReactionModule } from './modules/reaction/reaction.module';
 import { ReadChatModule } from './modules/readchat/readchat.module';
 import { MediaModule } from './modules/media/media.module';
 import { StatusModule } from './modules/status/status.module';
-import { ViewerModule } from './modules/viewer/viewer.module';
+import { ViewerModule } from './modules/viewers/viewer.module';
 
 @Module({
   imports: [
