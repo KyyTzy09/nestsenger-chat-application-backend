@@ -29,6 +29,31 @@ export class ViewerRepository {
         })
     }
 
+    async findByStatusId(data: { statusId: string }) {
+        return await this.prisma.statusViewer.findMany({
+            where: {
+                statusId: data.statusId,
+                isViewed: true
+            },
+            orderBy: {
+                updatedAt: "desc"
+            },
+            include: {
+                friend: {
+                    select: {
+                        friendId: true,
+                        alias: true,
+                        friend: {
+                            select: {
+                                avatar: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
     async findByUnique(data: { viewerId: string, statusId: string }) {
         return await this.prisma.statusViewer.findUnique({
             where: {

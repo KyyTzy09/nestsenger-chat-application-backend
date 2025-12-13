@@ -1,5 +1,15 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
+export class getViewerByStatusIdDto {
+    @IsString()
+    @IsNotEmpty()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    statusId: string
+}
+
 export class getTodayUserViewersDto {
     @IsString()
     @IsNotEmpty()

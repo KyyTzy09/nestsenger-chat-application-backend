@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Patch, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Req, UseGuards } from "@nestjs/common";
 import { ViewerService } from "./viewer.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { ResponseType } from "src/shared/types/response";
@@ -14,6 +14,13 @@ export class ViewerController {
     async getTodayUserViewers(@Req() req): Promise<ResponseType<StatusViewer[]>> {
         const result = await this.viewerService.getTodayUserViewers({ userId: req.user.userId })
         return { message: "Viewers Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
+    }
+
+    @Get(":statusId/status/get")
+    @UseGuards(AuthGuard)
+    async getViewerByStatusId(@Req() req, @Param("statusId") statusId: string): Promise<ResponseType<StatusViewer[]>> {
+        const result = await this.viewerService.getViewerByStatusId({ userId: req.user.userId, statusId })
+        return { message: "Viewer Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Patch("update/patch")
