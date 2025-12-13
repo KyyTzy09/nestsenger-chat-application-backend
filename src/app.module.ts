@@ -15,6 +15,7 @@ import { ReactionModule } from './modules/reaction/reaction.module';
 import { ReadChatModule } from './modules/readchat/readchat.module';
 import { MediaModule } from './modules/media/media.module';
 import { StatusModule } from './modules/status/status.module';
+import { ViewerModule } from './modules/viewer/viewer.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { StatusModule } from './modules/status/status.module';
       rootPath: join(process.cwd(), "uploads"),
       serveRoot: "/uploads"
     }),
-    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule, ReactionModule, ReadChatModule, MediaModule, StatusModule],
+    UserModule, AuthModule, ProfileModule, FriendModule, RoomModule, ChatModule, ReactionModule, ReadChatModule, MediaModule, StatusModule, ViewerModule],
   controllers: [AppController],
   providers: [AppService],
 })
