@@ -37,4 +37,14 @@ export class ViewerRepository {
         })
     }
 
+    async updateView(data: { viewerId: string, statusId: string }) {
+        return await this.prisma.statusViewer.update({
+            where: {
+                statusId_viewerId: data
+            },
+            data: {
+                isViewed: true
+            }
+        })
+    }
 }
