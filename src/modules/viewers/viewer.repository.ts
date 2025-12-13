@@ -10,15 +10,16 @@ export class ViewerRepository {
             data: data.userIds.map((v) => ({
                 viewerId: v,
                 statusId: data.statusId
-            })),
-            skipDuplicates: true
+            }))
         })
     }
 
     async findTodayUserViewers(data: { userId: string, now: Date }) {
         return await this.prisma.statusViewer.findMany({
             where: {
-                viewerId: data.userId,
+                friend: {
+                    friendId: data.userId
+                },
                 status: {
                     expiredAt: {
                         gt: data.now

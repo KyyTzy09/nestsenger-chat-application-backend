@@ -71,7 +71,9 @@ export class StatusRepository {
                 AND: {
                     viewers: {
                         some: {
-                            viewerId: data.userId
+                            friend: {
+                                friendId: data.userId
+                            }
                         }
                     }
                 },
