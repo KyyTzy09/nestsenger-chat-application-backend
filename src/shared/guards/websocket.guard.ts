@@ -14,14 +14,21 @@ export class WebsocketGuard implements CanActivate {
         const cookieHeader = client.handshake.headers.cookie
         if (!cookieHeader) throw new WsException("Cookie not found")
 
-        const { access_token } = cookie.parse(cookieHeader);
-        if (!access_token) {
+        const cookies = cookie.parse(cookieHeader);
+        const token = cookies["access-token"]
+        if (!token) {
             throw new WsException("Unauthorized");
         }
 
-        const payload = await this.jwtService.verifyAsync(access_token, { secret: jwtSecret }) as { userId: string }
-        client.data.userId = payload.userId;
+        try {
+            const payload = await this.jwtService.verifyAsync(token, {
+                secret: jwtSecret,
+            }) as { userId: string };
 
-        return true;
+            client.data.userId = payload.userId;
+            return true;
+        } catch {
+            throw new WsException("Invalid or expired token");
+        }
     }
 }

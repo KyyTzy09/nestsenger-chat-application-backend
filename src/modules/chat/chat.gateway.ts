@@ -1,17 +1,15 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Chat } from "@prisma/client";
-import { AliasType } from "src/shared/types/alias";
-import { } from '@nestjs/platform-socket.io'
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
     cors: {
-        origin: '*'
+        origin: ["http://localhost:5173"],
+        credentials: true
     }
 })
 export class ChatGateWay {
     @WebSocketServer()
-    server: Socket
+    server: Server
 
     @SubscribeMessage('joinRoom')
     handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string }) {
