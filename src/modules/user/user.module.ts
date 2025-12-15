@@ -4,11 +4,12 @@ import { UserService } from './user.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserRepository } from './user.repository';
 import { UserGateWay } from './user.gateway';
+import { UserPrecenseService } from './userPrecense.service';
 
 @Module({
   imports: [PrismaModule],
   controllers: [UserController],
-  providers: [UserService, UserRepository, UserGateWay],
+  providers: [UserService, UserPrecenseService, UserRepository, UserGateWay],
   exports: [UserRepository, UserGateWay]
 })
 export class UserModule { }

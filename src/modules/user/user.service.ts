@@ -1,8 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto, GetAllUserDto, GetUserByUserIdDto, GetUserByUsernameDto } from './user.dto';
+import { GetUserByUserIdDto, GetUserByUsernameDto } from './user.dto';
 import { UserRepository } from './user.repository';
-import { User } from '@prisma/client';
-import { ResponseType } from 'src/shared/types/response';
 
 @Injectable()
 export class UserService {
