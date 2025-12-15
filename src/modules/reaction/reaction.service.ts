@@ -6,13 +6,13 @@ import { ChatRepository } from '../chat/chat.repository';
 import { Friend, Prisma, Reaction, User } from '@prisma/client';
 import { FriendRepository } from '../friend/friend.repository';
 import { AliasType } from 'src/shared/types/alias';
-import { ChatGateWay } from '../chat/chat.gateway';
 import { ResponseType } from 'src/shared/types/response';
 import { RoomRepository } from '../room/room.repository';
+import { ReactionGateway } from './reaction.gateway';
 
 @Injectable()
 export class ReactionService {
-    constructor(private readonly reactionRepository: ReactionRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatRepository: ChatRepository, private readonly chatGateway: ChatGateWay, private readonly roomRepository: RoomRepository) { }
+    constructor(private readonly reactionRepository: ReactionRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly chatRepository: ChatRepository, private readonly reactionGateway: ReactionGateway, private readonly roomRepository: RoomRepository) { }
 
     async createReaction(dto: createReactionDto) {
         const existingChat = await this.chatRepository.findById({ chatId: dto.chatId })
@@ -21,7 +21,7 @@ export class ReactionService {
         }
         const createdReaction = await this.reactionRepository.upsertReaction(dto)
 
-        this.chatGateway.server.to(existingChat?.roomId).emit("updateReaction", createdReaction)
+        this.reactionGateway.handleUpdateReaction(createdReaction.chat.roomId, createdReaction)
         return { data: createdReaction }
     }
 
@@ -32,7 +32,8 @@ export class ReactionService {
         }
 
         const deletedReaction = await this.reactionRepository.deleteById(dto)
-        this.chatGateway.server.to(deletedReaction?.chat?.roomId).emit("updateReaction", deletedReaction)
+
+        this.reactionGateway.handleUpdateReaction(deletedReaction.chat.roomId, deletedReaction)
         return { message: "Reaction Deleted Successfull", statusCode: HttpStatus.OK, data: deletedReaction }
     }
 
