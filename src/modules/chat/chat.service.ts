@@ -13,6 +13,7 @@ import { ReadChatService } from '../readchat/readchat.service';
 import { generateFileSize } from 'src/shared/helpers/generate-file-size';
 import { GetMediaType } from 'src/shared/helpers/get-file-type';
 import { UserGateWay } from '../user/user.gateway';
+import { ChatGrouper } from 'src/shared/helpers/chat-grouper';
 
 @Injectable()
 export class ChatService {
@@ -113,21 +114,7 @@ export class ChatService {
             })
         )
 
-        const groupedResult = result.reduce((acc, data) => {
-            const dateKey = format(new Date(data?.chat?.createdAt!), "MM/dd/yyyy");
-
-            if (!acc[dateKey]) {
-                acc[dateKey] = [];
-            }
-
-            acc[dateKey].push({
-                chat: data.chat!,
-                user: data.user
-            });
-
-            return acc;
-        }, {} as Record<string, { chat: Chat; user: Friend | Partial<User> | null }[]>)
-
+        const groupedResult = ChatGrouper(result)
         const finalGrouped = Object.entries(groupedResult).map(([date, chats]) => ({
             date,
             chats
