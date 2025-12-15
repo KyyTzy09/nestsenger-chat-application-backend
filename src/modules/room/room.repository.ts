@@ -30,11 +30,18 @@ export class RoomRepository {
         })
     }
 
-    async findByGroupId(data: { groupId: string }): Promise<Room | null> {
+    async findByGroupId(data: { groupId: string }) {
         return await this.prisma.room.findUnique({
             where: {
                 roomId: data.groupId,
                 type: "GROUP"
+            },
+            include: {
+                members: {
+                    select: {
+                        userId: true
+                    }
+                }
             }
         })
     }

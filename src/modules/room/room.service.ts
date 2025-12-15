@@ -8,11 +8,11 @@ import { Friend, Member, Prisma, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
 import { GetBatchResult } from "@prisma/client/runtime/client";
 import { AliasType } from "src/shared/types/alias";
-import { ChatGateWay } from "../chat/chat.gateway";
+import { UserGateWay } from "../user/user.gateway";
 
 @Injectable()
 export class RoomService {
-    constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private chatGateway: ChatGateWay) { }
+    constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly userGateway: UserGateWay) { }
 
     async getCurrentUserRoom(dto: getCurrentUserRoomDto) {
         const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
@@ -147,6 +147,9 @@ export class RoomService {
         const createdRoom = await this.roomRepository.createGroupRoom({ userId: dto.userId, avatar: dto.avatarUrl, roomId, roomName: dto.roomName })
         const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
+        existingUser.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", createdRoom)
+        })
         return { data: { room: createdRoom, member: createdMember } }
     }
 
@@ -161,7 +164,10 @@ export class RoomService {
         if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
 
         const updatedRoomName = await this.roomRepository.updateRoomName(dto)
-        this.chatGateway.server.to("current-room").emit("refreshRoom", updatedRoomName.roomId)
+
+        existingRoom.members.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", updatedRoomName)
+        })
         return { data: updatedRoomName }
     }
 
@@ -177,7 +183,10 @@ export class RoomService {
         if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
 
         const updatedRoomDescription = await this.roomRepository.updateRoomDescription(dto)
-        this.chatGateway.server.to("current-room").emit("refreshRoom", updatedRoomDescription.roomId)
+
+        existingRoom.members.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", updatedRoomDescription)
+        })
         return { data: updatedRoomDescription }
     }
 

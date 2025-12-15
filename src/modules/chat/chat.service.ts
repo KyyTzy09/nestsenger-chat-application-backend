@@ -41,7 +41,7 @@ export class ChatService {
         }
 
         this.chatGateway.handleNewChat(createdChat?.roomId, createdChat)
-        roomMembers.forEach(({ userId }) => {
+        existingRoom.members.forEach(({ userId }) => {
             this.userGateway.emitToUserRoom(userId, "room:refresh", createdChat)
         })
 
