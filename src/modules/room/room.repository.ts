@@ -91,9 +91,16 @@ export class RoomRepository {
                         userId: data.userId
                     }
                 },
-                lastChatId: {
-                    not: null
-                }
+                OR: [
+                    {
+                        lastChatId: {
+                            not: null
+                        }
+                    },
+                    {
+                        type: "GROUP"
+                    }
+                ]
             },
             include: {
                 members: {
