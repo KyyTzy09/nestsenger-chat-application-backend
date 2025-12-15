@@ -8,10 +8,11 @@ import { GetMediaType } from "src/shared/helpers/get-file-type";
 import { Friend, Prisma, Status, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
 import { ViewerRepository } from "../viewers/viewer.repository";
+import { UserGateWay } from "../user/user.gateway";
 
 @Injectable()
 export class StatusService {
-    constructor(private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly viewerRepository: ViewerRepository) { }
+    constructor(private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly viewerRepository: ViewerRepository, private readonly userGateway: UserGateWay) { }
 
     statusGrouper(statuses: Status[]) {
         const groupedResult = statuses.reduce((acc, data) => {
@@ -48,6 +49,9 @@ export class StatusService {
             await this.viewerRepository.createViewers({ userIds: friendIds, statusId: createdStatus?.statusId })
         }
 
+        existingFriends.forEach(({ friendId }) => {
+            this.userGateway.emitToUserRoom(friendId, "status:update", createdStatus)
+        })
         return { data: createdStatus }
     }
 
