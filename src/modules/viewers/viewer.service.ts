@@ -3,10 +3,11 @@ import { ViewerRepository } from "./viewer.repository";
 import { StatusRepository } from "../status/status.repository";
 import { getTodayUserViewersDto, getViewerByStatusIdDto, updateStatusViewDto } from "./viewer.dto";
 import { UserRepository } from "../user/user.repository";
+import { UserGateWay } from "../user/user.gateway";
 
 @Injectable()
 export class ViewerService {
-    constructor(private readonly viewerRepository: ViewerRepository, private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository) { }
+    constructor(private readonly viewerRepository: ViewerRepository, private readonly statusRepository: StatusRepository, private readonly userRepository: UserRepository, private readonly userGateway: UserGateWay) { }
 
     async getViewerByStatusId(dto: getViewerByStatusIdDto) {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
@@ -37,11 +38,16 @@ export class ViewerService {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
         if (!existingUser) throw new UnauthorizedException("User Is Not Registered")
 
+        const existingStatus = await this.statusRepository.findById({ statusId: dto.statusId })
+        if (!existingStatus) throw new NotFoundException("Status Not Found")
+
         const existingViewer = await this.viewerRepository.findByUnique({ viewerId: dto.viewerId, statusId: dto.statusId })
         if (!existingViewer) throw new NotFoundException("Viewer Not Found")
         else if (existingViewer.isViewed === true) return null
 
         const updatedViewer = await this.viewerRepository.updateView({ viewerId: dto.viewerId, statusId: dto.statusId })
+
+        this.userGateway.emitToUserRoom(existingStatus?.creatorId ?? "", "viewer:update", existingStatus.statusId)
         return { data: updatedViewer }
     }
 }
