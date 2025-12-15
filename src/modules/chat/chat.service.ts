@@ -12,10 +12,11 @@ import { ResponseType } from 'src/shared/types/response';
 import { ReadChatService } from '../readchat/readchat.service';
 import { generateFileSize } from 'src/shared/helpers/generate-file-size';
 import { GetMediaType } from 'src/shared/helpers/get-file-type';
+import { UserGateWay } from '../user/user.gateway';
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly chatRepository: ChatRepository, private readonly readChatService: ReadChatService, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay) { }
+    constructor(private readonly chatRepository: ChatRepository, private readonly readChatService: ReadChatService, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly chatGateway: ChatGateWay, private readonly userGateway: UserGateWay) { }
 
     async createNewChat(dto: createNewChatDto) {
         const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
@@ -39,7 +40,10 @@ export class ChatService {
         }
 
         this.chatGateway.handleNewChat(createdChat?.roomId, createdChat)
-        this.chatGateway.server.to("current-room").emit("refreshRoom")
+        roomMembers.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", createdChat)
+        })
+
         return { data: createdChat }
     }
 
@@ -71,7 +75,10 @@ export class ChatService {
         }
 
         this.chatGateway.handleNewChat(createdChat?.roomId, createdChat)
-        this.chatGateway.server.to("current-room").emit("refreshRoom")
+        existingRoom.members.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", createdChat)
+        })
+
         return { data: createdChat }
     }
 
@@ -175,8 +182,14 @@ export class ChatService {
             await this.chatRepository.updateMessage({ chatId: deletedChat.chatId, userId: existingChat.userId })
         }
 
-        this.chatGateway.server.to(deletedChat.chat.roomId).emit("deletedChat")
-        this.chatGateway.server.to("current-room").emit("refreshRoom")
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: deletedChat.chat.roomId, userId: dto.userId })
+        if (!existingRoom) throw new NotFoundException("Room Not Found")
+
+        this.chatGateway.handleDeleteChat(deletedChat.chat.roomId)
+        existingRoom.members.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", deletedChat)
+        })
+
         return { message: "Deleted Chat For All Successfull", statusCode: HttpStatus.OK, data: deletedChat }
     }
 
@@ -214,7 +227,14 @@ export class ChatService {
             deletedChat = await this.chatRepository.deleteForYourself(dto)
         }
 
-        this.chatGateway.server.to(deletedChat?.chat?.roomId).emit("deletedChat")
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: deletedChat.chat.roomId, userId: dto.userId })
+        if (!existingRoom) throw new NotFoundException("Room Not Found")
+
+        this.chatGateway.handleDeleteChat(deletedChat.chat.roomId)
+        existingRoom.members.forEach(({ userId }) => {
+            this.userGateway.emitToUserRoom(userId, "room:refresh", deletedChat)
+        })
+        
         return { data: deletedChat }
     }
 }

@@ -25,4 +25,8 @@ export class ChatGateWay {
     handleNewChat(roomId: string, chat: Chat) {
         this.server.to(roomId).emit("chat:new", chat)
     }
+
+    handleDeleteChat(roomId:string){
+        this.server.to(roomId).emit("chat:delete")
+    }
 }
