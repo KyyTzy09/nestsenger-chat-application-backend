@@ -8,11 +8,12 @@ import { ReadChatController } from "./readchat.controller";
 import { FriendModule } from "../friend/friend.module";
 import { MemberModule } from "../member/member.module";
 import { RoomModule } from "../room/room.module";
+import { ReadChatGateway } from "./readChat.gateway";
 
 @Module({
     imports: [UserModule, forwardRef(() => ChatModule), forwardRef(() => RoomModule), UserModule, forwardRef(() => FriendModule), MemberModule, PrismaModule],
     controllers: [ReadChatController],
-    providers: [ReadChatService, ReadChatRepository],
+    providers: [ReadChatService, ReadChatRepository, ReadChatGateway],
     exports: [ReadChatService, ReadChatRepository]
 })
 export class ReadChatModule { }
