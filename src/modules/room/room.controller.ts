@@ -9,6 +9,7 @@ import { ROOM_AVATAR_FIELD_NAME, ROOM_AVATAR_PATH } from "src/shared/constants/u
 import { extname } from "path";
 import { diskStorage } from "multer";
 import { GetBatchResult } from "@prisma/client/runtime/client";
+import { AliasType } from "src/shared/types/alias";
 
 @Controller("room")
 export class RoomController {
@@ -37,9 +38,9 @@ export class RoomController {
 
     @Get(":roomId/get")
     @UseGuards(AuthGuard)
-    async getChatRoom(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<{ room: Room, alias?: Friend | Partial<User> | null }>> {
+    async getChatRoom(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<{ room: Room, user?: AliasType | null }>> {
         const result = await this.roomService.getRoomById({ roomId, userId: req.user.userId })
-        return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: result.data.room, alias: result.data.alias } }
+        return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: result.data.room, user: result.data.user } }
     }
 
     @Post("private-room/post")

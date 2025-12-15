@@ -33,7 +33,8 @@ export class FriendRepository {
                     include: {
                         user: {
                             select: {
-                                email: true
+                                email: true,
+                                isOnline: true
                             }
                         }
                     }

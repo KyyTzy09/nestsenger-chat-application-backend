@@ -100,7 +100,6 @@ export class UserRepository {
     async setOnline(data: { userId: string }) {
         return await this.prisma.user.update({
             where: {
-                
                 userId: data.userId
             },
             data: {
@@ -112,7 +111,6 @@ export class UserRepository {
     async setOffline(data: { userId: string }) {
         return await this.prisma.user.update({
             where: {
-                email : "",
                 userId: data.userId
             },
             data: {

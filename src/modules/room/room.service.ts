@@ -78,20 +78,34 @@ export class RoomService {
     }
 
     async getRoomById(dto: getChatRoomDto) {
-        let existingFriend: Friend | Partial<User> | null = null
+        type userWithProfile = Prisma.UserGetPayload<{ include: { profile: true } }>
+        type friendWithFriend = Prisma.FriendGetPayload<{ include: { friend: { include: { user: true } } } }>
+
+
+        let aliasResult: AliasType | null = null
         const existingRoom = await this.roomRepository.findChatRoom({ roomId: dto.roomId, userId: dto.userId })
         if (!existingRoom) {
             throw new HttpException("Room Not Found", HttpStatus.NOT_FOUND)
         }
 
         if (existingRoom.members.length === 1) {
-            existingFriend = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingRoom.members[0].userId })
-            if (!existingFriend) {
-                existingFriend = await this.userRepository.findUserInfo({ userId: existingRoom.members[0].userId })
+            let alias: Friend | Partial<User> | null = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: existingRoom.members[0]?.userId! })
+            if (!alias) {
+                alias = await this.userRepository.findUserInfo({ userId: existingRoom.members[0]?.userId! })
+            }
+
+            aliasResult = {
+                userId: alias?.userId as string,
+                alias: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+                avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
+                email: alias ? (alias as friendWithFriend)?.friend?.user?.email as string || (alias as userWithProfile)?.email as string : "",
+                userName: alias ? (alias as friendWithFriend)?.friend?.userName as string || (alias as userWithProfile)?.profile?.userName as string : "",
+                bio: alias ? (alias as friendWithFriend)?.friend?.bio as string || (alias as userWithProfile)?.profile?.bio as string : "",
+                isOnline: alias ? (alias as friendWithFriend)?.friend?.user?.isOnline as boolean || (alias as userWithProfile)?.isOnline : false
             }
         }
 
-        return { data: { room: existingRoom, alias: existingFriend } }
+        return { data: { room: existingRoom, user: aliasResult } }
     }
 
     async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom) {

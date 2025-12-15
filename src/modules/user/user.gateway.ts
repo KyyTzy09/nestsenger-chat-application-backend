@@ -41,7 +41,7 @@ export class UserGateWay implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    async handleConnection(@ConnectedSocket() client: Socket,) {
+    async handleConnection(@ConnectedSocket() client: Socket) {
         try {
             const userId = await this.getUserId(client)
             await this.userPrecenseService.setOnline(userId ?? "")
