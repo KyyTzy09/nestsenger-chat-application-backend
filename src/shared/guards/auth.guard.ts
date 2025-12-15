@@ -1,12 +1,11 @@
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { UserRepository } from "src/modules/user/user.repository";
 import { jwtSecret } from "../constants/jwt.secret";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private readonly userRepository: UserRepository, private readonly jwtService: JwtService) { }
+    constructor(private readonly jwtService: JwtService) { }
     private extractTokenFromHeader(req: Request): string | undefined {
         const token = req.cookies["access-token"]
         return token || undefined
