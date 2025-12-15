@@ -38,7 +38,7 @@ export class ChatService {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
 
-        this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
+        this.chatGateway.handleNewChat(createdChat?.roomId, createdChat)
         this.chatGateway.server.to("current-room").emit("refreshRoom")
         return { data: createdChat }
     }
@@ -70,7 +70,7 @@ export class ChatService {
             await this.roomRepository.updateLastMessage({ roomId: dto.roomId, chatId: createdChat.chatId })
         }
 
-        this.chatGateway.server.to(createdChat?.roomId).emit("newMessage", createdChat)
+        this.chatGateway.handleNewChat(createdChat?.roomId, createdChat)
         this.chatGateway.server.to("current-room").emit("refreshRoom")
         return { data: createdChat }
     }

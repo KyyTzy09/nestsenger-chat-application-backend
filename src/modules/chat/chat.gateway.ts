@@ -1,4 +1,5 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { Chat } from "@prisma/client";
 import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
@@ -19,5 +20,9 @@ export class ChatGateWay {
     @SubscribeMessage("get-current-room")
     handleAllRoom(@ConnectedSocket() client: Socket) {
         client.join("current-room")
+    }
+
+    handleNewChat(roomId: string, chat: Chat) {
+        this.server.to(roomId).emit("chat:new", chat)
     }
 }
