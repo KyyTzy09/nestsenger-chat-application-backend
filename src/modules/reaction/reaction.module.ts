@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
 import { ChatModule } from '../chat/chat.module';
@@ -10,7 +10,7 @@ import { RoomModule } from '../room/room.module';
 import { ReactionGateway } from './reaction.gateway';
 
 @Module({
-    imports: [UserModule, ChatModule, FriendModule, RoomModule, PrismaModule],
+    imports: [forwardRef(() => UserModule), ChatModule, FriendModule, RoomModule, PrismaModule],
     controllers: [ReactionController],
     providers: [ReactionService, ReactionRepository, ReactionGateway],
     exports: [ReactionRepository, ReactionGateway]

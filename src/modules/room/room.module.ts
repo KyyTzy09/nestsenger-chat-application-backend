@@ -9,7 +9,7 @@ import { RoomController } from "./room.controller";
 import { ChatModule } from "../chat/chat.module";
 
 @Module({
-    imports: [UserModule, PrismaModule, forwardRef(() => MemberModule),  forwardRef(() => ChatModule), forwardRef(() => FriendModule)],
+    imports: [forwardRef(() => UserModule), PrismaModule, forwardRef(() => MemberModule),  forwardRef(() => ChatModule), forwardRef(() => FriendModule)],
     exports: [RoomRepository, RoomService],
     controllers: [RoomController],
     providers: [RoomService, RoomRepository]

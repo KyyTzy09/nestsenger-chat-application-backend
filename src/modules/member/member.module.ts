@@ -8,7 +8,7 @@ import { UserModule } from "../user/user.module";
 import { FriendModule } from "../friend/friend.module";
 
 @Module({
-    imports: [PrismaModule, UserModule, forwardRef(() => RoomModule), forwardRef(() => FriendModule)],
+    imports: [PrismaModule, forwardRef(() => UserModule), forwardRef(() => RoomModule), forwardRef(() => FriendModule)],
     exports: [MemberRepository],
     controllers: [MemberController],
     providers: [MemberService, MemberRepository],

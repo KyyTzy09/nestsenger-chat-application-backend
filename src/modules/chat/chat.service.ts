@@ -60,7 +60,7 @@ export class ChatService {
 
         const mediaSize = generateFileSize(dto.mediaSize)
         const mediaType = GetMediaType(dto.mediaName)
-        let createdChat: Chat = await this.chatRepository.createNewChatWithMedia({
+        const createdChat: Chat = await this.chatRepository.createNewChatWithMedia({
             roomId: dto.roomId,
             userId: dto.userId,
             parentId: dto.parentId,

@@ -22,12 +22,12 @@ export class UserGateWay implements OnGatewayConnection, OnGatewayDisconnect {
     // Get Cookie
     async getUserId(client: Socket): Promise<string | null> {
         const cookieHeader = client.handshake.headers.cookie
-        if (!cookieHeader) throw new WsException("Cookie not found")
+        if (!cookieHeader) return null
 
         const cookies = cookie.parse(cookieHeader);
         const token = cookies["access-token"]
         if (!token) {
-            throw new WsException("Unauthorized");
+            return null
         }
 
         try {
@@ -54,6 +54,7 @@ export class UserGateWay implements OnGatewayConnection, OnGatewayDisconnect {
     @UseGuards(WebsocketGuard)
     async handleDisconnect(@ConnectedSocket() client: Socket) {
         const userId = await this.getUserId(client)
+        if (!userId) return
         await this.userPrecenseService.setOffline(userId ?? "")
         client.join(`user-${userId}`)
     }

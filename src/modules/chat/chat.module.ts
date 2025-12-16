@@ -10,7 +10,7 @@ import { ChatGateWay } from './chat.gateway';
 import { ReadChatModule } from '../readchat/readchat.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, forwardRef(() => RoomModule), forwardRef(() => FriendModule), forwardRef(() => ReadChatModule)],
+  imports: [PrismaModule, forwardRef(() => UserModule), forwardRef(() => RoomModule), forwardRef(() => FriendModule), forwardRef(() => ReadChatModule)],
   controllers: [ChatController],
   providers: [ChatService, ChatRepository, ChatGateWay],
   exports: [ChatRepository, ChatGateWay]

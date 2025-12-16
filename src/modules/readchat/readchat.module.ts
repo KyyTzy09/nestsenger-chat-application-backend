@@ -11,7 +11,7 @@ import { RoomModule } from "../room/room.module";
 import { ReadChatGateway } from "./readChat.gateway";
 
 @Module({
-    imports: [UserModule, forwardRef(() => ChatModule), forwardRef(() => RoomModule), UserModule, forwardRef(() => FriendModule), MemberModule, PrismaModule],
+    imports: [forwardRef(() => UserModule), forwardRef(() => ChatModule), forwardRef(() => RoomModule), forwardRef(() => FriendModule), MemberModule, PrismaModule],
     controllers: [ReadChatController],
     providers: [ReadChatService, ReadChatRepository, ReadChatGateway],
     exports: [ReadChatService, ReadChatRepository]
