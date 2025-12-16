@@ -12,11 +12,6 @@ export class ChatGateWay {
     @WebSocketServer()
     server: Server
 
-    @SubscribeMessage('joinRoom')
-    handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string }) {
-        client.join(data.roomId)
-    }
-
     @SubscribeMessage("get-current-room")
     handleAllRoom(@ConnectedSocket() client: Socket) {
         client.join("current-room")
