@@ -11,10 +11,11 @@ import { ChatGateWay } from "../chat/chat.gateway";
 import { ResponseType } from "src/shared/types/response";
 import { RoomRepository } from "../room/room.repository";
 import { ReadChatGateway } from "./readChat.gateway";
+import { UserGateWay } from "../user/user.gateway";
 
 @Injectable()
 export class ReadChatService {
-    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly readChatGateway: ReadChatGateway) { }
+    constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly readChatGateway: ReadChatGateway, private readonly userGateway: UserGateWay) { }
 
     async countRoomUnreadChats(dto: CountRoomUnreadChatsDto) {
         const countUnreadChats = await this.readChatRepository.countRoomUnreadChats(dto)
@@ -33,6 +34,7 @@ export class ReadChatService {
         const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })
 
         this.readChatGateway.handleUpdateReadChat(dto.roomId)
+        this.userGateway.emitToUserRoom(dto.userId, "refresh:room", dto.roomId)
         return { count: updatedReadChats.count }
     }
 
