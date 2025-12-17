@@ -55,6 +55,7 @@ model Friend {
   statusViewers StatusViewer[]
 
   @@unique([userId, friendId])
+  @@index([friendId])
 }
 
 model Room {
@@ -73,6 +74,9 @@ model Room {
   chats      Chat[]   @relation("Room Chats")
   lastChat   Chat?    @relation("Room Last Chat", fields: [lastChatId], references: [chatId], onUpdate: Cascade, onDelete: SetNull)
   createdBy  User?    @relation("Room Creator", fields: [creatorId], references: [userId])
+
+  @@index([creatorId])
+  @@index([lastChatId])
 }
 
 model Member {
@@ -88,6 +92,8 @@ model Member {
   readChats ChatRead[] @relation("Member Read Chat")
 
   @@unique([userId, roomId])
+  @@index([roomId])
+  @@index([userId])
 }
 
 model Chat {
@@ -109,6 +115,9 @@ model Chat {
   reactions    Reaction[]    @relation("Chat Reactions")
   deletedChats DeletedChat[]
   readChats    ChatRead[]    @relation("Read Chat")
+
+  @@index([roomId, createdAt])
+  @@index([parentId])
 }
 
 model ChatMedia {
@@ -136,6 +145,9 @@ model ChatRead {
   reader Member @relation("Member Read Chat", fields: [readerId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([readerId, chatId])
+  
+  @@index([readerId, isRead])
+  @@index([chatId])
 }
 
 model DeletedChat {
@@ -150,6 +162,7 @@ model DeletedChat {
   chat Chat @relation(fields: [chatId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, chatId])
+  @@index([chatId])
 }
 
 model Reaction {
@@ -164,6 +177,8 @@ model Reaction {
   chat   Chat   @relation("Chat Reactions", fields: [chatId], references: [chatId], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, chatId])
+  @@index([userId])
+  @@index([chatId])
 }
 
 model Status {
@@ -180,6 +195,8 @@ model Status {
   creatorId String?
   creator   User?          @relation(references: [userId], fields: [creatorId])
   viewers   StatusViewer[] @relation("Status Viewers")
+
+  @@index([creatorId, expiredAt])
 }
 
 model StatusViewer {
@@ -195,6 +212,7 @@ model StatusViewer {
   friend    Friend?  @relation(references: [id], fields: [viewerId], onDelete: Cascade)
 
   @@unique([statusId, viewerId])
+  @@index([statusId])
 }
 
 enum RoomType {
