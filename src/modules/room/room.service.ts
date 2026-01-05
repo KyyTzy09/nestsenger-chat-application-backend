@@ -96,7 +96,7 @@ export class RoomService {
 
             aliasResult = {
                 userId: alias?.userId as string,
-                alias: alias ? (alias as friendWithFriend)?.alias || (alias as User)?.email : "",
+                alias: alias ? (alias as friendWithFriend)?.alias : "",
                 avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
                 email: alias ? (alias as friendWithFriend)?.friend?.user?.email as string || (alias as userWithProfile)?.email as string : "",
                 userName: alias ? (alias as friendWithFriend)?.friend?.userName as string || (alias as userWithProfile)?.profile?.userName as string : "",
