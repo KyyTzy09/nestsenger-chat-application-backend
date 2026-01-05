@@ -8,6 +8,14 @@ import { Friend, Member, User } from "@prisma/client";
 export class MemberController {
     constructor(private readonly memberService: MemberService) { }
 
+    @Get(":roomId/room/role/get")
+    @UseGuards(AuthGuard)
+    async getMemberRole(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<Partial<Member>>> {
+        const member = await this.memberService.GetMemberRole({ roomId, userId: req.user.userId })
+
+        return { message: "Member Retrieved Successfully", statusCode: HttpStatus.OK, data: member.data }
+    }
+
     @Get(":roomId/room/get")
     @UseGuards(AuthGuard)
     async getGroupMember(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<({ member: Member, alias: Friend | Partial<User> | null }[] | {}[]) | (Member | null)>> {

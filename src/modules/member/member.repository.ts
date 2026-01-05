@@ -71,6 +71,22 @@ export class MemberRepository {
         })
     }
 
+    async findWithRole(data: { roomId: string, userId: string }) {
+        return await this.prisma.member.findUnique({
+            where: {
+                userId_roomId: {
+                    roomId: data.roomId,
+                    userId: data.userId
+                }
+            },
+            select: {
+                memberId: true,
+                userId: true,
+                // role : true
+            }
+        })
+    }
+
     async createMembers(data: { user: User[], roomId: string }) {
         return await this.prisma.member.createMany({
             data: data.user.map(({ userId }) => {
