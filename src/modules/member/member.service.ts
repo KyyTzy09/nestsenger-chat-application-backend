@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { MemberRepository } from "./member.repository";
 import { addGroupMemberDto, getMemberRoleDto, getRoomMemberDto } from "./member.dto";
 import { RoomRepository } from "../room/room.repository";
@@ -53,10 +53,13 @@ export class MemberService {
         const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Group Not Found")
 
+        const isAdmin = await this.memberRepository.isAdminRole({ roomId: dto.roomId, userId: dto.userId })
+        if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
+
         const existingUsers = await this.userRepository.findManyById({ userId: dto.userIds })
         if (existingUsers.length !== dto.userIds.length) throw new NotFoundException("Users Not Found")
 
-        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role : MemberRole.MEMBER })
+        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role: MemberRole.MEMBER })
 
         return { data: createdMembers.count }
     }
