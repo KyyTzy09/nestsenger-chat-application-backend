@@ -82,18 +82,18 @@ export class MemberRepository {
             select: {
                 memberId: true,
                 userId: true,
-                // role : true
+                role: true
             }
         })
     }
 
-    async createMembers(data: { user: User[], roomId: string, role : MemberRole }) {
+    async createMembers(data: { user: User[], roomId: string, role: MemberRole }) {
         return await this.prisma.member.createMany({
             data: data.user.map(({ userId }) => {
                 return ({
                     userId: userId,
                     roomId: data.roomId,
-                    role : data.role
+                    role: data.role
                 })
             }),
             skipDuplicates: true
