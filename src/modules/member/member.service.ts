@@ -5,10 +5,11 @@ import { RoomRepository } from "../room/room.repository";
 import { Friend, Member, MemberRole, User } from "@prisma/client";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
+import { UserGateWay } from "../user/user.gateway";
 
 @Injectable()
 export class MemberService {
-    constructor(private readonly memberRepository: MemberRepository, private readonly roomRepository: RoomRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository) { }
+    constructor(private readonly memberRepository: MemberRepository, private readonly roomRepository: RoomRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly userGateWay: UserGateWay) { }
 
     async GetMemberRole(dto: getMemberRoleDto) {
         const existingRoom = await this.roomRepository.findRoomById({ roomId: dto.roomId })
@@ -61,6 +62,9 @@ export class MemberService {
 
         const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role: MemberRole.MEMBER })
 
+        existingUsers.forEach(({ userId }) => {
+            this.userGateWay.emitToUserRoom(userId, "room:refresh", dto.roomId)
+        })
         return { data: createdMembers.count }
     }
 
