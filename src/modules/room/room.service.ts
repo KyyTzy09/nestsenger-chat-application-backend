@@ -4,7 +4,7 @@ import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
 import { generateGroupRoomId, generatePrivateRoomId } from "src/shared/helpers/generate.room-key";
-import { Friend, Member, Prisma, Room, User } from "@prisma/client";
+import { Friend, Member, MemberRole, Prisma, Room, User } from "@prisma/client";
 import { FriendRepository } from "../friend/friend.repository";
 import { GetBatchResult } from "@prisma/client/runtime/client";
 import { AliasType } from "src/shared/types/alias";
@@ -124,7 +124,7 @@ export class RoomService {
 
         let existingMember: GetBatchResult | Member[] = await this.memberRepository.findByRoomId({ roomId: existingRoom.roomId })
         if (existingMember.length === 0) {
-            existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId })
+            existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId, role: MemberRole.MEMBER })
         }
 
         return { data: { room: existingRoom, member: existingMember } }
@@ -145,7 +145,7 @@ export class RoomService {
         }
 
         const createdRoom = await this.roomRepository.createPrivateRoom({ roomId })
-        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
+        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId, role: MemberRole.MEMBER })
 
         return { message: "Private Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
@@ -159,7 +159,8 @@ export class RoomService {
         }
 
         const createdRoom = await this.roomRepository.createGroupRoom({ userId: dto.userId, avatar: dto.avatarUrl, roomId, roomName: dto.roomName })
-        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
+        const isCreator = existingUser.some(({ userId }) => { return userId === dto.userId })
+        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId, role: isCreator ? MemberRole.ADMIN : MemberRole.MEMBER })
 
         existingUser.forEach(({ userId }) => {
             this.userGateway.emitToUserRoom(userId, "room:refresh", createdRoom)

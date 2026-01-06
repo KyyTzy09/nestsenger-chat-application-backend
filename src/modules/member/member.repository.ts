@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Member, User } from "@prisma/client";
+import { Member, MemberRole, User } from "@prisma/client";
 
 @Injectable()
 export class MemberRepository {
@@ -87,12 +87,13 @@ export class MemberRepository {
         })
     }
 
-    async createMembers(data: { user: User[], roomId: string }) {
+    async createMembers(data: { user: User[], roomId: string, role : MemberRole }) {
         return await this.prisma.member.createMany({
             data: data.user.map(({ userId }) => {
                 return ({
                     userId: userId,
-                    roomId: data.roomId
+                    roomId: data.roomId,
+                    role : data.role
                 })
             }),
             skipDuplicates: true
