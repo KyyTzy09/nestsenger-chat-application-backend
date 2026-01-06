@@ -71,6 +71,21 @@ export class MemberRepository {
         })
     }
 
+    async isAdminRole(data: { roomId: string, userId: string }): Promise<boolean> {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                userId_roomId: {
+                    ...data
+                }
+            },
+            select: {
+                role: true
+            }
+        })
+
+        return member?.role === MemberRole.ADMIN
+    }
+
     async findWithRole(data: { roomId: string, userId: string }) {
         return await this.prisma.member.findUnique({
             where: {
