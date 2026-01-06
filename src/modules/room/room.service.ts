@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
@@ -175,8 +175,8 @@ export class RoomService {
         const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Group Not Found")
 
-        const isRoomMember = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId: dto.userId })
-        if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
+        const isAdmin = await this.memberRepository.isAdminRole({ roomId: dto.roomId, userId: dto.userId })
+        if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
 
         const updatedRoomName = await this.roomRepository.updateRoomName(dto)
 
@@ -194,8 +194,8 @@ export class RoomService {
         const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
         if (!existingRoom) throw new NotFoundException("Group Not Found")
 
-        const isRoomMember = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId: dto.userId })
-        if (!isRoomMember) throw new BadRequestException("You're Not Member In This Room")
+        const isAdmin = await this.memberRepository.isAdminRole({ roomId: dto.roomId, userId: dto.userId })
+        if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
 
         const updatedRoomDescription = await this.roomRepository.updateRoomDescription(dto)
 
