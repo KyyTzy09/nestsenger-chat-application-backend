@@ -1,6 +1,6 @@
 import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { MemberRepository } from "./member.repository";
-import { addGroupMemberDto, getMemberRoleDto, getRoomMemberDto } from "./member.dto";
+import { addGroupMemberDto, getMemberRoleDto, getRoomMemberDto, updateMemberRoleDto } from "./member.dto";
 import { RoomRepository } from "../room/room.repository";
 import { Friend, Member, MemberRole, User } from "@prisma/client";
 import { UserRepository } from "../user/user.repository";
@@ -62,5 +62,29 @@ export class MemberService {
         const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role: MemberRole.MEMBER })
 
         return { data: createdMembers.count }
+    }
+
+    async UpdateMemberRole(dto: updateMemberRoleDto) {
+        const existingUser = await this.userRepository.findById({ userId: dto.userId })
+        if (!existingUser) throw new UnauthorizedException("User Not Registered")
+
+        const existingRoom = await this.roomRepository.findByGroupId({ groupId: dto.roomId })
+        if (!existingRoom) throw new NotFoundException("Group Not Found")
+
+        const isAdmin = await this.memberRepository.isAdminRole({ roomId: dto.roomId, userId: dto.userId })
+        if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
+
+        const findMember = await this.memberRepository.findByUnique({ roomId: dto.roomId, userId: dto.memberId })
+        if (!findMember) throw new NotFoundException("Member Not Found")
+
+        let role: MemberRole = findMember.role
+        if (dto.role === "ADMIN") {
+            role = MemberRole.ADMIN
+        } else if (dto.role === "MEMBER") {
+            role = MemberRole.MEMBER
+        }
+
+        const updatedRole = await this.memberRepository.updateRole({ userId: dto.userId, roomId: dto.roomId, role })
+        return { data: updatedRole }
     }
 }

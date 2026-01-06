@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { MemberService } from "./member.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { ResponseType } from "src/shared/types/response";
 import { Friend, Member, User } from "@prisma/client";
+import { updateMemberRoleDto } from "./member.dto";
 
 @Controller('member')
 export class MemberController {
@@ -29,5 +30,13 @@ export class MemberController {
     async addGroupMembers(@Req() req, @Param("roomId") roomId: string, @Body() dto: { userIds: string[] }): Promise<ResponseType<number>> {
         const createdMembers = await this.memberService.AddGroupMember({ userId: req.user.userId, roomId, userIds: dto.userIds })
         return { message: "Members Created Successfully", statusCode: HttpStatus.CREATED, data: createdMembers.data }
+    }
+
+    @Patch("role/patch")
+    @UseGuards(AuthGuard)
+    async updateMemberRole(@Req() req, @Body() dto: updateMemberRoleDto): Promise<ResponseType<Partial<Member>>> {
+        const updatedRole = await this.memberService.UpdateMemberRole({ userId: req.user.userId, roomId: dto.roomId, memberId: dto.memberId, role: dto.role })
+
+        return { message: "Member Role Updated Successfully", statusCode: HttpStatus.OK, data: updatedRole.data }
     }
 }

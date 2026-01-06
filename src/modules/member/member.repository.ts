@@ -6,6 +6,21 @@ import { Member, MemberRole, User } from "@prisma/client";
 export class MemberRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    async findById(data: { memberId: string }) {
+        return await this.prisma.member.findUnique({
+            where: {
+                memberId: data.memberId
+            },
+            select: {
+                memberId: true,
+                roomId: true,
+                userId: true,
+                role: true,
+                createdAt: true
+            }
+        })
+    }
+
     async findByRoomId(data: { roomId: string }): Promise<Member[]> {
         return await this.prisma.member.findMany({
             where: {
@@ -112,6 +127,25 @@ export class MemberRepository {
                 })
             }),
             skipDuplicates: true
+        })
+    }
+
+    async updateRole(data: { userId: string, roomId: string, role: MemberRole }) {
+        return await this.prisma.member.update({
+            where: {
+                userId_roomId: {
+                    roomId: data.roomId,
+                    userId: data.userId
+                }
+            },
+            data: {
+                role: data.role
+            },
+            select: {
+                memberId: true,
+                role: true,
+                updatedAt: true
+            }
         })
     }
 

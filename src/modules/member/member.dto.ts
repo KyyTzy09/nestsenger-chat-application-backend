@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class getMemberRoleDto {
     @IsString()
@@ -32,4 +32,22 @@ export class addGroupMemberDto {
     @IsArray()
     @MinLength(1)
     userIds: string[]
+}
+
+export class updateMemberRoleDto {
+    @IsString()
+    @IsNotEmpty()
+    roomId: string
+
+    @IsString()
+    @IsNotEmpty()
+    memberId: string
+
+    @IsString()
+    @IsNotEmpty()
+    role: string
+
+    @IsString()
+    @IsOptional()
+    userId: string
 }
