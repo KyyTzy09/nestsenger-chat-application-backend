@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedE
 import { MemberRepository } from "./member.repository";
 import { addGroupMemberDto, getMemberRoleDto, getRoomMemberDto } from "./member.dto";
 import { RoomRepository } from "../room/room.repository";
-import { Friend, Member, User } from "@prisma/client";
+import { Friend, Member, MemberRole, User } from "@prisma/client";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 
@@ -56,7 +56,7 @@ export class MemberService {
         const existingUsers = await this.userRepository.findManyById({ userId: dto.userIds })
         if (existingUsers.length !== dto.userIds.length) throw new NotFoundException("Users Not Found")
 
-        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId })
+        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role : MemberRole.MEMBER })
 
         return { data: createdMembers.count }
     }
