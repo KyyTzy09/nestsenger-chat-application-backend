@@ -89,7 +89,8 @@ export class ChatService {
             throw new HttpException("Room Doesn't Exist", HttpStatus.NOT_FOUND)
         }
 
-        const allChats = await this.chatRepository.findByRoomId(dto)
+        const member = existingRoom.members.find(({ userId }) => { return userId === dto.userId });
+        const allChats = await this.chatRepository.findByRoomId({ ...dto, startDate: new Date(member?.createdAt!) })
         if (allChats.length === 0) {
             throw new HttpException("Chats Don't Exist In This Room", HttpStatus.NOT_FOUND)
         }
@@ -221,7 +222,7 @@ export class ChatService {
         existingRoom.members.forEach(({ userId }) => {
             this.userGateway.emitToUserRoom(userId, "room:refresh", deletedChat)
         })
-        
+
         return { data: deletedChat }
     }
 }

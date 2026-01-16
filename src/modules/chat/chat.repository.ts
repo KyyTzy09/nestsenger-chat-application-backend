@@ -24,10 +24,13 @@ export class ChatRepository {
         })
     }
 
-    async findByRoomId(data: { userId: string, roomId: string }): Promise<Chat[]> {
+    async findByRoomId(data: { userId: string, roomId: string, startDate: Date }): Promise<Chat[]> {
         return await this.prisma.chat.findMany({
             where: {
                 roomId: data.roomId,
+                createdAt: {
+                    gt: data.startDate
+                },
                 NOT: {
                     deletedChats: {
                         some: {
