@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
@@ -33,7 +33,7 @@ export class RoomService {
                     }
                 }
                 const aliasResult: AliasType = {
-                    userId: roomAlias?.userId as string,
+                    userId: roomAlias ? (roomAlias as friendWithFriend)?.friendId || (roomAlias as User)?.userId : "",
                     alias: roomAlias ? (roomAlias as friendWithFriend)?.alias || (roomAlias as User)?.email : "",
                     avatar: roomAlias ? (roomAlias as friendWithFriend)?.friend?.avatar as string || (roomAlias as userWithProfile)?.profile?.avatar as string : "",
                 }
@@ -95,7 +95,7 @@ export class RoomService {
             }
 
             aliasResult = {
-                userId: alias?.userId as string,
+                userId: alias ? (alias as friendWithFriend)?.friendId || (alias as User)?.userId : "",
                 alias: alias ? (alias as friendWithFriend)?.alias : "",
                 avatar: alias ? (alias as friendWithFriend)?.friend?.avatar as string || (alias as userWithProfile)?.profile?.avatar as string : "",
                 email: alias ? (alias as friendWithFriend)?.friend?.user?.email as string || (alias as userWithProfile)?.email as string : "",
@@ -182,13 +182,11 @@ export class RoomService {
         if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
 
         const updatedRoomName = await this.roomRepository.updateRoomName(dto)
-
         existingRoom.members.forEach(({ userId }) => {
             this.userGateway.emitToUserRoom(userId, "room:refresh", updatedRoomName)
         })
         return { data: updatedRoomName }
     }
-
 
     async updateRoomDescription(dto: updateRoomDescriptionDto) {
         const existingUser = await this.userRepository.findById({ userId: dto.userId })
