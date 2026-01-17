@@ -1,5 +1,11 @@
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient()
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+});
 async function main() {
     const user1 = await prisma.user.create({
         data: {
@@ -15,18 +21,6 @@ async function main() {
 
     const user2 = await prisma.user.create({
         data: {
-            email: "yoruzae0404@gmail.com",
-            password: "$2b$10$ZoQ1ZiY4fTS7Pyc4J4Y0B.TpED0dlWsjMRptobcdOLAqHchR8rTBO",
-            profile: {
-                create: {
-                    userName: "yoruzae"
-                }
-            }
-        }
-    })
-
-    const user3 = await prisma.user.create({
-        data: {
             email: "kyynihboss@gmail.com",
             password: "$2b$10$ZoQ1ZiY4fTS7Pyc4J4Y0B.TpED0dlWsjMRptobcdOLAqHchR8rTBO",
             profile: {
@@ -37,7 +31,7 @@ async function main() {
         }
     })
 
-    const user4 = await prisma.user.create({
+    const user3 = await prisma.user.create({
         data: {
             email: "dedimulyadi@gmail.com",
             password: "$2b$10$ZoQ1ZiY4fTS7Pyc4J4Y0B.TpED0dlWsjMRptobcdOLAqHchR8rTBO",
@@ -48,7 +42,7 @@ async function main() {
             }
         }
     })
-    console.log(user1, user2, user3, user4)
+    console.log(user1, user2, user3)
 }
 
 main()
