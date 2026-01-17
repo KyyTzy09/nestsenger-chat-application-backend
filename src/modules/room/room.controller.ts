@@ -15,6 +15,13 @@ import { AliasType } from "src/shared/types/alias";
 export class RoomController {
     constructor(private readonly roomService: RoomService) { }
 
+    @Get(':roomId/friend-join-status/get')
+    @UseGuards(AuthGuard)
+    async getFriendsWithJoinStatus(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<{ user: Friend, isJoined: boolean }[]>> {
+        const result = await this.roomService.getFriendsWithJoinStatus({ userId: req.user.userId, roomId })
+        return { message: "Friends Data Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
+    }
+
     @Get('get-create/:userIdB/get')
     @UseGuards(AuthGuard)
     async getOrCreateRoom(@Req() req, @Param('userIdB') userIdB: string): Promise<ResponseType<{ room: Room, member: Member[] | GetBatchResult }>> {

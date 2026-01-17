@@ -1,5 +1,5 @@
 import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, getUserWithJoinStatusDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -13,6 +13,30 @@ import { UserGateWay } from "../user/user.gateway";
 @Injectable()
 export class RoomService {
     constructor(private readonly roomRepository: RoomRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly userGateway: UserGateWay) { }
+
+    async getFriendsWithJoinStatus(dto: getUserWithJoinStatusDto) {
+        const existingRoom = await this.roomRepository.findRoomIdWithMember({ roomId: dto.roomId, userId: dto.userId })
+        if (!existingRoom) throw new NotFoundException("Room Not Found")
+
+        const friends = await this.friendRepository.findByUserId({ userId: dto.userId })
+        if (friends.length === 0) throw new NotFoundException("Friends Not Found")
+
+        const result = await Promise.all(
+            friends.map(async (friend) => {
+                const member = existingRoom.members.find(({ userId }) => {
+                    return userId === friend.friendId
+                })
+
+                if (!member) {
+                    return { user: friend, isJoined: false }
+                }
+
+                return { user: friend, isJoined: true }
+            })
+        )
+
+        return { data: result }
+    }
 
     async getCurrentUserRoom(dto: getCurrentUserRoomDto) {
         const existingRooms = await this.roomRepository.findWhereLastChatExist({ userId: dto.userId })
