@@ -60,7 +60,7 @@ export class MemberService {
         const existingUsers = await this.userRepository.findManyById({ userId: dto.userIds })
         if (existingUsers.length !== dto.userIds.length) throw new NotFoundException("Users Not Found")
 
-        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId, role: MemberRole.MEMBER })
+        const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId })
 
         existingUsers.forEach(({ userId }) => {
             this.userGateWay.emitToUserRoom(userId, "room:refresh", dto.roomId)

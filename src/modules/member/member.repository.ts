@@ -117,13 +117,25 @@ export class MemberRepository {
         })
     }
 
-    async createMembers(data: { user: User[], roomId: string, role: MemberRole }) {
+    async createMembers(data: { user: User[], roomId: string }) {
         return await this.prisma.member.createMany({
             data: data.user.map(({ userId }) => {
                 return ({
-                    userId: userId,
+                    userId,
                     roomId: data.roomId,
-                    role: data.role
+                })
+            }),
+            skipDuplicates: true
+        })
+    }
+
+    async createGroupMembers(data: { user: { userId: string, role: MemberRole }[], roomId: string }) {
+        return await this.prisma.member.createMany({
+            data: data.user.map(({ userId, role }) => {
+                return ({
+                    userId,
+                    roomId: data.roomId,
+                    role
                 })
             }),
             skipDuplicates: true

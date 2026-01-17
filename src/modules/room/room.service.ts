@@ -124,7 +124,7 @@ export class RoomService {
 
         let existingMember: GetBatchResult | Member[] = await this.memberRepository.findByRoomId({ roomId: existingRoom.roomId })
         if (existingMember.length === 0) {
-            existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId, role: MemberRole.MEMBER })
+            existingMember = await this.memberRepository.createMembers({ user: existingUser, roomId: existingRoom.roomId })
         }
 
         return { data: { room: existingRoom, member: existingMember } }
@@ -145,7 +145,7 @@ export class RoomService {
         }
 
         const createdRoom = await this.roomRepository.createPrivateRoom({ roomId })
-        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId, role: MemberRole.MEMBER })
+        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId })
 
         return { message: "Private Room created successfull", statusCode: HttpStatus.CREATED, data: { room: createdRoom, member: createdMember } }
     }
@@ -158,9 +158,12 @@ export class RoomService {
             throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
         }
 
+        const userWithRole = existingUser.map(({ userId }) => {
+            return { userId, role: userId === dto.userId ? MemberRole.ADMIN : MemberRole.MEMBER }
+        })
+
         const createdRoom = await this.roomRepository.createGroupRoom({ userId: dto.userId, avatar: dto.avatarUrl, roomId, roomName: dto.roomName })
-        const isCreator = existingUser.some(({ userId }) => { return userId === dto.userId })
-        const createdMember = await this.memberRepository.createMembers({ user: existingUser, roomId: createdRoom.roomId, role: isCreator ? MemberRole.ADMIN : MemberRole.MEMBER })
+        const createdMember = await this.memberRepository.createGroupMembers({ user: userWithRole, roomId: createdRoom.roomId })
 
         existingUser.forEach(({ userId }) => {
             this.userGateway.emitToUserRoom(userId, "room:refresh", createdRoom)
