@@ -133,10 +133,10 @@ export class RoomService {
     }
 
     async getOrCreatePrivateRoom(dto: getOrCreatePrivateRoom) {
-        const userId = [dto.userIdA, dto.userIdB]
+        const userIds = [dto.userIdA, dto.userIdB]
         const roomId = generatePrivateRoomId(dto)
 
-        const existingUser = await this.userRepository.findManyById({ userId })
+        const existingUser = await this.userRepository.findManyById({ userIds: userIds })
         if (existingUser.length < 2) {
             throw new HttpException("User not found", HttpStatus.NOT_FOUND)
         }
@@ -155,10 +155,10 @@ export class RoomService {
     }
 
     async createPrivateRoom(dto: createPrivateRoomDto) {
-        const userId = [dto.userIdA, dto.userIdB]
+        const userIds = [dto.userIdA, dto.userIdB]
         const roomId = generatePrivateRoomId(dto)
 
-        const existingUser = await this.userRepository.findManyById({ userId })
+        const existingUser = await this.userRepository.findManyById({ userIds })
         if (existingUser.length < 2) {
             throw new HttpException("User not found", HttpStatus.NOT_FOUND)
         }
@@ -177,7 +177,7 @@ export class RoomService {
     async createGroupRoom(dto: createGroupRoomDto) {
         const roomId = generateGroupRoomId()
         dto.userIds.push(dto.userId)
-        const existingUser = await this.userRepository.findManyById({ userId: dto.userIds })
+        const existingUser = await this.userRepository.findManyById({ userIds: dto.userIds })
         if (existingUser.length !== dto.userIds.length) {
             throw new HttpException("User Not Registered", HttpStatus.NOT_FOUND)
         }

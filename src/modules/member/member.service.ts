@@ -57,7 +57,7 @@ export class MemberService {
         const isAdmin = await this.memberRepository.isAdminRole({ roomId: dto.roomId, userId: dto.userId })
         if (!isAdmin) throw new ForbiddenException("Access Denied, You don't have access to this feature")
 
-        const existingUsers = await this.userRepository.findManyById({ userId: dto.userIds })
+        const existingUsers = await this.userRepository.findManyById({ userIds: dto.userIds })
         if (existingUsers.length !== dto.userIds.length) throw new NotFoundException("Users Not Found")
 
         const createdMembers = await this.memberRepository.createMembers({ user: existingUsers, roomId: dto.roomId })
