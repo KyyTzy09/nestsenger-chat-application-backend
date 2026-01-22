@@ -1,14 +1,12 @@
 import { ForbiddenException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { ReadChatRepository } from "./readchat.repository";
 import { ChatRepository } from "../chat/chat.repository";
-import { CountRoomUnreadChatsDto, CreateReadChatsDto, GetReadChatsByRoomIdDto, GetReadChatsDto, IsChatReadDto, UpdateReadChatDto } from "./readchat.dto";
+import { CountAllRoomUnreadChatsDto, CountRoomUnreadChatsDto, CreateReadChatsDto, GetReadChatsByRoomIdDto, GetReadChatsDto, IsChatReadDto, UpdateReadChatDto } from "./readchat.dto";
 import { UserRepository } from "../user/user.repository";
 import { FriendRepository } from "../friend/friend.repository";
 import { Friend, Prisma, User } from "@prisma/client";
 import { AliasType } from "src/shared/types/alias";
 import { MemberRepository } from "../member/member.repository";
-import { ChatGateWay } from "../chat/chat.gateway";
-import { ResponseType } from "src/shared/types/response";
 import { RoomRepository } from "../room/room.repository";
 import { ReadChatGateway } from "./readChat.gateway";
 import { UserGateWay } from "../user/user.gateway";
@@ -16,6 +14,14 @@ import { UserGateWay } from "../user/user.gateway";
 @Injectable()
 export class ReadChatService {
     constructor(private readonly readChatRepository: ReadChatRepository, private readonly chatRepository: ChatRepository, private readonly memberRepository: MemberRepository, private readonly userRepository: UserRepository, private readonly friendRepository: FriendRepository, private readonly roomRepository: RoomRepository, private readonly readChatGateway: ReadChatGateway, private readonly userGateway: UserGateWay) { }
+
+    async countAllRoomUnreadChats(dto: CountAllRoomUnreadChatsDto) {
+        const countUnreadChats = await this.readChatRepository.countAllRoomUnreadChats(dto);
+
+        if (countUnreadChats === 0) throw new NotFoundException("Unread Chat Not Founds");
+
+        return { count: countUnreadChats }
+    }
 
     async countRoomUnreadChats(dto: CountRoomUnreadChatsDto) {
         const countUnreadChats = await this.readChatRepository.countRoomUnreadChats(dto)

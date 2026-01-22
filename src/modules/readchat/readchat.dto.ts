@@ -33,6 +33,12 @@ export class IsChatReadDto {
     userId: string
 }
 
+export class CountAllRoomUnreadChatsDto {
+    @IsNotEmpty()
+    @IsString()
+    userId: string
+}
+
 export class CountRoomUnreadChatsDto {
     @IsNotEmpty()
     @IsString()

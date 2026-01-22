@@ -130,6 +130,26 @@ export class ReadChatRepository {
         })
     }
 
+    async countAllRoomUnreadChats(data: { userId: string }) {
+        return await this.prisma.chatRead.count({
+            where: {
+                chat: {
+                    room: {
+                        members: {
+                            some: {
+                                userId: data.userId
+                            }
+                        }
+                    },
+                },
+                reader: {
+                    userId: data.userId,
+                },
+                isRead: false
+            }
+        })
+    }
+
     async countRoomUnreadChats(data: { roomId: string, userId: string }): Promise<number> {
         return await this.prisma.chatRead.count({
             where: {
