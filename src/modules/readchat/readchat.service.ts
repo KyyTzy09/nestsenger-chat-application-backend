@@ -34,7 +34,7 @@ export class ReadChatService {
         const updatedReadChats = await this.readChatRepository.updateMany({ readChatIds: readChatIds })
 
         this.readChatGateway.handleUpdateReadChat(dto.roomId)
-        this.userGateway.emitToUserRoom(dto.userId, "refresh:room", dto.roomId)
+        this.userGateway.emitToUserRoom(dto.userId, "room:refresh", dto.roomId)
         return { count: updatedReadChats.count }
     }
 

@@ -12,6 +12,6 @@ export class ReadChatGateway {
     private server: Server
 
     handleUpdateReadChat(roomId: string) {
-        this.server.to(roomId).emit("readchat:update")
+        this.server.to(roomId).emit("readchat:update", roomId)
     }
 }
