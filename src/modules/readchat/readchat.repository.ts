@@ -146,6 +146,13 @@ export class ReadChatRepository {
                     userId: data.userId,
                 },
                 isRead: false
+            },
+            orderBy: {
+                chat: {
+                    room: {
+                        updatedAt: "desc"
+                    }
+                }
             }
         })
     }
