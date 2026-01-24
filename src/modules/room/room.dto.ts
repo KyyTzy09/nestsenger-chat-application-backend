@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class getUserWithJoinStatusDto {
     @IsString()
@@ -40,6 +40,16 @@ export class getOrCreatePrivateRoom {
     @IsString()
     @IsNotEmpty()
     userIdB: string
+}
+
+export class getuserRelationGroupsDto {
+    @IsString()
+    @IsOptional()
+    userId: string
+
+    @IsString()
+    @IsNotEmpty()
+    friendId: string
 }
 
 export class createPrivateRoomDto {

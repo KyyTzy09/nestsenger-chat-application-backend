@@ -30,6 +30,30 @@ export class RoomRepository {
         })
     }
 
+    async findRelationGroup(data: { currentUserId: string, userId: string }) {
+        return await this.prisma.room.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: {
+                            in: [data.currentUserId, data.userId]
+                        }
+                    }
+                },
+                type: "GROUP",
+            },
+            select: {
+                roomId: true,
+                roomName: true,
+                description: true,
+                avatar: true
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+    }
+
     async findByGroupId(data: { groupId: string }) {
         return await this.prisma.room.findUnique({
             where: {

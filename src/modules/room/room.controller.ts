@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { AuthGuard } from "src/shared/guards/auth.guard";
 import { createGroupRoomDto, createPrivateRoomDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
@@ -48,6 +48,13 @@ export class RoomController {
     async getChatRoom(@Req() req, @Param('roomId') roomId: string): Promise<ResponseType<{ room: Room, user?: AliasType | null }>> {
         const result = await this.roomService.getRoomById({ roomId, userId: req.user.userId })
         return { message: "Room Retrieved Successfully", statusCode: HttpStatus.OK, data: { room: result.data.room, user: result.data.user } }
+    }
+
+    @Get("user/relation/get")
+    @UseGuards(AuthGuard)
+    async getUserRelationRoom(@Req() req, @Query("friendId") friendId: string): Promise<ResponseType<Partial<Room>[]>> {
+        const result = await this.roomService.getUserRelationGroups({ userId: req.user.userId, friendId })
+        return { message: "Relation Room Retrieved Successfully", statusCode: HttpStatus.OK, data: result.data }
     }
 
     @Post("private-room/post")

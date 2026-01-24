@@ -1,5 +1,5 @@
 import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getUserRoomDto, getUserWithJoinStatusDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
+import { createGroupRoomDto, createPrivateRoomDto, getChatRoomDto, getCurrentUserRoomDto, getOrCreatePrivateRoom, getuserRelationGroupsDto, getUserRoomDto, getUserWithJoinStatusDto, OutFromGroupDto, updateRoomDescriptionDto, updateRoomNameDto } from "./room.dto";
 import { RoomRepository } from "./room.repository";
 import { MemberRepository } from "../member/member.repository";
 import { UserRepository } from "../user/user.repository";
@@ -152,6 +152,16 @@ export class RoomService {
         }
 
         return { data: { room: existingRoom, member: existingMember } }
+    }
+
+    async getUserRelationGroups(dto: getuserRelationGroupsDto) {
+        const existingFriend = await this.friendRepository.findByUnique({ userId: dto.userId, friendId: dto.friendId });
+        if (!existingFriend) throw new NotFoundException("You're Not This User Friend");
+
+        const existingGroupRooms = await this.roomRepository.findRelationGroup({ currentUserId: dto.userId, userId: dto.friendId });
+        if (existingGroupRooms.length === 0) throw new NotFoundException("Rooms Not Found");
+
+        return { data: existingGroupRooms }
     }
 
     async createPrivateRoom(dto: createPrivateRoomDto) {
