@@ -9,18 +9,18 @@ import { AliasType } from "src/shared/types/alias";
 export class ReadChatController {
     constructor(private readonly readChatService: ReadChatService) { }
 
-    @Get(":chatId/get")
-    @UseGuards(AuthGuard)
-    async getReadChat(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<{ readChat: ChatRead, user: AliasType }[]>> {
-        const results = await this.readChatService.getReadChats({ userId: req.user.userId, chatId })
-        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
-    }
-
     @Get("unread/get")
     @UseGuards(AuthGuard)
     async getAllUnreadChats(@Req() req) {
         const result = await this.readChatService.countAllRoomUnreadChats({ userId: req.user.userId });
         return { message: "Count Unread Chats Successfully", statusCode: HttpStatus.OK, data: result.count }
+    }
+
+    @Get(":chatId/get")
+    @UseGuards(AuthGuard)
+    async getReadChat(@Req() req, @Param('chatId') chatId: string): Promise<ResponseType<{ readChat: ChatRead, user: AliasType }[]>> {
+        const results = await this.readChatService.getReadChats({ userId: req.user.userId, chatId })
+        return { message: "Read Chat Data Retrieved Successfull", statusCode: HttpStatus.OK, data: results.data }
     }
 
     @Get(":roomId/room/get")
